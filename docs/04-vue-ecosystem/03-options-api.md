@@ -1055,7 +1055,7 @@ Function bo'lganda, har safar komponent yaratilganda yangi object return qilinad
 |-------|----------|--------|
 | Caching | HA - dependency o'zgarmasa cache | YO'Q - har chaqiruvda hisoblash |
 | Arguments | OLMAIYDI (getter pattern) | OLADI |
-| Template da | `{{ computed }}` | `{{ method() }}` |
+| Template da | &#123;&#123; computed &#125;&#125; | &#123;&#123; method() &#125;&#125; |
 | Performance | Yaxshi (caching) | Yomon (har render da) |
 | Side effects | Bo'LMASLIGI kerak | Bo'lishi MUMKIN |
 

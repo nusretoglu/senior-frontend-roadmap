@@ -982,4 +982,4 @@ MINDSET:
 
 ---
 
-**Orqaga:** [README](./README.md)
+**Orqaga:** [Soft Skills](./)
