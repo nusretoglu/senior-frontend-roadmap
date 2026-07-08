@@ -1,0 +1,26 @@
+{
+  "name": "senior-frontend-roadmap",
+  "version": "1.0.0",
+  "description": "JavaScript va Vue.js ekosistemasi bo'yicha chuqurlashtirilgan qo'llanma",
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev docs",
+    "build": "vitepress build docs",
+    "preview": "vitepress preview docs"
+  },
+  "keywords": [
+    "javascript",
+    "vue",
+    "frontend",
+    "roadmap",
+    "documentation"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "vitepress": "^1.6.4"
+  },
+  "dependencies": {
+    "lucide-vue-next": "^1.0.0"
+  }
+}

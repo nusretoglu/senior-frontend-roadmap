@@ -1,0 +1,221 @@
+1. Core JavaScript (must have)
+Bu eng asosiy qism. Vue bilishdan oldin JS chuqur bo‘lishi kerak.
+Senior JS developer quyilarni yaxshi biladi:
+ • Closures
+ • Event Loop
+ • Call stack / Web APIs
+ • Promise / Async Await
+ • Prototype
+ • this binding
+ • debounce / throttle
+ • memory leak
+ • garbage collection
+ • deep clone vs shallow clone
+Masalan:
+ • nega UI freeze bo‘lyapti?
+ • nega memory oshib ketdi?
+ • nega websocket reconnect bug berdi?
+Bularni JS fundamental bilan hal qiladi.
+
+2. Browser internals
+Senior frontendchi browser qanday ishlashini ham biladi.
+ • Rendering pipeline
+ • Reflow / Repaint
+ • DOM lifecycle
+ • Critical rendering path
+ • GPU acceleration
+Misol:
+CSS animation lag qilyaptimi?
+Senior biladi:
+ • transform ishlatish kerak
+ • top/left expensive
+
+3. Advanced HTML + CSS
+Bu ko‘p odam e’tibor bermaydigan qism.
+Senior bilishi kerak:
+ • Flexbox
+ • Grid
+ • Responsive layouts
+ • SCSS
+ • CSS architecture
+ • Animations
+ • Accessibility (a11y)
+Masalan:
+ • mobile adaptive
+ • retina screens
+ • dark mode
+ • smooth animation
+
+4. Vue ecosystem (deep knowledge)
+Vue’da senior bo‘lish uchun:
+ • Vue 2
+ • Vue 3
+ • Composition API
+ • Options API
+ • lifecycle hooks
+ • watchers
+ • computed
+ • refs/reactive
+Advanced:
+ • dynamic components
+ • render functions
+ • custom directives
+ • composables
+ • provide/inject
+
+5. State Management
+Small projectda kerakmas bo‘lishi mumkin.
+Large projectda mandatory.
+Vue ecosystem:
+ • Vuex
+ • Pinia
+Senior biladi:
+ • global state
+ • local state
+ • caching
+ • reactive state patterns
+
+6. Nuxt (very important)
+Nuxt’da senior:
+ • SSR
+ • SSG
+ • CSR
+ • hydration
+ • middleware
+ • routing
+ • plugins
+ • modules
+Bilishi kerak:
+ • qachon SSR ishlatish
+ • qachon static generate
+Nuxt (https://nuxt.com/?utm_source=chatgpt.com)
+
+7. API integration
+Frontend faqat UI emas.
+Senior API bilan professional ishlaydi:
+ • REST API
+ • GraphQL
+ • pagination
+ • caching
+ • retries
+ • interceptors
+ • token refresh
+Libraries:
+ • Axios (https://axios-http.com/?utm_source=chatgpt.com)
+ • native fetch
+
+8. Authentication / Security
+Kuchli frontendchi security basics biladi.
+ • JWT
+ • Cookies
+ • localStorage risks
+ • XSS
+ • CSRF
+ • CORS
+Masalan sen oldin localStorage xavfsizligi haqida so‘raganding — bu aynan senior-level topic.
+
+9. Real-time systems
+Bu sen aytgan WebSocket qismi.
+ • WebSocket
+ • SSE
+ • polling
+ • reconnect strategies
+ • presence systems
+Examples:
+ • chat
+ • live notifications
+ • trading dashboard
+
+10. Data Visualization
+Sen aytgan chart qismi.
+Libraries:
+ • Highcharts (https://www.highcharts.com/?utm_source=chatgpt.com)
+ • Apache ECharts (https://echarts.apache.org/?utm_source=chatgpt.com)
+ • Chart.js (https://www.chartjs.org/?utm_source=chatgpt.com)
+ • D3.js (https://d3js.org/?utm_source=chatgpt.com)
+Senior biladi:
+ • qaysi chart library qaysi use-case uchun
+Misol:
+ • simple chart → Chart.js
+ • complex dashboards → ECharts
+ • custom infographics → D3
+
+11. Maps / Geospatial
+Bu ham kuchli niche skill.
+Libraries:
+ • Leaflet (https://leafletjs.com/?utm_source=chatgpt.com)
+ • Mapbox (https://www.mapbox.com/?utm_source=chatgpt.com)
+ • OpenLayers (https://openlayers.org/?utm_source=chatgpt.com)
+Bilishi kerak:
+ • markers
+ • clustering
+ • polygons
+ • routing
+ • geojson
+
+12. Performance Optimization
+Senior frontendchi slow appni tezlashtira oladi.
+ • lazy loading
+ • code splitting
+ • image optimization
+ • virtual scrolling
+ • bundle optimization
+Tools:
+ • Vite (https://vite.dev/?utm_source=chatgpt.com)
+ • webpack analyzer
+
+13. Testing
+Juniorlar ko‘p skip qiladi.
+Senior:
+ • unit test
+ • integration test
+ • e2e test
+Tools:
+ • Vitest (https://vitest.dev/?utm_source=chatgpt.com)
+ • Cypress (https://www.cypress.io/?utm_source=chatgpt.com)
+ • Playwright (https://playwright.dev/?utm_source=chatgpt.com)
+
+14. TypeScript
+2026 da senior frontend uchun deyarli mandatory.
+ • interfaces
+ • generics
+ • utility types
+ • strict typing
+TypeScript (https://www.typescriptlang.org/?utm_source=chatgpt.com)
+
+15. Architecture Thinking
+Bu senior bilan middle orasidagi katta farq.
+Senior savol beradi:
+ • project scalablemi?
+ • reusablemi?
+ • maintainablemi?
+Masalan:
+component structure qanday?
+folder structure qanday?
+
+16. Dev Tools / Workflow
+ • Git
+ • CI/CD
+ • Docker basics
+ • npm/yarn/pnpm
+Platforms:
+ • GitHub (https://github.com/?utm_source=chatgpt.com)
+ • GitLab (https://gitlab.com/?utm_source=chatgpt.com)
+
+17. Backend understanding
+Senior frontend backendni ham tushunadi.
+To‘liq backendchi bo‘lish shart emas.
+Lekin bilishi kerak:
+ • databases
+ • SQL basics
+ • caching
+ • queues
+Bu API integrationni ancha kuchaytiradi.
+
+18. Soft skills (juda muhim)
+Ko‘p joyda aynan shu seni senior qiladi.
+ • code review
+ • mentoring
+ • task breakdown
+ • communication
+ • architecture discussion

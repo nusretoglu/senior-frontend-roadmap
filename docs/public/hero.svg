@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <!-- Main Gradient -->
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4f46e5"/>
+      <stop offset="100%" style="stop-color:#6366f1"/>
+    </linearGradient>
+
+    <!-- Light Background Gradient -->
+    <linearGradient id="gradLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4f46e5;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:#6366f1;stop-opacity:0.08"/>
+    </linearGradient>
+
+    <!-- Glow Filter -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Pulse Glow Filter -->
+    <filter id="pulseGlow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Animated Background Glow -->
+  <circle cx="200" cy="200" r="150" fill="url(#gradLight)">
+    <animate attributeName="r" values="145;155;145" dur="4s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.6;0.9;0.6" dur="4s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Outer Orbital Ring 1 -->
+  <g>
+    <animateTransform attributeName="transform" type="rotate" from="0 200 200" to="360 200 200" dur="20s" repeatCount="indefinite"/>
+    <circle cx="200" cy="200" r="130" fill="none" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="4 8"/>
+    <!-- Orbiting Dot 1 -->
+    <circle cx="330" cy="200" r="4" fill="#4f46e5" opacity="0.7">
+      <animate attributeName="opacity" values="0.4;1;0.4" dur="3s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- Outer Orbital Ring 2 -->
+  <g>
+    <animateTransform attributeName="transform" type="rotate" from="360 200 200" to="0 200 200" dur="15s" repeatCount="indefinite"/>
+    <circle cx="200" cy="200" r="110" fill="none" stroke="#cbd5e1" stroke-width="0.5" stroke-dasharray="2 6"/>
+    <!-- Orbiting Dot 2 -->
+    <circle cx="310" cy="200" r="3" fill="#6366f1" opacity="0.6">
+      <animate attributeName="opacity" values="0.3;0.9;0.3" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- Inner Static Ring -->
+  <circle cx="200" cy="200" r="90" fill="none" stroke="#e2e8f0" stroke-width="1">
+    <animate attributeName="stroke-opacity" values="0.5;1;0.5" dur="3s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Main Code Container -->
+  <g filter="url(#glow)">
+    <rect x="150" y="150" width="100" height="100" rx="16" fill="none" stroke="url(#grad)" stroke-width="2.5">
+      <animate attributeName="stroke-width" values="2;3;2" dur="2s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+
+  <!-- Code Symbol with Glow -->
+  <g fill="none" stroke="url(#grad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)">
+    <!-- Left Bracket -->
+    <polyline points="165,185 145,200 165,215">
+      <animate attributeName="stroke-opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite"/>
+    </polyline>
+    <!-- Right Bracket -->
+    <polyline points="235,185 255,200 235,215">
+      <animate attributeName="stroke-opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+    </polyline>
+    <!-- Slash -->
+    <line x1="210" y1="175" x2="190" y2="225">
+      <animate attributeName="stroke-opacity" values="0.7;1;0.7" dur="1.5s" repeatCount="indefinite"/>
+    </line>
+  </g>
+
+  <!-- Floating Particles -->
+  <g fill="#4f46e5">
+    <circle cx="120" cy="120" r="2">
+      <animate attributeName="cy" values="120;100;120" dur="4s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.3;0.8;0.3" dur="4s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="280" cy="130" r="1.5">
+      <animate attributeName="cy" values="130;115;130" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.4;0.9;0.4" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="100" cy="250" r="2">
+      <animate attributeName="cy" values="250;235;250" dur="3.5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.3;0.7;0.3" dur="3.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="300" cy="270" r="1.5">
+      <animate attributeName="cy" values="270;255;270" dur="4.5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.4;0.8;0.4" dur="4.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- Decorative Bottom Dots -->
+  <circle cx="200" cy="320" r="5" fill="#4f46e5" opacity="0.6">
+    <animate attributeName="r" values="4;6;4" dur="2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.4;0.8;0.4" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="175" cy="332" r="2.5" fill="#94a3b8">
+    <animate attributeName="opacity" values="0.5;1;0.5" dur="2.5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="225" cy="332" r="2.5" fill="#94a3b8">
+    <animate attributeName="opacity" values="0.5;1;0.5" dur="2.5s" repeatCount="indefinite" begin="0.5s"/>
+  </circle>
+
+  <!-- Corner Marks with Animation -->
+  <g stroke="#e2e8f0" stroke-width="2" fill="none">
+    <path d="M95 95 L115 95 M95 95 L95 115">
+      <animate attributeName="stroke-opacity" values="0.5;1;0.5" dur="3s" repeatCount="indefinite"/>
+    </path>
+    <path d="M305 95 L285 95 M305 95 L305 115">
+      <animate attributeName="stroke-opacity" values="0.5;1;0.5" dur="3s" repeatCount="indefinite" begin="0.75s"/>
+    </path>
+    <path d="M95 305 L115 305 M95 305 L95 285">
+      <animate attributeName="stroke-opacity" values="0.5;1;0.5" dur="3s" repeatCount="indefinite" begin="1.5s"/>
+    </path>
+    <path d="M305 305 L285 305 M305 305 L305 285">
+      <animate attributeName="stroke-opacity" values="0.5;1;0.5" dur="3s" repeatCount="indefinite" begin="2.25s"/>
+    </path>
+  </g>
+</svg>
