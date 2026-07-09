@@ -2,8 +2,17 @@
 
 ## Kirish
 
-JavaScript ekosistemasi dunyodagi eng katta package registry'ga ega - npmjs.com'da 2+ million paket mavjud. Package manager'lar bu paketlarni install, update, va manage qilishda yordam beradi. Bu bo'limda npm, Yarn, va pnpm'ning ichki ishlash mexanizmlarini, farqlarini va professional ishlatishni o'rganamiz.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Agar Node.js olami davlat bo'lsa, Package Manager'lar (NPM, Yarn, PNPM) uning bojxona va moliya vazirligi hisoblanadi. Siz o'zingiz yozgan koddan ko'ra, chetdan yuklab olingan kutubxonalarga (Dependencies) ko'proq bog'liqsiz. Lock fayllar qanday ishlashini bilmasangiz "Menda ishlayapti, serverda ishlamayapti" degan eng mashhur xatoga uchraysiz. PNPM va Monorepo qanday ishlashini bilish esa katta (Enterprise) loyihalar arxitekturasini qurish uchun eng asosiy talabdir.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Omborxona menejeri"**  
+> Dasturingiz — bu bir bino. Undagi deraza, eshik va g'ishtlarni o'zingiz yasamaysiz (Kutubxonalar).  
+> **NPM** — oddiy menejer, deraza buyurtsangiz har bir xonaga bittadan deraza olib kelib taxlab chiqadi (node_modules ni judayam kattalashtiradi).  
+> **PNPM** — aqlli menejer, u derazani faqat markaziy bitta omborga (Global Store) olib keladi va hamma xonalarga shunchaki oynaning manzilini ko'rsatuvchi "Sim" (Symlink) tortib qo'yadi. Natijada sizning qattiq diskingizda GB lab joy tejaladi!
+
+JavaScript ekosistemasi dunyodagi eng katta package registry'ga ega - npmjs.com'da 2+ million paket mavjud. Package manager'lar bu paketlarni install, update, va manage qilishda yordam beradi. Bu bo'limda npm, Yarn, va pnpm'ning ichki ishlash mexanizmlarini, farqlarini va professional ishlatishni o'rganamiz.
 ## Package Manager'lar Taqqoslash
 
 ```
@@ -1079,16 +1088,21 @@ pnpm outdated
 yarn upgrade-interactive
 ```
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Lock fayllarni albatta commit qiling:** `package-lock.json` yoki `pnpm-lock.yaml` fayllari `.gitignore` ga qo'shilMASLIGI shart. Ular sizda qaysi kutubxonaning AYNAN qaysi versiyasi o'rnatilganini (masalan: `1.2.3`, `1.2.5` emas) yozib qo'yadigan "Pasport"lardir. Ular bo'lmasa Serverda CI/CD har doim eng yangi versiyalarni tortadi va bu dasturni sindiradi.
+2. **`npm install` emas, `npm ci` ishlating:** CI/CD pipeline larda yoki birovning kodini birinchi marta ishga tushirayotganda Haaar doim `npm ci` (Clean Install) ishlating. U lock faylga 100% bo'ysunadi va hech qachon versiyalarni o'zgartirmaydi.
+3. **Pnpm ishlating:** Yangi loyiha boshlayapsizmi? O'ylanmasdan `pnpm` ni tanlang. U NPM va Yarn dan ko'ra ancha tez ishlaydi, Node_modules xaosini (Phantom dependencies) tartibga soladi va eng asosiysi kompyuteringiz xotirasini (Hard disk) asraydi.
+
+---
+
 ## Xulosa
 
-Package manager tanlash loyiha talablariga bog'liq:
+| Package Manager | O'ziga xos xususiyati (Super kuchi) | Kamchiligi |
+|-----------------|-------------------------------------|------------|
+| **NPM** | Node.js bilan birga keladi. Eng standart usul. Hamma joyda ishlaydi. | Juda sekin, qattiq diskda ko'p joy yeydi (node_modules), Phantom dependency muammosi bor. |
+| **Yarn (Classic)** | Facebook yasagan, birinchi bo'lib Lock fayl tushunchasini va Tezlikni olib kirgan. | Hozirda eskirgan, rivojlanishi to'xtatilgan (Yarn v1). |
+| **Yarn Berry** | PnP (Plug'n'Play) moduli bor, ya'ni `node_modules` degan papkaning o'zi umuman yo'q. | Frameworklar bilan moslashuvchanlikda muammolar chiqaradi. |
+| **PNPM** | Hard links va Symlinks orqali bitta kutubxonani kompyuterda faqat 1 marta saqlaydi. | Eski hostinglarda ba'zan symlinklarni tushunmaslik kuzatiladi (kamdan kam). |
 
-1. **npm** - default, ecosystem bilan eng yaxshi compatible
-2. **Yarn** - tez, PnP bilan modern approach
-3. **pnpm** - disk-efficient, strict, monorepo uchun eng yaxshi
-
-Asosiy tushunchalar:
-- Semver va lockfile muhim
-- Security audit muntazam o'tkazing
-- Monorepo uchun pnpm + Turborepo tavsiya
-- Phantom dependencies'dan ehtiyot bo'ling
+Package manager tanlash loyiha talablariga bog'liq. Hozirgi kunda zamonaviy Frontend olamida **PNPM** mutlaq g'olib. Asosiy e'tibor qaratilishi kerak bo'lgan narsalar: Semantic Versioning (Semver) da xato qilmaslik, Lock fayllarni to'g'ri boshqarish va xavfsizlik uchun muntazam `npm audit` qilib turishdir.

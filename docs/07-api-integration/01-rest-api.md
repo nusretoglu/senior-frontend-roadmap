@@ -877,6 +877,14 @@ Accept: application/vnd.myapi.v2+json
 
 ## Xulosa
 
+| HTTP Metod | Asosiy Vazifasi | Idempotent (Xavfsizmi?) | URL namunasi |
+|------------|-----------------|-------------------------|--------------|
+| **GET** | Ma'lumotni o'qib olish | Ha (Cheksiz marta qaytarish mumkin) | `/users` yoki `/users/1` |
+| **POST** | Yangi ma'lumot yaratish | Yo'q (Har safar yangi yozuv yaratadi) | `/users` |
+| **PUT** | Ma'lumotni to'liq almashtirish | Ha | `/users/1` |
+| **PATCH** | Ma'lumotni qisman o'zgartirish | Ha/Yo'q (Vaziyatga qarab) | `/users/1` |
+| **DELETE** | Ma'lumotni o'chirish | Ha | `/users/1` |
+
 REST API - zamonaviy web development'ning fundamental qismi. To'g'ri status code'lar, error handling, va HTTP method'larni bilish senior frontend developer uchun majburiy. HATEOAS kabi advanced tushunchalar API design'ni yanada yaxshilaydi.
 
 **Keyingi qadam:** [02-graphql.md](./02-graphql.md) - REST'ning alternativasi va qachon GraphQL tanlash kerakligini o'rganamiz.

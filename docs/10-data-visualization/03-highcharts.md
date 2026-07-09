@@ -2,8 +2,15 @@
 
 ## Kirish
 
-Highcharts — 2009-yildan beri bozorda bo'lgan, eng ishonchli va professional charting kutubxonalaridan biri. Fortune 500 kompaniyalarining 80%+ foizi ishlatadi. SVG-based rendering, zo'r accessibility va premium support bilan ajralib turadi.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Garchi u ochiq manbali (Open Source) va tekin bo'lmasa-da, Highcharts dunyodagi Fortune 500 kompaniyalari (gigantlar) tomonidan eng ko'p ishlatiladigan charting kutubxonasidir. Katta korporativ (Enterprise) ilovalarda muammolar chiqqanda ularni zudlik bilan hal qilib beradigan **Kafolatlangan Pullik Support** va barcha davlat standartlariga (A11y - Nogironlar uchun qulaylik) mos kelishi orqali u qadrlanadi.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Besh yulduzli Mehmonxona vs Kvartira ijarasi"**  
+> Chart.js (tekin) xuddi ijaraga olingan kvartiradek – arzon, ishni bitiradi, lekin hammasini o'zingiz tozalab, idishlarni yuvishingiz kerak, buzilsa o'zingiz tuzatasiz. Highcharts esa – Besh Yulduzli Mehmonxona. Siz uning litsenziyasi uchun pul to'laysiz, lekin sizga VIP xizmat, mukammal xavfsizlik va muammo tug'ilganda 24/7 yordam kafolatlanadi.
+
+Highcharts — 2009-yildan beri bozorda bo'lgan, eng ishonchli va professional charting kutubxonalaridan biri. Fortune 500 kompaniyalarining 80%+ foizi ishlatadi. SVG-based rendering, zo'r accessibility va premium support bilan ajralib turadi.
 ## Nega Highcharts?
 
 ### Afzalliklari
@@ -1934,22 +1941,24 @@ Qiyoslash:
 | Narx | $520+ | Bepul | Bepul |
 ```
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **A11y (Accessibility) ni o'chirmang:** Highcharts'ning eng kuchli tomoni — imkoniyati cheklangan foydalanuvchilar (ko'zi ojizlar) uchun ekran o'qiydigan dasturlar (Screen Readers) ga moslashganligi. Uni default holatda saqlang, zarurat bo'lmasa o'chirib qo'ymang.
+2. **Katta ma'lumotlarda Boost Modulini yoqing:** Agar siz 10,000 dan oshiq nuqtali (points) grafik chizmoqchi bo'lsangiz, SVG usulida u qotib qoladi. Buning uchun Highcharts tarkibida keluvchi **Boost Module** (WebGL ga o'tkazib beradi) ni yoqib qo'yish shart.
+3. **Eksportni sozlash:** Odatda foydalanuvchilar (asosan moliya va biznes tahlilchilar) grafikni PDF yoki PNG qilib yuklab olishni istaydilar. Highcharts Exporting modulini ishga tushirish faqat bir qator kod talab qiladi va unga maxsus server kerak emas (offline-exporting).
+
+---
+
 ## Xulosa
 
-Highcharts — enterprise-darajadagi loyihalar uchun eng ishonchli tanlov:
+| Xususiyat | Tavsif / Foydasi |
+|-----------|------------------|
+| **Asos (Texnologiya)** | `<svg>` texnologiyasiga tayanadi (Lekin kerak bo'lganda WebGL ga - Boost modul orqali o'ta oladi). |
+| **A11y (Imkoniyat)** | WCAG 2.1 AA standartini mukammal qondiradi. Hukumat va moliyaviy dasturlar uchun majburiy shartni bajaradi. |
+| **Qamrov** | Moliyaviy birjalar (Highcharts Stock), xaritalar (Highcharts Maps), Loyiha boshqaruvi (Highcharts Gantt) kabi ixtisoslashgan modullari bor. |
+| **Kamchiligi** | Tijorat loyihalari uchun pullik litsenziya talab qilinadi. SVG bo'lgani uchun o'ta yirik (millions of data) da qiynalishi mumkin. |
 
-1. **20+ yillik tajriba** — battle-tested
-2. **Premium support** — muammolar tez hal qilinadi
-3. **WCAG 2.1 AA** — eng yaxshi accessibility
-4. **Built-in export** — PDF, PNG, SVG, CSV
-5. **Keng documentation** — har savol javob topiladi
-
-Qachon ishlatish kerak:
-- Enterprise dashboards
-- Financial applications
-- Healthcare systems
-- Government projects
-- Accessibility-critical apps
+Highcharts — davlat tashkilotlari, bank tizimlari, tibbiyot (Healthcare) kabi yuqori darajadagi barqarorlik, litsenziyalangan kafolat va ko'zi ojizlar uchun o'qiluvchanlik majburiy bo'lgan Enterprise loyihalar uchun yagona ishonchli tanlovdir. Boshqa arzon yoki shaxsiy startup'larga ECharts tavsiya qilinadi.
 
 ## Keyingi Qadam
 

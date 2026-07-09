@@ -954,4 +954,11 @@ fetch('https://vulnerable-api.com/user/data', {
 
 ## Xulosa
 
+| Tushuncha | Ta'rifi | Asosiy maqsadi |
+|-----------|---------|----------------|
+| **SOP (Same-Origin Policy)** | Brauzerning himoya devori | Boshqa saytlarning (Domenlar) ma'lumotlarini o'qishini bloklash |
+| **CORS (Cross-Origin Resource Sharing)** | "Viza" berish tizimi | Istisno tariqasida ba'zi saytlarga ruxsat berish |
+| **Simple Request** | Odatdagi (Oddiy) so'rovlar | `GET/POST` va faqat oddiy (safelisted) headerlar bilan |
+| **Preflight Request**| Dastlabki (Tekshiruvchi) so'rov | Murakkab so'rovlardan oldin `OPTIONS` orqali server ruxsatini bilish |
+
 CORS shunchaki ishlab chiquvchilarni qiynash uchun o'ylab topilmagan. U aslida foydalanuvchilar xavfsizligi va shaxsiy ma'lumotlar o'g'irlanmasligi uchun SOP ning qo'shimcha "viza" tizimidir. Uni to'g'ri ishlata bilish nafaqat frontend, balki backend uchun ham hayotiy ahamiyatga egadir.

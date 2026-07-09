@@ -1010,4 +1010,10 @@ import serialize from 'serialize-javascript';
 
 ## Xulosa
 
-XSS juda eski, lekin hamon xavfli bo'lgan attack turi. Zamonaviy frameworklar (Vue, React) by-default ko'p himoyalarni o'z ichiga oladi (masalan `{ { text } }` orqali matnlar escape qilinadi). Lekin v-html ishlatilganda baribir hushyor bo'lish kerak. Himoyani to'liq ta'minlash uchun Sanitization va CSP kabi qo'shimcha choralardan foydalaning.
+| XSS Turi | Qanday ishlaydi? | Himoya Usuli |
+|----------|------------------|--------------|
+| **Stored XSS** | Ma'lumot bazasida saqlanib hammaga ko'rsatiladi (Eng xavfli) | Barcha user inputlarini saqlash va ko'rsatishdan oldin tozalash (Sanitize) |
+| **Reflected XSS**| Maxsus ssilka orqali yuboriladi va server javobida aks etadi | URL parametrlarini to'g'ridan-to'g'ri HTML ga yozmaslik |
+| **DOM-based XSS**| Brauzerda JS orqali (innerHTML) DOM o'zgarganda ishlaydi | `innerHTML` o'rniga `textContent` ishlatish, DOMPurify qo'llash |
+
+XSS juda eski, lekin hamon xavfli bo'lgan hujum turi hisoblanadi. Zamonaviy frameworklar (Vue, React) by-default ko'p himoyalarni o'z ichiga oladi (masalan `{{ text }}` orqali matnlar avtomatik HTML escape qilinadi). Lekin `v-html` (Vue) yoki `dangerouslySetInnerHTML` (React) ishlatilganda baribir hushyor bo'lish kerak. Himoyani to'liq ta'minlash uchun Sanitization, HTTPOnly Cookies va CSP kabi qo'shimcha choralardan foydalaning.

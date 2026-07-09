@@ -1537,10 +1537,11 @@ const store = createStore({
 
 ## Xulosa
 
-Vuex - Vue.js uchun kuchli state management yechimi. Uning asosiy kuchi:
-1. Predictable state changes
-2. Time-travel debugging
-3. Modular architecture
-4. Plugin ecosystem
+| Tushuncha | Vazifasi | O'xshatish (Analogiya) |
+|-----------|----------|------------------------|
+| **State** | O'zgaruvchilarni saqlaydi (Data) | Markaziy Bankdagi pul ombori |
+| **Getters** | Ma'lumotlarni o'zgartirib qaytaradi (Computed) | Bankdagi hisob qoldig'ini ko'rsatuvchi ekran |
+| **Mutations** | State'ni o'zgartiradigan yagona sinxron yo'l | Kassir (faqat ular pulni hisobdan yechishi mumkin) |
+| **Actions** | Asinxron mantiq, API chaqiruvlar va mutatsiyalarni ishga tushiradi | Mijoz murojaati va navbatda turish jarayoni |
 
-Lekin Vue 3 loyihalari uchun Pinia tavsiya etiladi chunki u soddaroq, TypeScript bilan yaxshiroq integratsiya qiladi va rasmiy Vue jamoasi tomonidan qo'llab-quvvatlanadi.
+Vuex - Vue 2 loyihalari uchun kuchli state management yechimi. Uning asosiy kuchi Predictable state changes va Time-travel debugging. Lekin Vue 3 loyihalari uchun Pinia tavsiya etiladi chunki u soddaroq, TypeScript bilan yaxshiroq integratsiya qiladi va rasmiy Vue jamoasi tomonidan qo'llab-quvvatlanadi.

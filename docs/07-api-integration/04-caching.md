@@ -1102,6 +1102,13 @@ window.addEventListener('storage', (event) => {
 
 ## Xulosa
 
-Caching - performance va UX uchun critical, lekin to'g'ri invalidation strategiyasi kerak. SWR pattern eng yaxshi UX beradi, React Query/TanStack Query production-ready solution. Offline support uchun Service Worker va IndexedDB kombinatsiyasi ishlatiladi.
+| Kesh Turi | Qayerda saqlanadi? | Afzalligi |
+|-----------|--------------------|-----------|
+| **Brauzer Keshi (HTTP)** | Brauzerning Diskida | Dasturchidan qo'shimcha kod talab qilinmaydi (Server hal qiladi) |
+| **In-Memory (JS)** | RAM da (TanStack Query) | Eng tez ishlaydi, UI da Reactivity ga bog'langan |
+| **LocalStorage** | Brauzer Local xotirasi | Sahifa yangilansa ham ma'lumotlar o'chib ketmaydi |
+| **Service Worker** | Brauzer fonida | Dasturni internet tarmog'isiz (Offline) ham ishlatish mumkin |
+
+Caching - performance va UX uchun critical, lekin to'g'ri invalidation (eski keshni tozalash) strategiyasi kerak. SWR pattern eng yaxshi UX beradi, React Query/TanStack Query production-ready yechim hisoblanadi. Offline support uchun Service Worker va IndexedDB kombinatsiyasi ishlatiladi.
 
 **Keyingi qadam:** [05-retries-interceptors.md](./05-retries-interceptors.md) - network xatolarini handle qilish va request/response transformation.

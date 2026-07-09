@@ -2,8 +2,16 @@
 
 ## Kirish
 
-GitHub va GitLab - bu Git repository hosting platformalari bo'lib, jamoa bilan ishlash, code review, CI/CD, va project management uchun keng qo'llaniladi. Bu bo'limda professional darajada Pull Request, Code Review, Issue management, va platform-specific xususiyatlarni o'rganamiz.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Kod yozish — ishingizning faqat 30% ni tashkil qiladi. Qolgan 70% vaqt Jamoa bo'lib o'sha kodni boshqarish, boshqalar yozgan kodni xatosini tekshirish (Code Review), xatolarni qayd etish (Issues) va o'zgarishlarni xavfsiz birlashtirish (Pull Requests) ga ketadi. GitHub va GitLab shunchaki fayllarni onlayn saqlovchi joy emas, u butun boshli loyihaning yuragi, dasturchilarning ijtimoiy tarmog'i va CI/CD ishga tushadigan markaziy serverdir.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Google Docs vs Word"**  
+> O'zingiz kompyuterda `.docx` faylida matn yozishingiz (Bu faqat Git bilan mahalliy ishlash). Siz u matnni birovga jo'natsangiz, u ham o'zgartirsa fayllar chalkashib ketadi.  
+> **GitHub / GitLab** — bu xuddi "Google Docs" ga o'xshaydi. 10 kishi bir vaqtda bitta faylga kiradi, kim qayerini o'zgartirganini hamma ko'radi, kimnidir o'zgartirishiga izoh (Comment) yozish mumkin va agar matn yoqmasa bitta tugma bilan eski holatiga qaytarish mumkin. Bularsiz o'rtacha kattalikdagi loyihani ham boshqarib bo'lmaydi.
+
+GitHub va GitLab - bu Git repository hosting platformalari bo'lib, jamoa bilan ishlash, code review, CI/CD, va project management uchun keng qo'llaniladi. Bu bo'limda professional darajada Pull Request, Code Review, Issue management, va platform-specific xususiyatlarni o'rganamiz.
 ## GitHub vs GitLab
 
 ```
@@ -1270,14 +1278,21 @@ reviewGroups:
     - backend-dev-2
 ```
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Pull Request (PR) yozish qoidalari:** PR ochganda shunchaki "Done" yoki "Fixed bug" deb yozmang. Jamoaga tushunarli bo'lishi uchun quyidagilarni yozing: Qaysi Issue ga tegishli? Nima o'zgardi? Qanday qilib test qilish kerak? (PR Template ishlating).
+2. **Branch Protection Rules (Oltin qoida):** Main (master) branch ga aslo to'g'ridan to'g'ri kod yozishga ruxsat bermang. Sozlamalardan quyidagilarni yoqing: `Require pull request reviews before merging` (Kamida 1 kishi review qilishi shart), `Require status checks to pass` (CI/CD testlaridan o'tishi shart).
+3. **Draft PR'lardan foydalaning:** Kodingizni to'liq tugatmasdan turib ham, u ustida ishlayotganingizni jamoaga ko'rsatish va erta fikr (Feedback) olish uchun PR ni `Draft` holatida oching.
+
+---
+
 ## Xulosa
 
-GitHub va GitLab professional dasturchilar uchun asosiy toollar:
+| Xususiyat | GitHub (Microsoft) | GitLab (Mustaqil / Open Core) |
+|-----------|--------------------|-------------------------------|
+| **Asosiy Foks** | Ochiq kodli (Open Source) hamjamiyat, Social Coding. | Enterprise korxonalar, All-in-One DevOps platforma. |
+| **Kodni Birlashtirish** | Pull Request (PR) | Merge Request (MR) |
+| **Avtomatlashtirish** | GitHub Actions | GitLab CI/CD (O'zining yechimi juda kuchli) |
+| **O'z serveriga o'rnatish** | Faqat juda qimmat Enterprise versiyada (GitHub Enterprise). | O'z serveringizga bepul (Community Edition) o'rnatishingiz mumkin. Davlat sirlari/Banklar uchun ideal. |
 
-1. **PR/MR** - code review va collaboration
-2. **Branch Protection** - production safety
-3. **CI/CD Integration** - automated testing va deployment
-4. **Issue Management** - project tracking
-5. **Automation** - Dependabot, auto-merge, releases
-
-Professional workflow = Protected branches + Required reviews + CI checks + Automated releases.
+GitHub va GitLab professional dasturchilar uchun kundalik qurol. Faqat Git buyruqlarini bilish yetarli emas, PR/MR madaniyati, Branchlarni himoyalash va Code Review da konstruktiv qatnashish qobiliyatlari sizni o'rtamiyona dasturchidan haqiqiy Jamoaviy o'yinchi (Team Player) darajasiga ko'taradi. Professional workflow = Protected branches + Required reviews + CI checks + Automated releases.

@@ -2,8 +2,15 @@
 
 ## Kirish
 
-Xarita ilovalarida ko'p marker bilan ishlash eng katta performance muammolaridan biri. 1000+ marker DOM'ni sezilarli darajada sekinlashtiradi. Bu bo'limda marker optimizatsiya strategiyalarini, clustering algoritmlarini va real-world yondashuvlarni o'rganamiz.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> DOM da bitta tugmani (`<button>`) chizish qancha resurs talab qilsa, Leaflet xaritasida bitta Marker (`<img>` yoki `<div>`) qo'shish shuncha operativ xotirani yeydi. Tasavvur qiling, siz butun Toshkentdagi "Paynet" shoxobchalarini (ular 15,000+ ta) xaritaga chiqarmog'chisiz. Brauzer 15,000 ta DOM element chizishga harakat qilsa, sahifa o'sha zahoti o'ladi (Crash). Clustering va Canvas usullari aynan shu - Big Data'ni xaritada ifodalashning eng asosiy echimi sanaladi.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Kosmosdan Yerga qarash"**  
+> Kosmosdan turib Yerdagi alohida daraxtlarni (Markerlarni) ko'rib bo'lmaydi, siz faqat yashil massiv (O'rmon - Cluster) ni ko'rasiz. Samolyotdan qarasangiz, o'rmon kichikroq zonalarga bo'linadi (Kichik Clusterlar). Parashyutda yerga yaqinlashganingizdagina, alohida daraxtlarni (Individual Marker) ko'ra boshlaysiz. Clustering aynan shu qoidaga asoslanadi - balanddan faqat yig'indi son ko'rsatiladi, yaqinlashgan sari alohida detallar.
+
+Xarita ilovalarida ko'p marker bilan ishlash eng katta performance muammolaridan biri. 1000+ marker DOM'ni sezilarli darajada sekinlashtiradi. Bu bo'limda marker optimizatsiya strategiyalarini, clustering algoritmlarini va real-world yondashuvlarni o'rganamiz.
 ## Muammo Tahlili
 
 ### Nima Uchun Ko'p Marker Sekin?
@@ -1216,6 +1223,21 @@ onUnmounted(() => {
 // Detached DOM elements tekshirish
 ```
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **SVG vs Canvas qachon ishlatiladi:** Agar markerlar soni 500 tadan kam bo'lsa va ustiga bosganda CSS animatsiyalar qilinishi kerak bo'lsa SVG (DOM) ishlating. Agar markerlar soni 1,000+ bo'lsa va ularni tez chizish kerak bo'lsa, qoida bitta: Faqat Canvas rendering ishlatiladi (DOM emas).
+2. **Viewport Filter:** Foydalanuvchi hozirgina ko'rib turgan ekranga (Viewport / Bounding Box) tushmaydigan markerlarni backenddan so'ramang ham, chizmang ham. Faqat ekran koordinatalari (NorthEast, SouthWest) ni serverga jo'nating, server o'sha hududdagi datani bersin (BBox filtering).
+3. **Clustering - Faqat Visual yechim emas:** Frontendda MarkerCluster kutubxonasi 100 ming datani birlashtira oladi deb o'ylamang. Eng to'g'ri yechim (Google Maps ham shunday qiladi) - Zoom level uzoq bo'lganda (Masalan O'zbekiston darajasida) Backend'ning o'zi nuqtalarni klasterlab (guruhlab), "Toshkentda 50,000" degan bittagina obyekt jo'natishi kerak (Server-side Clustering).
+
+---
+
 ## Xulosa
 
-Ko'p marker bilan ishlash xarita ilovalarining eng muhim performance muammosi. Clustering, canvas rendering va viewport-based loading strategiyalarini to'g'ri qo'llash orqali 1M+ marker'ni samarali ko'rsatish mumkin. Har bir loyiha uchun ma'lumot hajmi va use case'ga qarab to'g'ri strategiyani tanlash muhim.
+| Yondashuv | Nima u? | Qachon ishlatiladi? |
+|-----------|---------|---------------------|
+| **Oddiy Marker** | Standart HTML (`<img>` yoki `<div>`) formatidagi nuqta. | Markerlar soni 500 tadan oshmaganda, CSS animatsiya kerak bo'lganda. |
+| **Marker Clustering** | Yaqin turgan nuqtalarni guruhlab, ustiga ularning umumiy sonini yozib qo'yadigan algoritmlar. | 1,000 - 50,000 oraliğidagi nuqtalar bilan ishlaganda eng yaxshi yechim. |
+| **Canvas / WebGL** | SVG elementlar emas, balki birgina Canvas rasmiga millionlab piksellarni "bo'yash". | 100,000+ nuqtalar uchun, yoki GPS tracking (tez harakatlanadigan transportlar) uchun. |
+| **Heatmap (Issiqlik)** | Markerlar o'rniga ranglar gradatsiyasi (Qizil - ko'p, Yashil - kam) ni ko'rsatish. | Aniq ma'lumot (ID yoki ism) kerak emas bo'lsa, faqat zichlik yoki trend (Masalan koronavirus o'choqlari) ni ko'rsatish uchun. |
+
+Ko'p marker bilan ishlash xarita ilovalarining eng muhim performance muammosi. Clustering, canvas rendering va viewport-based loading strategiyalarini to'g'ri qo'llash orqali 1M+ marker'ni samarali ko'rsatish mumkin. Eng muhimi: Brauzerni zo'riqtirmang, katta hajmdagi guruhlashlarni Backend'ga topshiring.

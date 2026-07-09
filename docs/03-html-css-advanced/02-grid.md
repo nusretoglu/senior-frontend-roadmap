@@ -1,7 +1,12 @@
 # CSS Grid - Ikki O'lchovli Layout Tizimi
 
-CSS Grid - web sahifalarni ikki o'lchamda (row va column) bir vaqtda layout qilish uchun eng kuchli vosita.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> CSS Grid hozirgi kunda web sahifalar uchun eng mukammal layout tizimidir. Agar Flexbox bir o'lchamli (faqat qator yoki ustun) joylashtirishni hal qilsa, Grid bir vaqtning o'zida ham qator, ham ustunlarni boshqarishga imkon beradi. Murakkab dashboard'lar, jurnallar va responsiv sahifalarni Grid yordamida juda kam kod yozib yaratish mumkin.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Shaxmat taxtasi"**  
+> Grid'ni xuddi shaxmat taxtasi yoki Excel jadvaliga o'xshatish mumkin. Siz oldindan ustunlar (A, B, C...) va qatorlar (1, 2, 3...) sonini belgilab olasiz. Elementlarni (shaxmat donalarini) esa aniq bir katakka yoki bir nechta kataklarni birlashtirib (masalan, 2x2 joyga) joylashtirishingiz mumkin. Flexbox kabi elementlar o'z-o'zidan surilib ketmaydi, ular siz chizgan panjaraga qat'iy rioya qiladi.
 ## Mundarija
 
 1. [Asosiy tushunchalar](#asosiy-tushunchalar)
@@ -22,26 +27,21 @@ CSS Grid - web sahifalarni ikki o'lchamda (row va column) bir vaqtda layout qili
 
 ### Grid Terminologiya
 
+```mermaid
+block-beta
+  columns 3
+  space:3
+  block:row1
+    columns 3
+    C1["Grid Cell"] C2["Grid Cell"] C3["Grid Cell"]
+  end
+  space:3
+  block:row2
+    columns 3
+    C4["Grid Cell"] C5["Grid Cell"] C6["Grid Cell"]
+  end
+  space:3
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                     Grid Container                          │
-│  ┌──────────────┬──────────────┬──────────────┐            │
-│  │              │              │              │  ← Row 1    │
-│  │   Grid Cell  │   Grid Cell  │   Grid Cell  │            │
-│  │              │              │              │            │
-│  ├──────────────┼──────────────┼──────────────┤ ← Grid Line│
-│  │              │              │              │  ← Row 2    │
-│  │   Grid Cell  │   Grid Cell  │   Grid Cell  │            │
-│  │              │              │              │            │
-│  └──────────────┴──────────────┴──────────────┘            │
-│       ↑              ↑              ↑                       │
-│    Column 1       Column 2       Column 3                   │
-│                                                             │
-│  Grid Track = Row yoki Column                               │
-│  Grid Area = Bir nechta cell'lar birlashmasi               │
-└─────────────────────────────────────────────────────────────┘
-```
-
 ### Grid Lines Numbering
 
 ```
@@ -1250,6 +1250,20 @@ Chrome/Firefox DevTools:
 
 ---
 
+## Xulosa
+
+| Xususiyat | Kimga qo'llaniladi? | Nima ish qiladi? |
+|-----------|--------------------|------------------|
+| `display: grid` | Container | Grid kontekstini yaratadi |
+| `grid-template-columns` | Container | Ustunlar soni va o'lchamlarini belgilaydi |
+| `grid-template-rows` | Container | Qatorlar soni va o'lchamlarini belgilaydi |
+| `grid-template-areas` | Container | Layout'ni nomlar yordamida vizual chizib chiqadi |
+| `gap` | Container | Kataklar (cell'lar) orasidagi bo'shliqni belgilaydi |
+| `grid-column` | Item | Element qaysi ustun chizig'idan qaysigacha cho'zilishini belgilaydi |
+| `grid-row` | Item | Element qaysi qator chizig'idan qaysigacha cho'zilishini belgilaydi |
+| `grid-area` | Item | Elementni maxsus nomlangan joyga joylashtiradi |
+
+---
 ## Qo'shimcha resurslar
 
 - [CSS Grid Garden](https://cssgridgarden.com/) - O'yin

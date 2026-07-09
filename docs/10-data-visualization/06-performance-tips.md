@@ -2,8 +2,19 @@
 
 ## Kirish
 
-Vizualizatsiya performance — foydalanuvchi tajribasi uchun kritik. 60 FPS (16ms per frame) maqsad, lekin katta ma'lumotlar bilan bu qiyin. Bu bo'limda barcha kutubxonalar uchun umumiy va maxsus optimizatsiya texnikalarini ko'rib chiqamiz.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturchilar qiladigan eng katta xatolardan biri — Backend'dan kelgan 100 ming qatorlik array'ni to'g'ridan-to'g'ri Chart.js ga berib yuborishdir. Natijada brauzer xotirasi to'ladi (Out of Memory), kompyuter qizib ketadi va tab "qotib qoladi". Vizualizatsiya kutubxonalari o'zicha sehrgar emas. Performance optimizatsiyasi (Downsampling, Canvas vs SVG, Web Worker) ni tushunmasangiz, siz yozgan dashboard'ni foydalanuvchilar ishlata olishmaydi.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Filni muzlatgichga joylash"**  
+> Agar sizga butun boshli fil (katta data - 1 million qator) berilsa, uni bitta butunligicha muzlatgichga (brauzerga) tiqa olmaysiz.  
+> Uni optimizatsiya qilishingiz kerak:
+> 1. Uni bo'laklarga bo'lish (Pagination / Chunking)
+> 2. Faqat hozir yeyiladigan qisminigina olib kelish (Lazy loading)
+> 3. Go'sht qiymalagichdan chiqarib kichraytirish (Data Aggregation / Downsampling).
+
+Vizualizatsiya performance — foydalanuvchi tajribasi uchun kritik. 60 FPS (16ms per frame) maqsad, lekin katta ma'lumotlar bilan bu qiyin. Bu bo'limda barcha kutubxonalar uchun umumiy va maxsus optimizatsiya texnikalarini ko'rib chiqamiz.
 ## Performance Metrics
 
 ### Asosiy Ko'rsatkichlar
@@ -1253,13 +1264,21 @@ async function benchmarkLibraries() {
 // 5. Bundle size
 ```
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Ma'lumotni Frontendda emas, Backendda ishlash:** "Browser is not a database" (Brauzer ma'lumotlar bazasi emas). Matematik hisob-kitoblar, guruhlashlar (GROUP BY) va saralashlarni iloji boricha Backendda yoki bazaning o'zida bajarish kerak. Frontendga faqat "tayyor pishgan" ma'lumot kelishi shart.
+2. **Kutubxonalarning ichki optimizatsiyasi:** Highcharts dagi `boost` moduli, ECharts dagi `large: true` rejimini yoqishni unutmang (ular avtomatik tarzda WebGL ga o'tkazib yuboradi).
+3. **Web Worker'larni ishga solish:** Agar frontendda baribir murakkab matematik filter qilishga (masalan qidiruv qilinganda) majbur bo'lsangiz, uni asosiy thread (Main Thread) da qilmang, aks holda UI qotib qoladi. Ularni Service Worker yoki Web Worker ichida ishlating.
+
+---
+
 ## Xulosa
 
-Performance optimization — vizualizatsiyada kritik:
+| Optimizatsiya Turi | Nima u? | Foydasi |
+|--------------------|---------|---------|
+| **Data Aggregation** | Backend dan 1 kunlik emas, Oylik o'rtacha qiymatlarni so'rash. | Ma'lumot hajmini (network traffic) va chiziladigan nuqtalar sonini million marta qisqartiradi. |
+| **Downsampling (LTTB)** | Shaklni (trend) buzmasdan, oradagi keraksiz nuqtalarni olib tashlash. | Foydalanuvchi bir xil vizual ma'lumot oladi, lekin brauzer 10 marta kam ishlaydi. |
+| **Canvas / WebGL** | SVG (har bir nuqta HTML da Node bo'lishi) o'rniga yaxlit rasm chizish. | 10,000 dan oshiq ma'lumot uchun SVG qotib qoladi, Canvas/WebGL esa qiynalmaydi. |
+| **Virtualization** | Faqat foydalanuvchi ekraniga (Viewport) tushib turgan qismini chizish. | Xotira (RAM) tejaydi, scroll muammosiz ishlaydi. |
 
-1. **Ma'lumot darajasida:** Server aggregation, LTTB downsampling
-2. **Rendering darajasida:** Canvas/WebGL, virtual scrolling
-3. **Memory darajasida:** Proper cleanup, ring buffers
-4. **Interaction darajasida:** Throttle/debounce, RAF optimization
-
-Har doim o'lchang, taxmin qilmang. DevTools Performance va Memory tab'lardan foydalaning.
+Grafiklar bilan ishlaganda har doim o'zingizning kompyuteringiz (MacBook M2) emas, balki oddiy mijozning eski noutbuki yoki byudjet telefoni kuchi haqida o'ylang. DevTools'dagi Performance tab orqali **CPU Throttling** yoqib test qilish majburiydir!

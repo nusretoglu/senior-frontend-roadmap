@@ -1201,12 +1201,13 @@ describe('API Plugin', () => {
 
 ## Xulosa
 
-Nuxt plugins app-level functionality uchun kuchli vosita:
+## Xulosa
 
-1. **defineNuxtPlugin** - plugin yaratish API
-2. **provide/inject** - global services
-3. **.client.ts / .server.ts** - environment-specific
-4. **Numbered (01, 02)** - ordering
-5. **Hooks** - lifecycle events
+| Yondashuv / Tushuncha | Ma'nosi | Asosiy Vazifasi |
+|-----------------------|---------|-----------------|
+| **`.client.ts`** | Faqat Brauzer uchun | Tahlil skriptlari, LocalStorage, Custom UI Kutubxonalarini ulash |
+| **`.server.ts`** | Faqat Server uchun | Ma'lumotlar bazasi, Auth logikalari, Maxfiy tokenlar uchun |
+| **`provide (injection)`**| O'zgaruvchini Global qilish | `$api`, `$toast` kabi global yordamchi funksiyalar yaratish |
+| **`01.plugin.ts`** | Plagin ishlash ketma-ketligi | Oldin ishlashi shart bo'lgan fayllarni tartibga solish |
 
-Plugin'larni composable'lar bilan aralashtirmang - har birining o'z vazifasi bor. Third-party integration va global services uchun plugin, component logic uchun composable ishlatng.
+Plaginlarni Vue.js da dastlabki ko'rinish beradigan "Ustalar" deb tushunish mumkin. To'g'ri ulangan plaginlar kod hajmini keskin kamaytiradi, lekin keragidan ortiq plaginlar saytning boshlang'ich yuklanish (FCP) tezligiga salbiy ta'sir ko'rsatadi.

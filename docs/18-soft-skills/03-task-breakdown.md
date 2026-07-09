@@ -2,8 +2,19 @@
 
 ## Kirish
 
-Task breakdown - bu katta, murakkab vazifalarni kichik, boshqariladigan qismlarga bo'lish san'ati. Bu ko'nikma **estimation, planning va delivery** uchun kritik muhim.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturchilar odatda kod yozishni yaxshi ko'rishadi, reja qilishni emas. Loyiha menejeri (PM) "Bu vazifaga qancha vaqt ketadi?" desa, osmonga qarab "2 hafta" deb javob berishadi. Oxiri nima bo'ladi? 2 haftadan keyin ishning 30% ham bitmagan bo'ladi. "Task Breakdown" (Katta vazifani kichik bo'laklarga bo'lish) — bu Junior ni Senior dan ajratib turuvchi eng asosiy menejment ko'nikmasidir. Katta vazifani qismlarga bo'lolmagan dasturchi har doim Dedlayn (Deadline) lardan kechikadi va stressda yashaydi.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Filni yeyish"**  
+> "Butun boshli filni qanday qilib yeyish mumkin?"  
+> Javob: Kichik bo'laklarga bo'lib, har kuni bir tishlamdan.  
+> Agar sizga "E-Commerce sayt yaratish" vazifasi tushsa, bu bitta butun Fil. Uni 3 oyda qilib beraman deyish xato. Uning o'rniga Filni bo'laklarga bo'ling:  
+> 1-kun: Login/Register UI. 2-kun: Mahsulotlar ro'yxati. 3-kun: Savatcha (Cart) mantiqi.  
+> Har kuni kichik natija ko'rsatish (Incremental Delivery) orqali siz mijozga ishonch berasiz va o'zingiz ham ish qancha qolganini aniq ko'rasiz.
+
+Task breakdown - bu katta, murakkab vazifalarni kichik, boshqariladigan qismlarga bo'lish san'ati. Bu ko'nikma **estimation, planning va delivery** uchun kritik muhim.
 ## Nega Task Breakdown Muhim?
 
 ### Muammo: "Big Bang" Approach
@@ -880,8 +891,24 @@ Total: 18 points ≈ 3 sprints
 
 ## Xulosa
 
-Task breakdown - bu:
+## Eng Yaxshi Amaliyotlar (Best Practices)
 
+1. **2 kunlik Qoida (The 2-Day Rule):** Hech qachon bitta vazifa (Ticket) uchun 2 kundan ortiq muddat olmang. Agar vazifa "3 kunlik" ko'rinayotgan bo'lsa, uni albatta ikkiga bo'ling. Sababi, 3 kun ko'rinishida bo'lgan vazifa odatda kutilmagan muammolar tufayli 5-6 kunga aylanib ketadi. Kichik vazifalarni baholash (Estimate) har doim aniqroq bo'ladi.
+2. **"Tugadi" deganda nimani tushunamiz? (Definition of Done):** Vazifa bo'laklarga bo'lingach, har bir bo'lak qachon "Tugadi" (Done) deb hisoblanishini yozib chiqing. Masalan: Kod yozildi + Testlar yozildi + Code Review dan o'tdi + QA sinadi + Staging serverga chiqdi = Done. Faqat "Mening kompyuterimda ishlayapti" degani — Done emas.
+3. **Mavhumlik (Ambiguity) bilan ishlash:** Agar PM sizga "Zo'r Dashboard qilib ber" desa, uni darhol bo'laklarga bo'lmang, chunki nima qilish kerakligi noaniq. Avval "Spike" (Tadqiqot) vazifasini oling: "2 soat vaqt sarflab talablarni o'rganib chiqaman, keyin qismlarga bo'laman". Bu eng to'g'ri yondashuvdir.
+
+---
+
+## Xulosa
+
+| Yondashuv | Katta Vazifa (Bad Practice) | Bo'lingan Vazifa (Good Practice) |
+|-----------|-----------------------------|----------------------------------|
+| **Vazifa nomi** | "To'lov tizimini ulash" | "1. Stripe UI formasi, 2. Backend token API, 3. Xatolarni tutish" |
+| **Vaqtni baholash** | 2 Hafta | Forma (2 kun), API (3 kun), Xatolar (1 kun) |
+| **Ko'rinish (Visibility)** | PM so'raydi: "Nima bo'ldi?", Dasturchi: "Kutib tur, qilyapman". | Har kuni Jamoa 1 ta kichik bo'lak bitganini ko'radi (Progress). |
+| **Xatarlar (Risks)** | Loyiha oxirida arxitektura xato ekanligi bilib qolinadi. | Har bir qadamda muammolar aniqlanadi va muddat o'zgaradi. |
+
+Task breakdown - bu:
 1. **Clarity** - nima qilish kerakligini aniq tushunish
 2. **Predictability** - qachon tugashini bilish
 3. **Progress** - har kuni progress ko'rish

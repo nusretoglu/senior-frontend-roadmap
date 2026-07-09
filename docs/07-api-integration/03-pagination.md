@@ -1120,6 +1120,12 @@ function Feed() {
 
 ## Xulosa
 
+| Turi | Qanday ishlaydi? | Kamchiligi | Qayerda ishlatiladi? |
+|------|------------------|------------|----------------------|
+| **Offset/Page-based** | URL da sahifa raqami (`?page=2`) | Yangi ma'lumot qo'shilsa siljiydi (Takrorlanish) | E-commerce, Admin panellar |
+| **Cursor-based** | Oxirgi element ID sini eslab qolish | Boshqa sahifaga sakrab o'tish imkonsiz | Facebook, Twitter (Infinite Scroll) |
+| **Virtual Scrolling**| Faqat ekranga sig'gan qismini chizish | - | Juda ko'p qatorli ro'yxatlarda |
+
 Pagination - katta data bilan ishlashning asosiy usuli. Cursor-based pagination real-time va katta dataset'lar uchun eng yaxshi, lekin offset-based oddiyroq va SEO-friendly. Virtual scrolling million element'lar uchun zarur.
 
 **Keyingi qadam:** [04-caching.md](./04-caching.md) - API response'larni cache qilish va stale data bilan ishlash.

@@ -1212,6 +1212,14 @@ const link = createPersistedQueryLink({ sha256 });
 
 ## Xulosa
 
-GraphQL - murakkab data requirements bo'lgan ilovalar uchun kuchli tool. Apollo Client bilan birga real-time updates, optimistic UI, va intelligent caching mumkin. Lekin har doim REST'dan yaxshiroq degani emas - use case'ga qarab tanlash kerak.
+| Tushuncha | Vazifasi | REST dagi analogi |
+|-----------|----------|-------------------|
+| **Query** | Ma'lumotlarni o'qib olish | `GET` request |
+| **Mutation** | Yangi yaratish, o'zgartirish, o'chirish | `POST`, `PUT`, `DELETE` |
+| **Subscription**| Real-vaqtda ma'lumotlarni eshitib turish | WebSockets yoki Server-Sent Events |
+| **Fragment** | Query'ni qayta ishlatiladigan bo'laklarga bo'lish | - (Yo'q) |
+| **Apollo Client**| Ma'lumot tortish, keshlash va boshqarish | Axios + React Query / SWR |
+
+GraphQL - murakkab data requirements bo'lgan ilovalar uchun kuchli tool. Apollo Client bilan birga real-time updates, optimistic UI, va intelligent caching mumkin. Lekin har doim REST'dan yaxshiroq degani emas - foydalanuvchiga nima kerak bo'lsa shunga qarab tanlash kerak (oddiy blog uchun REST qulayroq).
 
 **Keyingi qadam:** [03-pagination.md](./03-pagination.md) - katta data to'plamlarini samarali yuklash strategiyalari.

@@ -2,8 +2,15 @@
 
 ## Kirish
 
-Chart.js — eng mashhur open-source JavaScript charting kutubxonasi. 2013-yilda yaratilgan, hozirda GitHub'da 60,000+ star va haftalik 2 million+ npm download. Oddiy API, yaxshi performance va chiroyli default stillar bilan ajralib turadi.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturlashda ko'pincha murakkab ko'rinadigan Dashboard'larni qisqa vaqt ichida yasash talab qilinadi. Bunday vaqtlarda murakkab kutubxonalarni (D3.js kabi) o'rganishga vaqt bo'lmaydi. Chart.js — **"Plug and Play"** (O'rnat va Ishlat) darajasidagi eng zo'r vositadir. Siz HTML Canvas yordamida tez, chiroyli va responsiv grafiklar yaratasiz. Intervyularda vizualizatsiya so'ralsa, Chart.js ni bilish sizni darhol qutqaradi.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Yarim tayyor pitssa"**  
+> D3.js ni uyda un, xamir va masalliqlardan o'zingiz noldan pitssa tayyorlash (Juda moslashuvchan, xohlagan shaklingizda qilasiz, lekin ko'p vaqt va tajriba talab qiladi) deb faraz qilsak. Chart.js — bu magazindan olingan muzlatilgan, yarim tayyor pitssa. Pechga qo'yasiz (konfiguratsiyani berasiz) va 15 daqiqada ajoyib natija tayyor!
+
+Chart.js — eng mashhur open-source JavaScript charting kutubxonasi. 2013-yilda yaratilgan, hozirda GitHub'da 60,000+ star va haftalik 2 million+ npm download. Oddiy API, yaxshi performance va chiroyli default stillar bilan ajralib turadi.
 ## Nega Chart.js?
 
 ### Afzalliklari
@@ -1440,17 +1447,24 @@ callbacks: {
 import type { ChartConfiguration, ChartData } from 'chart.js';
 ```
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Tree-shaking ishlating:** Chart.js 3+ versiyadan boshlab kerakli qismlarni (LineController, CategoryScale kabi) alohida import qilishni qo'llab-quvvatlaydi. Butun kutubxonani emas, faqat o'zingizga kerak qismlarni import qilish orqali loyihangiz vaznini (bundle size) kichik tutasiz.
+2. **Re-render'larni nazorat qiling:** Vue'da `chart.update()` chaqirmasdan, butunlay yangidan chart yasash sahifani sekinlashtiradi. Faqat data qismini o'zgartirib `.update()` metodini ishlating.
+3. **Tooltip'larni formatlang:** Default kelgan tooltip qiymatlarini valyuta belgisi ($) yoki foiz (%) bilan chiroyini ochish (Custom Tooltip Callback) dastur sifatini sezilarli darajada oshiradi.
+
+---
+
 ## Xulosa
 
-Chart.js — boshlang'ich va o'rta darajadagi loyihalar uchun ideal tanlov. Uning kuchli tomonlari:
+| Xususiyat | Tavsif / Foydasi |
+|-----------|------------------|
+| **Asos (Texnologiya)** | `<canvas>` texnologiyasiga tayanadi. DOM elementlar sonini ko'paytirmaydi, natijada performance yaxshi. |
+| **Yengillik** | Barcha tayyor vizualizatsiyalar ichida eng oson o'rganiladigan va eng kichik (bundle size) laridan biri. |
+| **Turlari** | Line, Bar, Pie, Doughnut, Radar, Polar Area, Bubble, Scatter chartlari o'rnatilgan holatda tayyor keladi. |
+| **Kamchiligi** | SVG kabi interaktiv emas, sichqoncha hodisalari ba'zan nozikroq tushishi mumkin (chunki u yagona rasm - canvas). |
 
-1. **Oson o'rganish** — 30 daqiqada birinchi chart
-2. **Yaxshi performance** — Canvas-based rendering
-3. **Responsive** — out-of-the-box mobile support
-4. **Plugin ekosistemi** — kengaytirish oson
-5. **Bepul** — MIT litsenziya
-
-Murakkab vizualizatsiyalar yoki katta ma'lumotlar uchun ECharts yoki D3.js ko'rib chiqing.
+Chart.js — boshlang'ich va o'rta darajadagi biznes loyihalar, Admin Dashboard'lar uchun "Oltin standart" (eng optimal) tanlovdir. Murakkab 3D grafikalar yoki 1 milliondan ortiq ma'lumotlar ustida ECharts yoki WebGL kutubxonalariga qarash tavsiya etiladi.
 
 ## Keyingi Qadam
 

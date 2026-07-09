@@ -2,8 +2,17 @@
 
 ## Kirish
 
-Mentoring - bu tajribali dasturchi sifatida boshqalarni professional o'sishiga yordam berish. Bu nafaqat texnik bilim ulashish, balki **karera yo'nalishi, soft skills va muammolarni hal qilish usullarini** o'rgatish.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturchilar orasida yozilmagan qonun bor: "Siz o'z o'rningizga odam tayyorlamaguningizcha, sizni hech qachon lavozimingizni ko'tarishmaydi (Promote)". Chunki agar siz kompaniyadagi eng murakkab loyihani faqat o'zingiz tushunsangiz, sizni u yerdan hech kim ololmaydi (Lider bo'lolmaysiz). Juniorlarga ustozlik qilish (Mentoring) — bu o'z ustingizdan og'ir yukni olib tashlash, vaqtingizni arxitektura qurishga ajratish va Kompaniya ko'z o'ngida haqiqiy "Team Lead" darajasiga chiqishning yagona yo'lidir.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Baliq va Qarmoq"**  
+> Agar Junior "Menda shu xato chiqyapti, tuzatib bering" desa:  
+> **Yomon Mentor (Baliq beradi):** "Qochib tur" deydi, o'zi klaviaturaga yopishib 5 minutda kodni to'g'rilab berib ketadi. Junior nima bo'lganini tushunmaydi va ertaga yana shu xato bilan keladi.  
+> **Yaxshi Mentor (Qarmoq beradi):** O'zi kod yozmaydi. "Xatoni qayerdan qidirish kerakligini bilasanmi? Qani Network tabni och-chi, qanday Status Code kelyapti?" deb to'g'ri savollar beradi. Junior javobni O'ZI topadi va bu xatoni boshqa hech qachon takrorlamaydi.
+
+Mentoring - bu tajribali dasturchi sifatida boshqalarni professional o'sishiga yordam berish. Bu nafaqat texnik bilim ulashish, balki **karera yo'nalishi, soft skills va muammolarni hal qilish usullarini** o'rgatish.
 ## Nega Mentoring Muhim?
 
 ### Senior Developer Uchun
@@ -689,14 +698,30 @@ collaborative bo'lishim kerak edi.
 
 ## Xulosa
 
-Mentoring - bu:
+## Eng Yaxshi Amaliyotlar (Best Practices)
 
+1. **Javobni Aytmang, Yo'l Ko'rsating:** Mentoring bu darslik emas. "Miyaga sarmoya" tamoyilidan foydalaning. Menti (o'quvchi) savol berganda: "Sening fikring qanday?", "Documentation da bu haqida nima deyilgan ekan?", "Qaysi usullarni sinab ko'rding?" kabi Sokratik savollar bering.
+2. **Kichik Yutuqlarni Nishonlang (Praise):** Junior dasturchilar ko'pincha "Imposter Syndrome" (O'zini noloyiqlik hissi) bilan og'riydi. Ularning to'g'ri yozgan kichik kodini yoki to'g'ri bergan savolini albatta Jamoa oldida maqtab qo'ying. Bu ularga juda katta motivatsiya beradi.
+3. **Vaqtni Chegaralang (Timeboxing):** "Men har doim yordamga tayyorman" deyish xato, chunki o'z ishingiz qolib ketadi. O'rnatilgan qoidalar qiling: "Agar 15 daqiqa o'zingiz izlab yechim topolmasangiz, keyin menga murojaat qiling". Bu ularni mustaqil izlanishga (Googling) majbur qiladi.
+
+---
+
+## Xulosa
+
+| Yondashuv | Yomon Mentor (Micromanager) | Yaxshi Mentor (Leader) |
+|-----------|-----------------------------|------------------------|
+| **Xatoga munosabat** | Asabiylashadi, "Men senga shuni aytgandimku" deydi. | Xatodan dars chiqarishiga yordam beradi. "Buni qanday qilib takrorlamaslik mumkin?" |
+| **Yordam berish** | Uning o'rniga kodni o'zi yozib tashlaydi. | Ekranini ulashib, o'quvchining o'ziga yozdiradi (Pair Programming). |
+| **Maqsad** | "Loyiha tezroq bitsin". | "Loyiha ham bitsin, jamoam a'zosi ham kuchaysin". |
+| **Fikr bildirish** | Faqat texnik xatolarni aytadi. | Arxitektura, Jamoa madaniyati va Soft Skilllar bo'yicha ham yo'l ko'rsatadi. |
+
+Mentoring - bu:
 1. **Sabr** - progress sekin bo'lishi mumkin
 2. **Investment** - vaqt sarflaysiz, keyinroq qaytadi
 3. **Ikki tomonlama** - siz ham o'rganasiz
 4. **Mas'uliyat** - boshqaning karerasi
 
-> "Yaxshi mentor - bu boshqalar muvaffaqiyatidan xursand bo'ladigan odam."
+> "Yaxshi mentor - bu boshqalar muvaffaqiyatidan xursand bo'ladigan odam. Haqiqiy Liderning maqsadi ergashuvchilar yig'ish emas, o'zidan zo'rroq Liderlar yetishtirishdir."
 
 ---
 

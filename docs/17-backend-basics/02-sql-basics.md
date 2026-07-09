@@ -2,8 +2,16 @@
 
 ## Kirish
 
-SQL (Structured Query Language) - bu relational database'lar bilan ishlash uchun standart til. Frontend dasturchi sifatida SQL bilish sizga backend jamoasi bilan yaxshiroq kommunikatsiya qilishga, API endpoint'larni to'g'ri ishlatishga va muammolarni tezroq aniqlashga yordam beradi.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Garchand React va Vue barcha Frontend mantig'ini boshqarsa-da, dunyodagi ma'lumotlarning (Data) 90% i hanuzgacha SQL bazalarda saqlanadi. Agar siz o'z ishingizda faqat `fetch(url)` orqali tayyor ma'lumotni kutaversangiz, "Bu ma'lumot qayerdan, qanday join qilinib kelayotganini" tushunolmaysiz. SQL sintaksisini o'qiy olish — Backend qayerda xato qilganini, nega ba'zi ma'lumotlar qaytarilmayotganini (Masalan LEFT JOIN muammosi) o'zingiz mustaqil tekshira olishingizga imkon beradi.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Omborxona va Yuk tashuvchi"**  
+> Tasavvur qiling, siz do'kon egasisiz (Frontend). Sizga "Qizil rangli kurtkalar" kerak. Siz omborchiga (Backend) "Menga qizil kurtka olib kel" deb buyruq (API Request) berasiz.  
+> **SQL** — bu o'sha omborchining ombor (Baza) ichida aylanib yurib qizil kurtkalarni qidirib topish jarayonidir. Agar omborchi kurtkani qayerdan qidirishni bilmasa (Yomon SQL), siz tashqarida do'konda (UI da) mijozingiz bilan 5 minut kuttirasiz (Loading spinner).
+
+SQL (Structured Query Language) - bu relational database'lar bilan ishlash uchun standart til. Frontend dasturchi sifatida SQL bilish sizga backend jamoasi bilan yaxshiroq kommunikatsiya qilishga, API endpoint'larni to'g'ri ishlatishga va muammolarni tezroq aniqlashga yordam beradi.
 ## SELECT - Ma'lumotlarni Olish
 
 ### Asosiy Sintaksis
@@ -976,12 +984,21 @@ const queryClient = new QueryClient({
 });
 ```
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **`SELECT *` ishlatmang:** Hech qachon ishlab turgan (Production) loyihada `SELECT *` qilmang. 50 ta ustuni bor jadvaldan faqat Ism va Familiya kerak bo'lsa, xuddi shu ustunlarni so'rang (`SELECT id, name`). Yo'qsa siz tarmoqdan (Network) ortiqcha MegaBaytlab keraksiz ma'lumot tortasiz.
+2. **LIKE o'rniga Full-Text Search:** Agar millionlab qator ichidan `WHERE name LIKE '%Ali%'` deb qidirsangiz, bu eng sekin amaliyot. Chunki u barcha qatorlarni boshidan oxirigacha titkilab chiqadi (Index ni buzadi). Qidiruv tizimlari (Search bar) uchun Backend dan maxsus "Full-Text Search" yoki "ElasticSearch" ulab berishlarini talab qiling.
+3. **Paginatsiyani to'g'ri dizayn qilish:** UI da 100-sahifani (Offset 1000) ochish bazada juda sekin ishlaydi (bazaga oldingi 999 tani sanab kelish kerak). Agar ro'yxat juda uzun bo'lsa, "Offset-based" (1,2,3 sahifalar) emas, balki "Cursor-based" (Keyingi 10 ta) paginatsiya arxitekturasini backend dan so'rang (Bu Facebook va Instagram da ishlatiladigan usul).
+
+---
+
 ## Xulosa
 
-SQL bilimi frontend dasturchi uchun:
+| Komanda (Buyruq) | Ma'nosi (Tarjimasi) | Frontenddagi Analogiyasi |
+|------------------|---------------------|--------------------------|
+| **SELECT** | Olib kelish (O'qish) | Barcha Get API lari orqali keladigan ma'lumot. |
+| **WHERE** | Shart qo'yish (Filtr) | JavaScript dagi `array.filter()` kabi. |
+| **JOIN** | Jadvallarni qo'shish | Foydalanuvchini va unga tegishli hamma postlarni qo'shib olish. |
+| **GROUP BY** | Guruhlash | Excel da Pivot (svodnaya) jadval yig'ish. |
 
-1. **API tushunish** - Backend qanday ma'lumot qaytarayotganini bilish
-2. **Performance** - Nima uchun ba'zi API'lar sekin
-3. **Debugging** - Muammolarni tezroq aniqlash
-4. **Communication** - Backend jamoasi bilan samarali muloqot
-5. **Full-stack** - Mustaqil loyihalar yaratish imkoniyati
+SQL bilimi frontend dasturchi uchun xato va kechikishlarning ildizini tushunish vositasidir. O'z kodingizni qanchalik tezlashtirmang, orqa fondagi `JOIN` yoki `GROUP BY` noto'g'ri bo'lsa baribir dastur sekin ishlaydi. Qachon va qaysi jadvallar qo'shilayotganini tushunish, API dizaynda eng to'g'ri yo'lni tanlashga yordam beradi.

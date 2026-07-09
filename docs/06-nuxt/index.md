@@ -220,4 +220,15 @@ clearError()    // Clear error
 2. **"To'g'ri Papka" qoidasi:** Har qanday mantiqni to'g'ri joyga joylashtiring. Kichik qismlar - `components/`, global logika - `composables/`, 3-tomon plaginlari - `plugins/`, backend - `server/`.
 3. **SSR va CSR ni farqlash:** Brauzer API laridan (`window`, `localStorage`) faqat SSR jarayoni yakunlangandan so'ng (`onMounted` da) foydalaning, yoki `<ClientOnly>` komponentidan foydalanib xatolarni oldini oling.
 
+## Xulosa
+
+| Nuxt Texnologiyasi | Ma'nosi | Asosiy Foydasi | Qachon ishlatiladi? |
+|--------------------|---------|----------------|---------------------|
+| **SSR** | Server-Side Rendering | SEO va Tezkor birinchi yuklanish | Bloglar, E-commerce loyihalar, Yangiliklar sayti |
+| **SSG** | Static Site Generation | O'ta tez ishlashi, Server kuchi kamligi | Portfoliolar, Qo'llanma saytlari (Documentation) |
+| **CSR** | Client-Side Rendering | Serverni qiynamaydi, Oddiy Vue.js usuli | Admin panellar, Dastur ichidagi interfeyslar |
+| **ISR / SWR** | Vaqti-vaqti bilan yangilanish | Ma'lumotlarni doimiy yangilab turish | Ob-havo, Birjalar, Yangiliklar bosh sahifasi |
+
+Nuxt.js Vue imkoniyatlarini Frontend doirasidan chiqarib, unga kuchli Full-Stack qobiliyatini qo'shadi. Agar loyihangiz SEO (Qidiruv tizimlari) va Dastlabki tezlikka muhtoj bo'lsa, Nuxt eng to'g'ri tanlovdir.
+
 **Eslatma:** Har bir mavzuni nazariy o'rganishdan tashqari, real loyihada qo'llash muhim. Kod misollarini local environment'da ishlatib ko'ring.

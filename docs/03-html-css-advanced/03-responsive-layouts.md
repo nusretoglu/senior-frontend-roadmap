@@ -1,7 +1,12 @@
 # Responsive Layouts - Adaptiv Dizayn
 
-Responsive design - web sahifalar barcha qurilmalarda (mobile, tablet, desktop) to'g'ri ko'rinishi va ishlashi.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Bugungi kunda foydalanuvchilarning aksariyati veb-saytlarga mobil qurilmalardan kiradi. Agar veb-sahifangiz faqat kompyuter ekrani uchun mo'ljallangan bo'lsa, siz foydalanuvchilarning yarmini yo'qotasiz. Responsive (moslashuvchan) dizayn — bu shunchaki yaxshi xususiyat emas, balki har bir professional frontend dasturchi mukammal bilishi shart bo'lgan majburiyatdir.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Suv va Idish"**  
+> Responsive dizayn xuddi suvga o'xshaydi. Suvni qanday idishga (mobil telefon, planshet, kompyuter) quysangiz, u o'sha idishning shaklini oladi va bo'shliqni to'ldiradi. Elementlar ham xuddi shunday ekranga qarab o'z o'lchamini, joylashuvini yoki ko'rinishini (katta/kichik, yonma-yon/ustma-ust) o'zgartirishi kerak.
 ## Mundarija
 
 1. [Responsive Design asoslari](#responsive-design-asoslari)
@@ -1440,6 +1445,19 @@ width: min(90%, 1200px);
   body { font-size: 12pt; }
 }
 ```
+
+---
+
+## Xulosa
+
+| Yondashuv/Texnologiya | Qachon ishlatiladi? | Qisqacha Ta'rifi |
+|----------------------|---------------------|------------------|
+| **Mobile-First** | Har doim tavsiya etiladi | Avval kichik ekranlar uchun CSS yozish, so'ng katta ekranlarga qarab kengaytirish |
+| **Media Queries** | Ekran o'lchami o'zgarganda | Ma'lum bir breakpoint'larda (masalan, `@media (min-width: 768px)`) dizaynni o'zgartirish |
+| **Container Queries** | Komponent-bazali dizayn | Element o'zining ota-onasining (container) kengligiga qarab moslashishi (`@container`) |
+| **Viewport Units** | To'liq ekranlik qismlar | `vh` va `vw` orqali ekranning 100% hajmini egallash |
+| **Responsive Images** | Rasm optimallashtirish | Ekranga mos keladigan hajmdagi rasmni yuklash (`srcset`, `<picture>`) |
+| **Dark Mode** | Mavzu (Theme) almashtirish | Foydalanuvchining qurilma mavzusini inobatga olish (`@media (prefers-color-scheme: dark)`) |
 
 ---
 

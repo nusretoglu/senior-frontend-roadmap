@@ -2,8 +2,15 @@
 
 ## Kirish
 
-GeoJSON - geografik ma'lumotlarni ifodalash uchun JSON asosidagi ochiq standart format. 2008 yilda yaratilgan bo'lib, 2016 yilda RFC 7946 sifatida standartlashtirilgan. Barcha zamonaviy xarita kutubxonalari va GIS tizimlari tomonidan qo'llab-quvvatlanadi.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturchilar uchun oddiy Array yoki Object lar (JSON) hammaga tushunarli. Lekin geografik nuqtalar (masalan O'zbekistonning butun chegarasi) ni shunchaki Array larda uzatib bo'lmaydi, chunki qaysi son Uzunlik (Longitude) va qaysi son Kenglik (Latitude) ekanligi, yoki qayerdan chiziq boshlanib tugashi chalkashib ketadi. Butun dunyodagi GIS mutaxassislari, xarita dasturlari (Google, Yandex, Mapbox) o'zaro bir xil tilda gaplashishi uchun ixtiro qilingan standart — bu **GeoJSON** dir.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Umumiy Til (Lingua Franca)"**  
+> Tasavvur qiling, Xitoylik, Rus va Amerikalik muhandislar uchrashishdi. Ular o'z tillarida gapirsa bir-birini tushunmaydi. Shuning uchun hammasi "Ingliz tilida" gapirishga kelishishadi. GeoJSON xuddi shu "Ingliz tili" dir. Server PostgreSQL (PostGIS) da yozilganmi, Frontend React (Mapbox) dami yoki QGIS dasturidami — ular ma'lumot almashganda aynan GeoJSON formatida almashishadi.
+
+GeoJSON - geografik ma'lumotlarni ifodalash uchun JSON asosidagi ochiq standart format. 2008 yilda yaratilgan bo'lib, 2016 yilda RFC 7946 sifatida standartlashtirilgan. Barcha zamonaviy xarita kutubxonalari va GIS tizimlari tomonidan qo'llab-quvvatlanadi.
 ## GeoJSON Tuzilishi
 
 ### Geometry Types
@@ -1238,6 +1245,21 @@ map.setFeatureState(
 // ID'siz feature state ISHLAMAYDI!
 ```
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Topologiya qoidasi (Right-Hand Rule):** GeoJSON spetsifikatsiyasiga (RFC 7946) ko'ra, poligonning tashqi chegarasi koordinatalari soat miliga qarshi (Counter-clockwise), ichki "teshiklar" (Holes) esa soat mili bo'yicha (Clockwise) yozilishi shart. Aks holda ba'zi GIS dasturlari (ayniqsa D3.js) ularni teskari - poligon ichi bo'm-bo'sh, butun dunyo esa qora qilib chizib qo'yadi.
+2. **TopoJSON ishlatish:** Agar bitta mamlakatning viloyatlarini GeoJSON qilsangiz, ikkita viloyat tutashgan chegara (koordinatalar) ikki marta yoziladi (ikkalasining ichida ham). Bu fayl hajmini oshiradi. Buning o'rniga faqat chegaralarni bir marta e'lon qilib oluvchi `TopoJSON` formatidan foydalaning (U GeoJSON ga nisbatan fayl hajmini 80% gacha tejaydi).
+3. **[Lng, Lat] vs [Lat, Lng] chalkashligi:** Frontend dasturchilar xatosi: Google Maps API da va Leaflet da odatda `[Kenglik (Lat), Uzunlik (Lng)]` qabul qilinadi. Lekin standart GeoJSON da QAT'IY ravishda `[Uzunlik (Lng), Kenglik (Lat)]` yozilishi kerak (ya'ni x o'qi oldin). Bu eng ko'p tarqalgan bug hisoblanadi.
+
+---
+
 ## Xulosa
 
-GeoJSON - geografik ma'lumotlar uchun standart format bo'lib, barcha zamonaviy xarita kutubxonalari tomonidan qo'llab-quvvatlanadi. Katta datasetlar uchun TopoJSON, simplification va tiling strategiyalarini qo'llash muhim. Koordinata tartibi (lng, lat) va winding order'ga e'tibor berish kerak.
+| Konsept | Ma'nosi | Misol |
+|---------|---------|-------|
+| **FeatureCollection** | Eng yuqori konteyner, barcha xarita obyektlarini (Feature) bitta array'da ushlaydi. | Butun bir shahardagi hamma bog'lar va binolar ro'yxati. |
+| **Feature** | Bitta alohida mustaqil obyekt. Ichida Geometry va Properties saqlaydi. | Toshkent teleminorasi. |
+| **Geometry** | Bu faqatgina raqamlar (Koordinatalar) va ularning turi (Point, Line, Polygon). | `[69.28, 41.33]` |
+| **Properties** | Ushbu obyekt haqidagi qo'shimcha matnli, sonli atributlar. | `"name": "Toshkent teleminorasi", "height": 375` |
+
+GeoJSON - geografik ma'lumotlar uchun standart format bo'lib, barcha zamonaviy xarita kutubxonalari tomonidan qo'llab-quvvatlanadi. Katta datasetlar uchun TopoJSON, simplification va tiling strategiyalarini qo'llash muhim. Eng ko'p qilinadigan xato: Koordinata tartibiga (lng, lat) e'tibor bermaslik.

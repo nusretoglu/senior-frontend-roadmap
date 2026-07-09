@@ -905,11 +905,11 @@ const dynamicEvents = {
 
 ## Xulosa
 
-Dynamic components Vue'da qudratli pattern:
+| Komponent/Sintaksis | Vazifasi | Qachon ishlatiladi? |
+|---------------------|----------|---------------------|
+| `<component :is="...">`| Berilgan shartga qarab har xil komponentni chaqiradi. | Tablar almashtirishda, har xil form elementlari chizishda (dinamik formalar). |
+| `<KeepAlive>` | O'chib ketayotgan komponentni state'ini yo'qotmay keshlaydi. | Tablar orasida ma'lumot yo'qolmasligi uchun yoki qimmat API call ni oldini olishda. |
+| `defineAsyncComponent`| Komponentni sahifa birinchi yuklanganda emas, faqat o'zi ko'ringandagina yuklab oladi. | Katta hajmdagi modallar, chartlar, murakkab komponentlarni yuklashda (bundle size kamayadi). |
+| `<Suspense>` | Async komponentlar (yoki async `setup`) yuklanguncha Loading oynasini ko'rsatib turadi. | Dashboard yuklanish jarayonida chiroyli Spinner yoki Skeleton Loader ko'rsatish uchun. |
 
-- `<component :is="">` - Runtime da komponent tanlash
-- `<KeepAlive>` - State saqlash
-- `defineAsyncComponent` - Lazy loading
-- `<Suspense>` - Async components uchun loading state
-
-Bu patternlar tab systems, wizards, modal systems, va dynamic forms yaratishda juda foydali.
+Bu patternlar orqali Vue ilovangiz modulyar, chaqqon (lazy-load tufayli) va juda moslashuvchan bo'ladi.

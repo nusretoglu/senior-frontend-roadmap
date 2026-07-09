@@ -1186,22 +1186,12 @@ export default defineEventHandler(async () => {
 
 ## Xulosa
 
-Nuxt deployment flexible - static'dan edge'gacha:
+## Xulosa
 
-1. **SSG (generate)** - Static hosting, CDN, eng tez
-2. **SSR (build)** - Node.js server, dynamic content
-3. **Serverless** - Auto-scaling, pay-per-use
-4. **Edge** - Global, low latency
+| Joylash Turi (Hosting) | Platformalar | Qachon tanlanadi? | Qanday o'rnatiladi? |
+|------------------------|--------------|-------------------|---------------------|
+| **Statik Hosting (SSG)**| Vercel, Netlify, GH Pages | Tez-tez o'zgarmaydigan saytlar (Landing page, Blog) | `npm run generate` qilib `.output/public` ga joylash |
+| **Server (SSR)** | DigitalOcean, AWS, VPS | Foydalanuvchiga mos o'zgaruvchi saytlar (E-commerce) | `npm run build` so'ngra Node.js da ishga tushirish |
+| **Serverless/Edge** | Vercel Edge, Cloudflare | Juda tez va server boshqaruvisiz joylash | Platforma bilan to'g'ridan-to'g'ri bog'lanish |
 
-**Platform tanlash:**
-- Simple static → Netlify/GitHub Pages
-- SSR + ISR → Vercel
-- Enterprise/Custom → AWS/Docker/K8s
-- Global edge → Cloudflare
-
-**Muhim:**
-- Environment variables properly set
-- Security headers configured
-- Health checks implemented
-- CI/CD automated
-- Monitoring enabled
+Dasturni qurish qanchalik muhim bo'lsa, uni to'g'ri joylashtirish (Deployment) ham shunchalik muhim. Platformani loyiha ehtiyoji (tezlik, xavfsizlik, xarajat) ga qarab to'g'ri tanlang va `.env` sirlaringizni GitHub da saqlashdan saqlaning.

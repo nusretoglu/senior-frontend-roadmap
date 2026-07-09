@@ -825,11 +825,12 @@ const vColor = (el, binding) => {
 
 ## Xulosa
 
-Custom directives DOM elementlariga maxsus behavior berish uchun qudratli vosita:
+| Direktiva xususiyati | Nima vazifa bajaradi? |
+|----------------------|-----------------------|
+| **Lifecycle Hooks** | `mounted`, `updated`, `unmounted` kabi maxsus bosqichlarda DOM bilan ishlashga ruxsat beradi. |
+| **`binding.value`** | Direktivaga berilgan qiymat (`v-color="'red'"` da `'red'` ni olib beradi). |
+| **`binding.arg`** | Direktivadagi argument (`v-on:click` da `click` ni olib beradi). |
+| **`binding.modifiers`** | Direktivadagi modifikatorlar (`v-on.prevent` da `{ prevent: true }` obyektini beradi). |
+| **Cleanup** | Direktiva o'chganda event listener'larni olib tashlash (Memory leak oldini olish uchun shart). |
 
-- **Lifecycle hooks** - mounted, updated, unmounted
-- **Binding object** - value, arg, modifiers
-- **Cleanup** - Memory leak prevention
-- **Function shorthand** - Sodda holatlar uchun
-
-Ko'pincha composables yetarli, lekin direct DOM manipulation kerak bo'lganda directives ideal.
+To'g'ridan-to'g'ri DOM bilan ishlashga ehtiyoj tug'ilsa (masalan fokus, scroll yoki uchinchi tomon non-Vue kutubxonalari), **Custom Directives** sizning eng ishonchli vositangizdir. Boshqa barcha mantiqiy ishlarda **Composables** dan foydalangan ma'qul.

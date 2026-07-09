@@ -957,13 +957,11 @@ watchEffect((onCleanup) => {
 
 ## Xulosa
 
-Computed va Watch Vue reaktivligining asosiy qismlari:
+| Xususiyat | Nimaga javobgar? | Qachon ishlatiladi? |
+|-----------|------------------|---------------------|
+| **Computed** | Mavjud qiymatlardan yangi qiymat hisoblaydi (keshlanadi). | Template'da bir xil mantiqni ko'p takrorlashdan qochish uchun (masalan, ro'yxatni filterlash). |
+| **Watch** | Belgilangan o'zgaruvchini kuzatadi va o'zgarganda ishlaydi. | Side-effect'lar kerak bo'lganda (API call, `localStorage` ga yozish, animatsiya boshlash). |
+| **watchEffect** | Ichidagi barcha reaktiv qiymatlarni avtomat kuzatadi va boshida darrov ishlaydi. | Logika qaysi datalarga qaramligini avtomatik aniqlab berishni xohlasangiz (deps array yo'q React `useEffect` kabi). |
+| **watchPostEffect**| DOM yangilanib bo'lgandan keyin ishlaydi. | Kuzatilayotgan o'zgarish DOM dagi element (masalan, grafika) o'lchamlarini o'zgartirsa va uni hisoblash kerak bo'lsa. |
 
-- **Computed**: Hisoblangan qiymatlar, keshlanadi, sync, pure
-- **Watch**: Side effectlar, async, cleanup bilan
-- **watchEffect**: Avtomatik tracking, immediate
-
-To'g'ri tanlash muhim:
-- Template da ko'rsatish → Computed
-- API call, localStorage → Watch
-- Complex reactive logic → watchEffect
+Eng muhim qoida: Agar natija template'da ko'rsatilishi kerak bo'lsa `computed` ishlating, agar natija tizimda nimadir o'zgartirishi kerak bo'lsa `watch` ishlating.

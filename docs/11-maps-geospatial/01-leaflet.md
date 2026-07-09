@@ -2,8 +2,15 @@
 
 ## Kirish
 
-Leaflet - eng mashhur open-source JavaScript xarita kutubxonasi. 2011 yilda yaratilgan bo'lib, sodda API, kichik o'lcham (42KB gzipped) va keng plugin ekotizimi bilan ajralib turadi. Mobile-friendly dizayn va barcha zamonaviy brauzerlar uchun moslashgan.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Leaflet JavaScript ekotizimidagi xaritalar (maps) uchun yozilgan eng qadimgi, lekin hali ham eng ko'p ishlatiladigan open-source (tekin) kutubxonadir. Oddiyligi (faqat 42KB) va ishlashga tezligi uchun dasturchilar orasida juda mashhur. Agar loyihada maxsus uch o'lchamli (3D) render kerak bo'lmasa, Leaflet doimo "Default Tanlov" hisoblanadi. Undagi asosiy tushunchalar (Tile, Marker, Polygon) barcha boshqa kutubxonalar uchun ham fundamental poydevor hisoblanadi.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Pazl yig'ish (Tiles)"**  
+> Xaritani birdaniga butun Yer sharining katta rasmi sifatida yuklab olish brauzerni o'ldirib qo'ygan bo'lardi. Shuning uchun Leaflet xaritani minglab kichik (odatda 256x256 px) kvadratlarga bo'lib yuboradi. Siz Toshkentga zoom (yaqinlashtirish) qilsangiz, Leaflet faqat Toshkent ustidagi kvadratlarni serverdan yuklaydi. Buni Pazl (Puzzle) yig'ishga o'xshatish mumkin: ekranga nima sig'sa, shu pazl bo'laklari (Tile Layers) joyiga qo'yiladi.
+
+Leaflet - eng mashhur open-source JavaScript xarita kutubxonasi. 2011 yilda yaratilgan bo'lib, sodda API, kichik o'lcham (42KB gzipped) va keng plugin ekotizimi bilan ajralib turadi. Mobile-friendly dizayn va barcha zamonaviy brauzerlar uchun moslashgan.
 ## Asosiy Tushunchalar
 
 ### Map Container va Initialization
@@ -1005,6 +1012,21 @@ function pointInPolygon(point, polygon) {
 // Murakkab polygon uchun spatial index kerak (R-tree)
 ```
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Memory Leak (Xotira to'lishi) oldini olish:** Vue yoki React da komponent o'chayotganda (`onBeforeUnmount`) har doim `map.remove()` funksiyasini chaqirish esingizdan chiqmasin, bo'lmasa xarita xotirada osilib qolib, dasturni sekinlashtiradi.
+2. **Katta ma'lumotlar ustida SVG ishlatmang:** Agar 1000 tadan ortiq Marker chizmoqchi bo'lsangiz, Leaflet qiynalib qoladi (har biri alohida DOM element bo'lgani uchun). Bunday hollarda `L.canvas()` rejimiga o'tish yoki `MarkerCluster` ishlatish shart.
+3. **API Keys:** TileLayer manzillari (masalan, Mapbox tiles) kalitlarni (API Key) talab qiladi. U kalitlarni frontend kodi ichida ochiq yozmang (`.env` faylda saqlang).
+
+---
+
 ## Xulosa
 
-Leaflet - oddiy va o'rta murakkablikdagi xarita loyihalari uchun ideal tanlov. Kichik o'lcham, sodda API va keng plugin ekotizimi uni tezkor ishlab chiqish uchun qulay qiladi. Performance uchun clustering, canvas renderer va viewport-based loading strategiyalarini qo'llang.
+| Xususiyat | Tavsif / Foydasi |
+|-----------|------------------|
+| **Asos (Texnologiya)** | 2D DOM va Canvas rendering. 3D obyektlarni natively (tabiiy holatda) qo'llab-quvvatlamaydi. |
+| **Qulayligi** | API si juda qisqa va aniq, o'rganish egriligi eng past (Juda oson). O'z og'irligi (bundle size) deyarli sezilmaydi. |
+| **Tile System** | Mapbox, OpenStreetMap yoki Yandex kabi istalgan xarita serverini bitta urlda (TileLayer) ulab ketish mumkin. |
+| **Kamchiligi** | Har bir element DOM Node (HTML tag) bo'lib yozilgani sababli yirik Big Data bilan ishlashda tezligi pasayadi. |
+
+Leaflet - oddiy va o'rta murakkablikdagi xarita loyihalari (Lokatsiya tanlash, Adres belgilash, hududlarga bo'lish) uchun ideal tanlov. Kichik o'lcham, sodda API va keng plugin ekotizimi uni tezkor ishlab chiqish uchun qulay qiladi. Performance uchun clustering, canvas renderer va viewport-based loading strategiyalarini qo'llang.

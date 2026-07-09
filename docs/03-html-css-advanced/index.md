@@ -108,38 +108,19 @@ Yechim: transform + opacity only, will-change
 
 ## O'rganish tartibi
 
-```
-Hafta 1:
-├── Flexbox (1-2 kun)
-│   ├── Container properties
-│   ├── Item properties
-│   └── Common patterns
-├── Grid (2-3 kun)
-│   ├── Grid template
-│   ├── Grid areas
-│   └── Subgrid
-└── Responsive (1-2 kun)
-    ├── Media queries
-    ├── Container queries
-    └── Mobile-first
-
-Hafta 2:
-├── SCSS (1-2 kun)
-│   ├── Variables, nesting
-│   ├── Mixins, functions
-│   └── Module system
-├── Architecture (1 kun)
-│   ├── BEM naming
-│   ├── File structure
-│   └── Design tokens
-├── Animations (1-2 kun)
-│   ├── Transitions
-│   ├── Keyframes
-│   └── Performance
-└── Accessibility (1 kun)
-    ├── Semantic HTML
-    ├── ARIA
-    └── Testing
+```mermaid
+graph TD
+    subgraph Hafta_1[1-Hafta]
+        direction TB
+        F[Flexbox<br>1-2 kun] --> G[Grid<br>2-3 kun] --> R[Responsive<br>1-2 kun]
+    end
+    
+    subgraph Hafta_2[2-Hafta]
+        direction TB
+        S[SCSS<br>1-2 kun] --> A[Architecture<br>1 kun] --> AN[Animations<br>1-2 kun] --> ACC[Accessibility<br>1 kun]
+    end
+    
+    Hafta_1 --> Hafta_2
 ```
 
 ---

@@ -1,7 +1,12 @@
 # Flexbox - Flexible Box Layout
 
-Flexbox - bir o'lchovli (one-dimensional) layout tizimi. Elementlarni qator (row) yoki ustun (column) bo'ylab joylashtirish uchun ishlatiladi.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Flexbox veb-sahifalarda elementlarni bir o'lchovda (qator yoki ustun) joylashtirish, tekislash va bo'sh joylarni taqsimlashning eng kuchli va zamonaviy usulidir. Eski `float` va table-layout usullaridan butunlay voz kechib, responsiv (moslashuvchan) dizaynlarni osongina yaratish imkonini beradi.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Poyezd vagonlari"**  
+> Flexbox'ni poyezd vagonlariga o'xshatish mumkin. Agar vagonlar (items) sig'masa, ular keyingi yo'lga o'tishi mumkin (flex-wrap). Agar vagonlar orasida bo'sh joy qolsa, bu joyni teng bo'lib olishlari mumkin (justify-content: space-between). Yo'lovchilar vagonda qanday joylashishi esa align-items orqali boshqariladi.
 ## Mundarija
 
 1. [Asosiy tushunchalar](#asosiy-tushunchalar)
@@ -37,24 +42,19 @@ Flexbox - bir o'lchovli (one-dimensional) layout tizimi. Elementlarni qator (row
 
 Flexbox ikki o'qda ishlaydi:
 
-```
-flex-direction: row (default)
-┌─────────────────────────────────────────┐
-│ ──────────────────────────────────────► │  Main Axis (asosiy o'q)
-│ │                                       │
-│ │                                       │
-│ ▼                                       │
-│ Cross Axis (ko'ndalang o'q)             │
-└─────────────────────────────────────────┘
-
-flex-direction: column
-┌─────────────────────────────────────────┐
-│ │  Main Axis (asosiy o'q)               │
-│ │                                       │
-│ ▼                                       │
-│ ──────────────────────────────────────► │
-│ Cross Axis (ko'ndalang o'q)             │
-└─────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph Row_Direction [flex-direction: row]
+    direction LR
+    A1[Item] --> B1[Item] --> C1[Item]
+    end
+    
+    subgraph Column_Direction [flex-direction: column]
+    direction TB
+    A2[Item] --> B2[Item] --> C2[Item]
+    end
+    
+    classDef default fill:#f9f9f9,stroke:#333,stroke-width:2px;
 ```
 
 **Muhim:** `justify-content` Main Axis bo'ylab, `align-items` Cross Axis bo'ylab ishlaydi.
@@ -977,6 +977,21 @@ Chrome DevTools da:
 2. `display: flex` yonida flexbox icon
 3. Click - visual flexbox overlay
 4. Container va item properties editor
+
+---
+
+## Xulosa
+
+| Xususiyat | Kimga qo'llaniladi? | Nima ish qiladi? |
+|-----------|--------------------|------------------|
+| `display: flex` | Container | Flexbox kontekstini yaratadi |
+| `justify-content` | Container | Main axis (asosiy o'q) bo'ylab tekislaydi |
+| `align-items` | Container | Cross axis (ko'ndalang o'q) bo'ylab tekislaydi |
+| `flex-direction` | Container | Asosiy o'q yo'nalishini belgilaydi (qator/ustun) |
+| `flex-wrap` | Container | Elementlar sig'masa keyingi qatorga o'tishini belgilaydi |
+| `flex-grow` | Item | Bo'sh joyni egallash proporsiyasi |
+| `flex-shrink` | Item | Joy yetishmasa qisqarish proporsiyasi |
+| `align-self` | Item | Bitta elementni cross axis bo'ylab tekislash (align-items'ni bekor qiladi) |
 
 ---
 

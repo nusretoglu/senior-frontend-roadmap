@@ -868,11 +868,13 @@ Symbol'lar unique va global namespace'ni ifloslantirmaydi.
 
 ## Xulosa
 
-Provide/Inject Vue'da dependency injection pattern:
+## Xulosa
 
-- **Prop drilling** muammosini hal qiladi
-- **Reactive** qiymatlar uzatish mumkin
-- **Symbol keys** collision prevention
-- **TypeScript** InjectionKey bilan to'liq support
+| Tushuncha | Nima qiladi? | Qachon ishlatiladi? |
+|-----------|--------------|---------------------|
+| **Prop Drilling (Muammo)** | Ma'lumotni Ota `->` Bola `->` Nevara qilib zanjir kabi uzatish. | Qochish kerak bo'lgan yomon pattern (Loyiha murakkablashadi). |
+| **`provide()`** | Yuqoridagi Ota komponent ma'lumotni "havoga (kontekstga) otadi". | Ota komponent ichidagi o'nlab chuqur komponentlarga bir ma'lumotni berish kerak bo'lganda (Masalan, Tema: Light/Dark). |
+| **`inject()`** | Ixtiyoriy nevara komponent o'sha "havodagi" ma'lumotni ushlab oladi. | Chuqurda joylashgan komponent ma'lumotni (faqat o'qish uchun) ishlatishi kerak bo'lganda. |
+| **`readonly()` bilan himoya** | Nevara uzatilgan ma'lumotni o'zgartira olmasligini (mutate) ta'minlaydi. | Doim qilinishi kerak bo'lgan `Best Practice`. |
 
-Katta loyihalarda theme, auth, config kabi global context uchun ideal.
+Provide/Inject kichik ko'lamli holatlar uchun (masalan, bitta Murakkab Komponent qutisi ichida qismlar aloqasi uchun) ideal. Lekin butun loyiha (App) miqyosida holatni boshqarish uchun **Pinia** ancha kuchli va mosroqdir.

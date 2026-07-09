@@ -1039,12 +1039,19 @@ controller.abort();
 
 ## Xulosa
 
-Fetch va Axios har ikkalasi ham production-ready. Fetch native va lightweight, lekin ko'proq boilerplate kerak. Axios feature-rich, lekin bundle size qo'shadi. Modern alternativalar (ky, ofetch) ikkalasining yaxshi tomonlarini birlashtiradi.
+| Xususiyat | Fetch API | Axios |
+|-----------|-----------|-------|
+| **Asos (Platforma)** | Brauzerni o'zida bor (Native) | Uchinchi tomon kutubxonasi (NPM package) |
+| **JSON formatlash** | Qo'lda `.json()` qilish kerak | Avtomatik (o'zi o'qiydi) |
+| **Xatoliklarni ushlash** | Faqat internet uzilsa `catch` ga tushadi | 400 va 500 statuslar ham `catch` ga tushadi |
+| **Fayl yuborish/olinish** | Biroz noqulay | Avtomatlashtirilgan taraqqiyot paneli (Progress bar) bor |
+
+Fetch va Axios har ikkalasi ham production-ready. Fetch native va lightweight, lekin ko'proq boilerplate kerak. Axios feature-rich, lekin bundle size qo'shadi. Zamonaviy muqobillar (ky, ofetch) ikkalasining yaxshi tomonlarini birlashtiradi.
 
 **Tanlash qoidasi:**
-- Simple needs, bundle size critical → **Fetch**
-- Complex needs, team knows Axios → **Axios**
-- Modern project, best of both → **ky/ofetch**
+- Oddiy so'rovlar, bundle hajmi muhim → **Fetch**
+- Murakkab API, jamoa Axios ga o'rganib qolgan → **Axios**
+- Yangi avlod loyihalar, Vue/Nuxt tizimlari → **ky/ofetch**
 
 ---
 

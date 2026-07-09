@@ -134,4 +134,15 @@ Har bir bo'limda real-world case'lar va kod misollari mavjud. Ularni:
 3. Error handling'ni yaxshilang
 4. Unit test'lar yozing
 
+## Xulosa
+
+| Mavzu | Asosiy Mohiyati | Qachon ishlatish kerak? |
+|-------|-----------------|-------------------------|
+| **REST API** | Standard HTTP metodlar orqali ishlash | Deyarli barcha an'anaviy loyihalarda |
+| **GraphQL** | O'zingizga kerakli datani tanlab olish | Ko'p relatsiyali, murakkab va katta ma'lumotli ilovalarda |
+| **Axios vs Fetch** | Ma'lumot olib keluvchi vosita | Kichik loyihada Fetch, Katta va murakkab logikalarda Axios |
+| **Token Refresh** | Xavfsizlikni davomiy ushlash | Auth ishlatiladigan har qanday joyda |
+
+Backend API qanchalik chiroyli ishlagan taqdirda ham, uzoq masofa, internet tezligi yoki server bandligi kabi muammolar uni sekinlashtiradi. Shu sababli API integratsiyasida "xatolarga tayyor turish" (Error Handling va Retry) mexanizmlari eng qadrlanadigan xususiyat hisoblanadi.
+
 **Eslatma:** API integratsiya - bu nafaqat kod yozish, balki arxitektura qarorlari ham. Har bir pattern'ning trade-off'larini tushunish muhim.

@@ -1,7 +1,13 @@
 # CSS Animations - Transitions va Keyframes
 
-CSS Animations - web sahifalarga hayot bag'ishlaydigan vosita. Transitions va keyframes bilan professional animatsiyalar yaratish.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Animatsiyalar shunchaki "chiroyli dizayn" uchun qilinmaydi. Ular foydalanuvchiga tizim nima qilayotganini tushuntirib turuvchi asosiy muloqot vositasidir. (Masalan, knopkani bosganda yuklanayotganini ko'rsatuvchi spinner). Lekin noto'g'ri qilingan animatsiyalar telefon batareyasini tez tugatadi va sahifani qotirib qo'yadi. Yaxshi dasturchi GPU tezlashtiruvchi xususiyatlarni bilishi va 60 FPS da ishlaydigan animatsiyalar yarata olishi kerak.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Teatr sahnasi"**  
+> `transition` ni chiroqning asta-sekin yonishiga yoki o'chishiga o'xshatish mumkin. Faqatgina ikkita holat bor: Boshlanishi va Tugashi. 
+> `keyframes` animatsiyasi esa teatr aktyorining butun bir sahnadagi o'yini: U qayerga boradi, qachon to'xtaydi, qachon aylanadi — barchasi minutma-minut, foizma-foiz (0%, 50%, 100%) yozib chiqiladi.
 ## Mundarija
 
 1. [Transitions](#transitions)
@@ -1311,6 +1317,19 @@ transition: 300ms - 500ms; /* Larger elements */
   transition: transform var(--duration-normal) var(--ease-out);
 }
 ```
+
+---
+
+## Xulosa
+
+| Xususiyat | Nimaga javobgar? | Qachon ishlatiladi? |
+|-----------|------------------|---------------------|
+| **Transition** | 2 holat orasidagi o'zgarish | Hover, focus effektlari, oddiy o'tishlar |
+| **Animation (Keyframes)** | Murakkab, ko'p bosqichli harakat | Looping spinnerlar, murakkab harakatlar, ketma-ket animatsiyalar |
+| **Transform** | O'lcham/Joylashuv/Burish | X, Y, Z o'qlari bo'yicha siljitish (`translate`), aylantirish (`rotate`), kattalashtirish (`scale`) |
+| **Timing Function** | Harakat tezligi egri chizig'i | Animatsiyani tabiiy qilish uchun (`ease-in`, `ease-out`, `cubic-bezier`) |
+| **GPU Acceleration** | Hardware tezlashtirish | Katta animatsiyalarda telefon/kompyuter qotib qolmasligi uchun (`transform`, `opacity`) |
+| **prefers-reduced-motion** | A11y (Maxsus ehtiyojlilar) | Vestibulyar apparatida muammosi bor odamlarga animatsiyani o'chirib berish |
 
 ---
 

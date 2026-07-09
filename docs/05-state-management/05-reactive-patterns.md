@@ -1535,11 +1535,16 @@ const { user, loading } = useUser()
 
 ## Xulosa
 
-Vue 3 Reactivity System:
+## Xulosa
 
-1. **ref** - primitives va almashtiriladigan qiymatlar
-2. **reactive** - complex objects
-3. **computed** - derived state, keshlangan
-4. **watch** - aniq dependencies, side effects
-5. **watchEffect** - avtomatik dependencies
-6. **toRefs** - reactivity saqlash
+| Reaktivlik Turi | Vazifasi | Qachon ishlatiladi? |
+|-----------------|----------|---------------------|
+| **`ref()`** | Har qanday tipdagi datani reaktiv qilish | String, Number kabi primitive tiplar va oddiy o'zgaruvchilar |
+| **`reactive()`** | Obyekt va massivlarni chuqur reaktiv qilish | Formalar, Murakkab obyektlar va guruhlangan holatlar |
+| **`computed()`** | Boshqa ma'lumotlarga asoslanib hisob-kitob qilish | Filtrlar, Formatlash, State'ga bog'liq formula qiymatlar |
+| **`watch()`** | Ma'lum o'zgaruvchi o'zgarganida kod ishga tushirish | API ga o'zgarishni yuborish, Aniq o'zgarishga reaksiya bildirish |
+| **`watchEffect()`**| Ichida ishlatilgan har qanday reaktiv data o'zgarganda ishlash | Fetch operatsiyalari, Dastlabki qiymatni avtomatik o'qish uchun |
+| **`shallowRef()`**| Katta obyektning faqat o'zgaruvchini (root) reaktiv qilish | Katta API javoblari, Chart data (Performance optimizatsiya) |
+| **`toRefs()`** | Reaktiv obyektni strukturasini buzmasdan qismlarga bo'lish | `reactive` dan destructuring orqali alohida ref lar olishda |
+
+Reaktivlik Vue'ning asosiy kuchi hisoblanadi. O'zgaruvchilar va ularni ishlatish qoidalarini yaxshi bilgan dasturchi ortiqcha UI renderlarini oldini oladi va tezkor ilovalar yoza oladi.

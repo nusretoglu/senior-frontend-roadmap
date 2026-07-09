@@ -2,8 +2,17 @@
 
 ## Kirish
 
-API (Application Programming Interface) - bu tizimlar o'rtasida aloqa qilish uchun belgilangan interfeysdir. Frontend dasturchi sifatida yaxshi API dizaynni tushunish sizga backend jamoasi bilan samarali ishlash, API muammolarini aniqlash va hatto o'z API'laringizni yaratish imkonini beradi.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturchilar API ni faqat qanaqadir URL ga so'rov jo'natib JSON olib kelish deb tushunishadi. Ammo API (Application Programming Interface) — bu siz (Frontend) va Backend o'rtasidagi "Shartnoma"dir. Agar Backend sizga 1000 ta ro'yxatni Pagination (sahifalash) siz jo'natsa, dasturingiz qotadi. Agar xatolikni `500 Server Error` o'rniga doim `200 OK` deb oddiy matn bilan qaytaraversa, siz xatoni tuta olmaysiz. To'g'ri dizayn qilingan API (REST, GraphQL) loyihaning umrini uzaytiradi va ishingizni 10 barobar osonlashtiradi.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Restoran Ofitsianti"**  
+> Siz (Frontend) restoranda o'tiribsiz, Oshpaz (Backend) esa oshxonada.  
+> **API bu — Ofitsiant.**  
+> Siz ofitsiantga "Menga bitta kabob keltir" (Request: `GET /api/food/kabob`) deysiz. Ofitsiant bu buyurtmani olib oshxonaga boradi, oshpaz pishiradi va ofitsiant sizga kabobni (Response: `JSON`) olib keladi. Agar ofitsiant (API) karlar kabi nima deyayotganingizni tushunmasa yoki xatoga (Kabob tugagan) "Muammo yo'q" (200 OK) deyaversa, siz bu restoranda (loyihada) uzoq ishlay olmaysiz.
+
+API (Application Programming Interface) - bu tizimlar o'rtasida aloqa qilish uchun belgilangan interfeysdir. Frontend dasturchi sifatida yaxshi API dizaynni tushunish sizga backend jamoasi bilan samarali ishlash, API muammolarini aniqlash va hatto o'z API'laringizni yaratish imkonini beradi.
 ## REST API Asoslari
 
 ### REST Printsiplari
@@ -1345,11 +1354,21 @@ function ApiErrorBoundary({ children }) {
 
 ## Xulosa
 
-API dizayn bilimi frontend dasturchi uchun:
+## Eng Yaxshi Amaliyotlar (Best Practices)
 
-1. **Communication** - Backend bilan samarali muloqot
-2. **Integration** - API'larni to'g'ri ishlatish
-3. **Debugging** - Muammolarni tezroq aniqlash
-4. **Performance** - N+1, pagination, caching
-5. **Security** - Auth, error handling
-6. **Full-stack** - O'z API'laringizni yaratish
+1. **HTTP Status Kodlarni to'g'ri talab qilish:** Backend dasturchisidan har doim Mantiqiy (Logical) status kodlar qaytarishini talab qiling. Muammosiz o'tsa `200` yoki `201`, Ruxsat yo'q bo'lsa `401 / 403`, topilmasa `404`, formadagi xato uchun `422`, server yiqilsa `500`. Har doim `200` qaytarib, ichida `{ error: "Topilmadi" }` deb yozish — eng yomon (Anti-pattern) API dizayndir.
+2. **Versioning (v1, v2) bo'lishi shart:** Agar API URL manzilida versiya ko'rsatilmagan bo'lsa (Masalan: `/api/v1/users`), ertaga Backend eski mantiqni o'zgartirsa, barcha oldingi Frontend va Mobil ilovalar (App) ishdan chiqadi. Eski applar `v1` da, yangilari `v2` da ishlashi API Barqarorligini ta'minlaydi.
+3. **Paginatsiya (Pagination) va Qidiruv (Filtering):** Hech qachon array ni to'liq tortib kelmang. Frontend API ni shunday dizayn qilishi kerak-ki, URL da kerakli filtrlar ochiq yozilsin: `GET /api/users?page=2&limit=20&sort=-createdAt&role=admin`.
+
+---
+
+## Xulosa
+
+| Arxitektura Turi | Ta'rifi | Qachon ishlatiladi? |
+|------------------|---------|---------------------|
+| **REST API** | URL orqali Resurslarni (Noun) CRUD (Get/Post/Put/Delete) qilish tizimi. | Eng mashhur va standart usul. Ochiq API lar (Public API) va klassik loyihalar uchun. |
+| **GraphQL** | Frontend qaysi maydonlar (Fields) kerakligini so'raydi, Backend faqat shuni jo'natadi. | N+1 muammosi bo'lganda, ma'lumotlar juda murakkab (Nested) bo'lganda (Masalan: Facebook). |
+| **WebSocket** | Server va Mijoz o'rtasida uzilmas ko'prik (Tunnel). Ikki tomonlama ma'lumot almashinadi. | Real vaqtda ishlash uchun (Chat, Birja kotirovkalari, Multiplayer o'yinlar). |
+| **gRPC** | Google yechimi. JSON o'rniga Protobuf (binary) formatda ma'lumot uzatiladi. | Mikroservislar o'rtasida (Backend to Backend) gaplashish uchun (Juda tez!). |
+
+API dizayn bilimi frontend dasturchi uchun xatolarni tez topish va jamoa bilan kelisha olish kalitidir. Status kodlar nimani anglatishi, Tokenlar (JWT/Cookie) qayerda yuborilishi va Interceptor lar qanday ishlashini bilsangiz, murakkab biznes mantiqlarni xatosiz Frontendga ulay olasiz. Axborot qayerdan, qanday formatda va qay holatda kelayotgani — zamonaviy Web dasturlashning eng muhim qismidir.

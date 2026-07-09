@@ -1,7 +1,14 @@
 # Maps & Geospatial
 
-Bu bo'lim xaritalar va geografik ma'lumotlar bilan ishlashni chuqur o'rganishga bag'ishlangan. Zamonaviy web ilovalar uchun geospatial funksionallik muhim bo'lib, yetkazib berish xizmatlari, transport ilovalari, real estate platformalari va boshqa ko'plab sohalarda qo'llaniladi.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Bugungi kunda Yandex Go, Uzum Tezkor yoki Express24 kabi ilovalarni xaritasiz tasavvur qilib bo'lmaydi. Faqat xarita chizish emas, balki foydalanuvchi qayerda turganini aniqlash, manzilgacha bo'lgan masofani hisoblash, va xaritaning ma'lum bir hududiga kirsagina (Geofencing) aksiya taklif qilish — zamonaviy Senior Frontend dasturchisidan talab qilinadigan muhim bilimlardir. Geospatial (Geofazoviy) dasturlash orqali siz oddiy sayt yaratuvchidan jiddiy muhandis (Engineer) ga aylanasiz.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Qog'oz xarita vs GPS Navigator"**  
+> Oddiy rasmli xarita (Static Image) - bu devorga osib qo'yilgan qog'oz xaritadek gap: unga faqat qarash mumkin. Geospatial kutubxonalar (Leaflet, Mapbox) esa - qo'lingizdagi "Google Maps" kabi ishlaydi. Sizni qayerda ekaningizni biladi, siz xaritani aylantirsangiz binolar 3D ga aylanadi va hatto tirbandlikni (Traffic) real vaqtda ko'rsatib turadi. Siz foydalanuvchining vizual ko'zlari bo'lasiz.
+
+Bu bo'lim xaritalar va geografik ma'lumotlar bilan ishlashni chuqur o'rganishga bag'ishlangan. Zamonaviy web ilovalar uchun geospatial funksionallik muhim bo'lib, yetkazib berish xizmatlari, transport ilovalari, real estate platformalari va boshqa ko'plab sohalarda qo'llaniladi.
 ## Bo'lim Tarkibi
 
 | # | Mavzu | Tavsif |

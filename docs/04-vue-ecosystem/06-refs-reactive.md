@@ -920,13 +920,12 @@ function useDebouncedRef(value, delay) {
 
 ## Xulosa
 
-Vue 3 reaktivlik tizimi Proxy asosida qurilgan va juda kuchli:
+| Reaktivlik Turi | Vazifasi | Qachon ishlatiladi? |
+|-----------------|----------|---------------------|
+| **`ref()`** | Ixtiyoriy turdagi qiymatni reaktiv qiladi, unga `.value` orqali murojaat qilinadi. | Asosiy qoida sifatida - deyarli hamma narsa uchun. |
+| **`reactive()`**| Ob'ekt/Massivni to'g'ridan-to'g'ri reaktiv qiladi (`.value` siz). | Katta formalar state'ini saqlash uchun. Ehtiyot bo'ling: Destructuring uning reaktivligini uzib qo'yadi. |
+| **`toRefs()`** | `reactive` obyektning xossalarini `ref` ga o'giradi. | `reactive` obyektdan reaktivlikni yo'qotmay turib qiymatlarni (destructure) ajratib olish uchun. |
+| **`shallowRef()`** | Faqat `.value` qismi reaktiv. Ichidagi ob'ekt chuqur kuzatilmaydi. | Katta ma'lumotlar (minglab array elementlari, uchinchi tomon kutubxonalari) ishlatganda performansni saqlash uchun. |
+| **`readonly()`**| Reaktiv qiymatni faqat o'qiladigan (mutate qilib bo'lmaydigan) holatga keltiradi. | Global state'ni boshqa komponentlardan himoya qilish uchun (Provide/Inject da keng tarqalgan). |
 
-- **ref()** - Har qanday qiymat, `.value` orqali access
-- **reactive()** - Ob'ektlar, direct access
-- **toRef/toRefs** - Destructuring safe refs
-- **shallowRef/shallowReactive** - Performance optimization
-- **readonly** - Immutable wrappers
-- **markRaw/toRaw** - Reactivity control
-
-To'g'ri tool tanlash muhim - tavsiya sifatida hamma narsa uchun `ref` dan foydalanish eng xavfsiz va bosh og'rig'isiz usuldir.
+To'g'ri vositani tanlash muhim - tavsiya sifatida hamma narsa uchun `ref` dan foydalanish eng xavfsiz va tushunarli usuldir.

@@ -2,8 +2,18 @@
 
 ## Kirish
 
-To'g'ri kutubxona tanlash loyiha muvaffaqiyati uchun kritik qaror. Noto'g'ri tanlov vaqt yo'qotish, performance muammolar va texnik qarzga olib keladi. Bu bo'limda har bir kutubxonani qachon tanlashni batafsil ko'rib chiqamiz.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Tajribasiz dasturchilar ko'pincha hamma loyihaga o'zlari bilgan bitta kutubxonani tiqishtirishga harakat qilishadi. Masalan, oddiy 2 ta grafik uchun 500KB lik og'ir kutubxonani ulaydi yoki teskarisi, murakkab va katta hajmdagi ma'lumotlarni oddiy kutubxonada chizaman deb brauzerni qotirib qo'yadi. Ushbu bo'lim sizga muammoga qarab to'g'ri "qurol" (instrument) tanlay oladigan haqiqiy Senior/Architect kabi fikrlashni o'rgatadi.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Transport tanlash"**  
+> Qo'shni do'konga borish uchun (Oddiy, tez) - **Velosiped** (Chart.js) yetarli.  
+> Shaharlararo uzoq yo'lga ko'p yuk bilan borish uchun (Katta data, funksionallik) - **Katta yuk mashinasi** (ECharts).  
+> Xavfsizlik, rasmiy delegatsiya va politsiya kuzatuvi kerak bo'lsa (Enterprise, SLA, A11y) - **Zirhli Kortej** (Highcharts).  
+> Va nihoyat, sizga uchadigan, suzadigan, kosmosga chiqadigan o'ta noodatiy mashina kerak bo'lsa - ehtiyot qismlardan uni o'zingiz noldan yig'asiz - **Zavod va ehtiyot qismlar** (D3.js).
+
+To'g'ri kutubxona tanlash loyiha muvaffaqiyati uchun kritik qaror. Noto'g'ri tanlov vaqt yo'qotish, performance muammolar va texnik qarzga olib keladi. Bu bo'limda har bir kutubxonani qachon tanlashni batafsil ko'rib chiqamiz.
 ## Tezkor Qaror Daraxti
 
 ```
@@ -681,10 +691,13 @@ const highchartsConfig = {
 ### Freelancer/Consultant uchun
 
 ```
-Portfolio: Chart.js + ECharts + D3.js basics
-Client work: Highcharts (professional)
-Custom work: D3.js
 ```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Abstraksiya qatlami yarating:** Loyihada uchinchi tomon kutubxonalarini bevosita ishlatmang. O'zingizning `<BaseChart />` (yoki Custom Chart) komponentingizni yarating. Agar ertaga kutubxonani (masalan Chart.js dan ECharts ga) o'zgartirish kerak bo'lsa, butun loyihada emas, faqat o'sha yagona Base komponentda o'zgartirish qilasiz.
+2. **Design System bilan kelishing:** Grafiklar dizayni sizning asosiy loyiha ranglariga (Design System / Tailwind config) mos kelishiga ishonch hosil qiling. Barcha chartlarni bir xil rang palitrasi bilan ta'minlovchi markaziy Global Config sirkulatsiyasini yo'lga qo'ying.
+3. **Paginatsiya vs Zooming:** Backend'dan 100 ming qator ma'lumot kelayotgan bo'lsa, qanchalik zo'r vizualizatsiya kutubxonasi qo'ymang, Frontend qiynaladi. Ma'lumotni backend'ning o'zida yillik/oylik/haftalik deb guruhlang (aggregation) va shundayligicha frontendga qaytaring.
 
 ## Xulosa Jadvali
 

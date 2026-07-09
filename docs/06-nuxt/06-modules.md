@@ -1258,16 +1258,13 @@ export default defineNuxtModule({
 
 ## Xulosa
 
-Nuxt modules build-time functionality kengaytirish uchun kuchli vosita:
+## Xulosa
 
-1. **defineNuxtModule** - module yaratish API
-2. **@nuxt/kit** - utility functions
-3. **Hooks** - build process'ga ta'sir
-4. **Runtime code** - plugins, composables, components
-5. **Configuration** - nuxt.config orqali options
+| Tushuncha | Modul (Module) | Plagin (Plugin) |
+|-----------|----------------|-----------------|
+| **Qachon ishlashi?** | Build vaqtida (npm run dev/build) | Dastur ishlash vaqtida (Runtime) |
+| **Qanday yoziladi?** | `defineNuxtModule()` orqali | `defineNuxtPlugin()` orqali |
+| **Asosiy maqsadi** | Nuxt imkoniyatlarini kengaytirish (Avto-importlar, Papkalar avtomatizatsiyasi) | Tayyor loyihaga Global holatlar qo'shish |
+| **Misol** | `@nuxtjs/tailwindcss`, `@pinia/nuxt` | `Google Analytics`, `v-tooltip` direktivasi |
 
-Module vs Plugin:
-- Module = Build time configuration
-- Plugin = Runtime functionality
-
-Complex features uchun modul yaratish, oddiy functionality uchun plugin yetarli.
+Module vs Plugin farqini tushunish o'ta muhim. Modullar Nuxt loyihasining yuragiga o'zgartirish kiritib, Dasturchining ishlash tezligini (Developer Experience) oshirishga yordam beradi. Oddiy mantiq yoki kichik API integratsiyalari uchun plagin yetarli, lekin Vue/Nuxt tizimini avtomatlashtirish kerak bo'lsa - Modul yoziladi.

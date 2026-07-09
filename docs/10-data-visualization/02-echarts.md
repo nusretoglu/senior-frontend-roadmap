@@ -2,8 +2,15 @@
 
 ## Kirish
 
-ECharts (Enterprise Charts) — Apache Software Foundation tomonidan qo'llab-quvvatlanadigan bepul, kuchli va moslashuvchan JavaScript vizualizatsiya kutubxonasi. Baidu tomonidan 2013-yilda yaratilgan, hozirda dunyo bo'ylab millionlab loyihalarda ishlatiladi.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Agar sizda 1 million qatordan iborat ma'lumotni brauzerda qotib qolmasdan chizish talab qilinsa, Chart.js kabi oddiy kutubxonalar buferni to'ldirib yuboradi. ECharts esa WebGL render yordamida **Katta ma'lumotlar (Big Data)** vizualizatsiyasini 60 FPS (kadr/sekund) da silliq ko'rsatishga qodir yirtqichdir. Alibaba, Baidu kabi gigantlar uning orqasida turgani uchun, ECharts Enterprise-darajadagi dashboard'lar uchun "default" (odatiy) tanlov hisoblanadi.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Shveysariya pichog'i"**  
+> Chart.js o'tkir va oddiy oshxona pichog'i bo'lsa (kundalik ishlarni qoyilmaqom qiladi), ECharts — to'liq jihozlangan Shveysariya pichog'idir (ichida 50 dan ortiq asboblar bor). Boshida qaysi asbobni tanlashni bilmay biroz qiynalasiz (murakkab API), lekin o'rganib olgach, u bilan xohlagan ishingizni eplay olasiz.
+
+ECharts (Enterprise Charts) — Apache Software Foundation tomonidan qo'llab-quvvatlanadigan bepul, kuchli va moslashuvchan JavaScript vizualizatsiya kutubxonasi. Baidu tomonidan 2013-yilda yaratilgan, hozirda dunyo bo'ylab millionlab loyihalarda ishlatiladi.
 ## Nega ECharts?
 
 ### Afzalliklari
@@ -1896,21 +1903,24 @@ app.get('/chart.png', (req, res) => {
 });
 ```
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Tree-shaking ishlatish:** ECharts'ning barcha modullarini import qilsangiz, loyihangizga 400KB+ yuk tushadi. Doimo faqat kerakli chart va komponentlarni `echarts/core` orqali alohida import qiling.
+2. **Katta ma'lumotlarni renderlash (Data Zoom):** Agar 10,000+ data bo'lsa, uni birdaniga ko'rsatmang. ECharts'ning `dataZoom` komponentidan foydalanib, foydalanuvchiga sichqoncha bilan yaqinlashtirib-uzoqlashtirish imkoniyatini (zoom/pan) bering.
+3. **Resize xatoliklarini oldini oling:** Oyna (window) o'lchami o'zgarganda ECharts o'zini avtomatik to'g'irlamaydi. Vue'ning `onMounted` va `onBeforeUnmount` hook'lari ichida `window.addEventListener('resize', chart.resize)` yozish yodingizdan chiqmasin (yoki ResizeObserver ishlating).
+
+---
+
 ## Xulosa
 
-ECharts — enterprise-darajadagi vizualizatsiya ehtiyojlari uchun ideal tanlov:
+| Xususiyat | Tavsif / Foydasi |
+|-----------|------------------|
+| **Asos (Texnologiya)** | `<canvas>` va `WebGL` ga asoslangan (Z-Render dvigateli yordamida ishlagani uchun Big Data bilan zo'r ishlaydi). |
+| **Qamrov** | 50+ dan ortiq tayyor chartlar (shu jumladan Heatmap, Treemap, Sankey, 3D Globe). |
+| **Moslashuvchanlik (Customization)** | Deyarli hamma narsani — tooltip dizaynidan tortib o'qlarning chizig'igacha o'zgartirish mumkin. |
+| **Kamchiligi** | Boshlang'ich konfiguratsiya (Option obyekti) juda katta va murakkab ko'rinadi, o'rganish egriligi (learning curve) baland. |
 
-1. **Boy chart turlari** — 50+ turdagi chart
-2. **Kuchli performance** — Canvas + WebGL
-3. **Server-side rendering** — Node.js support
-4. **Bepul** — Apache 2.0 litsenziya
-5. **Keng customization** — har jihatni sozlash mumkin
-
-Qachon ishlatish kerak:
-- Dashboard loyihalar
-- Katta ma'lumotlar
-- Geographic visualizations
-- Complex interactivity
+ECharts — katta tijoriy (Enterprise) loyihalar, Data Analytics platformalar va Murakkab Dashbordlar yasovchilar uchun **"Top 1"** tanlovdir. Ammo loyihangiz faqat bitta oddiy Bar Chart'ga muhtoj bo'lsa, ECharts o'rniga yengilroq Chart.js tavsiya etiladi.
 
 ## Keyingi Qadam
 

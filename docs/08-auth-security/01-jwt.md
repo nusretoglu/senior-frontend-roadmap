@@ -912,4 +912,11 @@ jwt.verify(token, publicKey, {
 
 ## Xulosa
 
+| Tushuncha | Ta'rifi | Asosiy Vazifasi |
+|-----------|---------|-----------------|
+| **Header** | Token formati va shifrlash algoritmi | Qanday o'qishni va tekshirishni bildiradi |
+| **Payload** | Haqiqiy foydali ma'lumotlar | User ID, email va ruxsatlarni o'z ichiga oladi |
+| **Signature**| Maxfiy so'z bilan tasdiqlash | Ma'lumotlarni o'zgarmaganini tekshiradi |
+| **State** | Server xotirasi (Session) | JWT stateless, serverda xotira talab qilmaydi |
+
 JWT - zamonaviy web ilovalar, ayniqsa microservices arxitekturasi uchun ajoyib yechim. Ammo uni xavfsiz saqlash va Refresh Token mexanizmi bilan ishlash muhim. XSS hujumlariga qarshi local storage ishlatishdan qoching!

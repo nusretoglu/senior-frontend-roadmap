@@ -2,8 +2,16 @@
 
 ## Kirish
 
-Zamonaviy web dasturlash faqat kod yozishdan iborat emas. Professional dasturchi version control, CI/CD, containerization, package management va development environment'larni professional darajada bilishi kerak. Bu bo'lim sizni junior dan senior darajaga olib chiqadigan toollar va workflow'larni o'rgatadi.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Bugungi kunda qanchalik zo'r kod yozishingizdan qat'iy nazar, agar o'sha kodni boshqalar (Jamoa) bilan to'qnashuvlarsiz birlashtira olmasangiz (Git), uni avtomatik serverga jo'nata olmasangiz (CI/CD) va dasturni barcha xodimlarning kompyuterida bir xil ishlaydigan muhitga o'ray olmasangiz (Docker), sizni qimmatbaho Senior deb hisoblashmaydi. DevTools va Workflow bu shunchaki "yordamchi vositalar" emas, bu butun boshli loyiha "Infratuzilmasi" dir.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Oshpaz va Oshxona"**  
+> Zo'r algoritmlar va Vue/React bilimlari — bu oshpazning mazali taom pishira olish mahoratidir.  
+> Lekin DevTools (Git, Docker, CI/CD) — bu 100 ta odamga taom chiqarish kerak bo'lgan katta restoran oshxonasidagi Infratuzilmadir (muzlatgichlar tizimi, mahsulotlarni avtomatik konveyerdan yetkazib berish, buyurtmalarni oshpazlarga to'g'ri taqsimlash). Taomingiz qanchalik maza bo'lmasin, konveyer (Workflow) ishlamasa, restoran (Loyiha) bankrot bo'ladi.
+
+Zamonaviy web dasturlash faqat kod yozishdan iborat emas. Professional dasturchi version control, CI/CD, containerization, package management va development environment'larni professional darajada bilishi kerak. Bu bo'lim sizni junior dan senior darajaga olib chiqadigan toollar va workflow'larni o'rgatadi.
 ## Bo'lim Tarkibi
 
 ### 1. [Git Advanced](./01-git-advanced.md)

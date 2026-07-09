@@ -979,10 +979,11 @@ export default defineNuxtConfig({
 
 ## Xulosa
 
-Rendering strategiyasi tanlash murakkab qaror - bitta "eng yaxshi" yechim yo'q. Har bir sahifa turi uchun alohida strategiya tanlab, hybrid approach qo'llang. Nuxt.js'ning `routeRules` bu imkoniyatni osonlashtiradi.
+| Yondashuv | Server yuki | SEO | Ma'lumot yangiligi | Qachon ishlatish kerak? |
+|-----------|-------------|-----|--------------------|-------------------------|
+| **SSG** | Yo'q (Statik) | Juda zo'r | Eskirgan bo'lishi mumkin | Bloglar, Qo'llanmalar (Docs), Landing sahifalar |
+| **SSR** | Yuqori | Juda zo'r | Har doim yangi | E-commerce do'konlari, Yangiliklar portallari |
+| **CSR** | Juda past | Yomon | Har doim yangi | Admin panellar, Foydalanuvchining shaxsiy kabineti |
+| **ISR/SWR** | O'rtacha | Yaxshi | Belgilangan vaqtda yangi | Tez o'zgaradigan lekin baribir keshlash mumkin bo'lgan sahifalar |
 
-**Eslab qoling:**
-- SSG = Tezlik + SEO (static content)
-- SSR = Freshness + SEO (dynamic content)
-- CSR = Interaktivlik (user-specific)
-- ISR = SSG tezligi + SSR freshnessi
+Rendering strategiyasi tanlash murakkab qaror - bitta "eng yaxshi" yechim yo'q. Har bir sahifa turi uchun alohida strategiya tanlab, hybrid approach qo'llang. Nuxt.js'ning `routeRules` bu imkoniyatni osonlashtiradi.

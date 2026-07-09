@@ -1,7 +1,12 @@
 # Web Accessibility (a11y) - Barcha Foydalanuvchilar Uchun
 
-Web accessibility - barcha odamlar, jumladan nogironligi bo'lgan kishilar ham web sahifalardan foydalana olishi.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Ko'plab yosh dasturchilar Accessibility (A11y) ni e'tiborsiz qoldirishadi va buni "faqat ko'zi ojizlar uchun" deb o'ylashadi. Aslida esa yomon contrast, juda kichik matnlar yoki klaviatura orqali ishlamaydigan menyular oddiy foydalanuvchilarni ham asabiylashtiradi. AQSh va Yevropada A11y qoidalariga rioya qilmagan saytlar ustidan sudga berish holatlari ko'paygan. Yaxshi A11y - bu qo'shimcha ish emas, bu sifat belgisidir.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Pulsiz Eshik"**  
+> Veb-saytingizni do'kon deb tasavvur qiling. Agar siz do'kon eshigi oldiga zina qo'yib, pandus (kolyaskalar uchun nishab yo'l) qo'ymasangiz, imkoniyati cheklangan mijozlarni yo'qotasiz. Web accessibility ham raqamli "pandus"dir. Klaviatura orqali saytni boshqarish (Tab tugmasi), ekran o'quvchilar (Screen readers) uchun ko'rinmas matnlar (alt tags) sizning raqamli do'koningiz eshigini hamma uchun ochiq qiladi.
 ## Mundarija
 
 1. [Accessibility asoslari](#accessibility-asoslari)
@@ -1323,9 +1328,16 @@ background: #ffffff;
 
 ## Xulosa
 
-Accessibility - bu qo'shimcha feature emas, balki web development ning ajralmas qismi. Yaxshi accessibility = yaxshi UX hamma uchun.
+| Accessibility Tushunchasi | Maqsadi | Misol |
+|---------------------------|---------|-------|
+| **Semantic HTML** | Brauzer va Screen Reader'ga element nima ekanini bildirish | `<div>` o'rniga `<button>` ishlatish |
+| **ARIA Attributes** | HTML yetarli bo'lmagan joyda qo'shimcha kontekst berish | `aria-hidden="true"`, `aria-label="Yopish"` |
+| **Color Contrast** | Matn fonga nisbatan aniq o'qiladigan bo'lishini ta'minlash | WCAG bo'yicha kamida 4.5:1 kontrast (matn va fon) |
+| **Keyboard Navigation** | Sishqonchasiz (faqat klaviaturada) ishlatish imkoniyati | `tabindex="0"`, `:focus` stillarini o'chirmaslik |
+| **Alt Text** | Rasmlarni ko'ra olmaydiganlarga tushuntirish | `<img src="dog.jpg" alt="Qora kuchukcha yugurmoqda">` |
+| **Focus Trap** | Modal/Dialog ochiq paytida Tab tugmasi fon elementlariga o'tib ketmasligi | Dialogni yopmaguncha foydalanuvchi faqat dialog ichida harakatlanishi |
 
-```
+```text
 "The power of the Web is in its universality.
 Access by everyone regardless of disability
 is an essential aspect."

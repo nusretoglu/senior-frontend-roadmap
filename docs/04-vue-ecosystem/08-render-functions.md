@@ -946,11 +946,11 @@ Badge.props = {
 
 ## Xulosa
 
-Render functions Vue'da qudratli, low-level API:
+| Yondashuv | Nima u? | Qachon ishlatiladi? |
+|-----------|---------|---------------------|
+| **Template (`<template>`)** | Oddiy HTML ga o'xshash, Vue compile qiladigan sintaksis. | Deyarli 95% hollarda, oddiy va tushunarli UI yasash uchun. |
+| **Render Function (`h()`)** | JS funksiyasi orqali Virtual DOM yaratish usuli. | Yozish qiyin bo'lgan murakkab dinamik logikalarda (masalan ixtiyoriy tag nomini yasash `h(tagName)`). |
+| **JSX / TSX** | React ga o'xshab JavaScript ichida HTML yozish imkoniyati. | Render funksiyalar kerak bo'lib, lekin `h()` ni o'qish qiyinlashib ketganda. |
+| **Functional Component** | Faqat `props` olib UI qaytaradigan davlatsiz (stateless) komponent. | Hech qanday state yoki lifecycle yo'q, shunchaki HTML qaytaruvchi kichik ikonka/badgelar yasashda (Vue 3 da performance farqi deyarli yo'q). |
 
-- **h()** - VNode yaratish
-- **JSX** - Alternative syntax
-- **Functional components** - Stateless rendering
-- **HOC** - Component wrapping
-
-Ko'p hollarda template yetarli, lekin dynamic yoki complex scenarios uchun render functions kerak.
+Render funksiyalar Vue ning "maxfiy quroli" bo'lib, kerak paytda cheksiz moslashuvchanlikni taqdim etadi. Lekin oddiy komponentlar uchun her doim Template afzalroq.

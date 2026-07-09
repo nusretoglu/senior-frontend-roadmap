@@ -1618,14 +1618,14 @@ provide('updateUser', (updates) => {
 
 ## Xulosa
 
-To'g'ri state management tanlov:
+## Xulosa
 
-1. **Avval local** - eng sodda yechimdan boshlang
-2. **Kerak bo'lganda ko'taring** - muammo paydo bo'lsa
-3. **Global faqat kerak bo'lganda** - over-engineering'dan saqlaning
-4. **Consistency** - bir xil pattern ishlating
+| Holat Saqlash Joyi | Xususiyati | Qachon ishlatiladi? |
+|--------------------|------------|---------------------|
+| **Local (`ref`/`reactive`)** | Faqat o'z komponentiga tegishli (Sir) | Tugma bosilishi, Modal ochiq/yopiqligi, Kichik formalar |
+| **Props / Emit** | Ota-bolani bog'laydi (Qo'shni) | Ma'lumotni 1 yoki 2 qavat yuqoriga/pastga uzatish |
+| **Provide / Inject** | Chuqur komponentlarni bog'laydi (Karnay) | Temalar, Til sozlamalari, Murakkab formalar (3+ qavat) |
+| **Composables** | Mantiqni qayta ishlatadi (Yordamchi) | API so'rovlar, Brauzer voqealari (Scroll, Mouse) |
+| **Global (Pinia)** | Butun loyihaga tegishli (Markaziy Bank) | Foydalanuvchi ma'lumoti (Auth), Savatcha, Global xatolar |
 
-State management - bu muvozanat:
-- Soddalik vs Kengayuvchanlik
-- Performance vs DX
-- Local vs Global
+State management - bu muvozanat ushlash san'ati. Avval eng sodda yo'lni (Local) tanlang, muammo seza boshlasangiz (Prop drilling) sekin yuqoriga (Provide yoki Global) ko'taring. "Over-engineering" dan qoching.

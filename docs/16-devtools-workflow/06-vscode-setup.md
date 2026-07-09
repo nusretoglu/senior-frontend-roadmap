@@ -2,8 +2,16 @@
 
 ## Kirish
 
-Visual Studio Code (VS Code) - bu Microsoft tomonidan yaratilgan bepul, open-source kod muharriri. Extensibility, performance va feature'lar jihatidan eng mashhur IDE'lardan biri. Bu bo'limda VS Code'ni professional darajada sozlash va samarali ishlatishni o'rganamiz.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturchining kuchi u foydalanayotgan asbobning o'tkirligi bilan o'lchanadi. Agar siz kuniga 8 soat VS Code da ishlasangiz-u, lekin hamma fayllarni qo'lda topib, kodlarni qo'lda tekislab (formatlab), xatolarni faqat brauzerda (console.log) izlasangiz — siz vaqtingizning 50% ni bekorga sarflayapsiz. Professional sozlamalar, hotkeylar va to'g'ri tanlangan kengaytmalar (Extensions) sizning kod yozish tezligingizni 3 barobarga oshirishi mumkin.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Poyga Mashinasi (F1)"**  
+> VS Code'ni shunchaki yuklab olib o'rnatish — bu ko'chadagi oddiy "Jiguli" sotib olishga o'xshaydi. Yuradi, manzilga yetkazadi, lekin sekin.  
+> VS Code ni ESlint, Prettier, GitLens va Debugger bilan to'g'ri sozlash — bu oddiy mashinani Formmula-1 poyga bolidiga aylantirishdir. Tezlik, qulaylik va monitoring asboblari sizga chempion bo'lish (kodingiz xatosiz va tez yozilishi) imkonini beradi.
+
+Visual Studio Code (VS Code) - bu Microsoft tomonidan yaratilgan bepul, open-source kod muharriri. Extensibility, performance va feature'lar jihatidan eng mashhur IDE'lardan biri. Bu bo'limda VS Code'ni professional darajada sozlash va samarali ishlatishni o'rganamiz.
 ## Essential Extensions
 
 ### JavaScript/TypeScript Development
@@ -1622,14 +1630,21 @@ code --disable-extensions      # Start without extensions
 }
 ```
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Jamoa standartlari (.vscode):** O'z kompyuteringizdagi global sozlamalar bilan birga loyiha ichida `.vscode/settings.json` va `.vscode/extensions.json` fayllarini yarating. Shunda loyihaga yangi kelgan dasturchida ham siz bilan 100% bir xil Linter va Formatter qoidalari ishlaydi (Kod urushlari tugaydi).
+2. **Klaviatura Qisqartmalari (Hotkeys):** Sichqonchadan (Mouse) qanchalik kam foydalansangiz, shunchalik professional hisoblanasiz. Ayniqsa `Ctrl + P` (Fayl qidirish), `Ctrl + Shift + F` (Global qidiruv) va `Alt + Click` (Ko'p qatorli yozish) ni ko'zi yumuq holatda ham bosa olishingiz kerak.
+3. **Format on Save:** Har doim `editor.formatOnSave: true` sozlamasini yoqib qo'ying. Kod yozayotganda uni tekislash haqida o'ylamang, siz Ctrl+S ni bosganingizda Prettier kodingizni o'zi chiroyli taxlab berishi kerak.
+
+---
+
 ## Xulosa
 
-VS Code to'g'ri sozlangan holda productivity'ni sezilarli oshiradi:
+| Bo'lim | Asosiy Vazifasi | Tavsiya etilgan qo'shimchalar (Extensions) |
+|--------|-----------------|---------------------------------------------|
+| **Formatting / Linting** | Kodni jamoaviy standartga keltirish, sintaksis xatolarni terish. | Prettier, ESLint, Stylelint. |
+| **Git / Source Control** | Fayldagi har bir qatorni kim va qachon yozganini ko'rish. | GitLens, Git Graph. |
+| **Productivity** | Qayta-qayta yoziladigan kodlarni tezlashtirish. | AI yordamchilar (Copilot/Tabnine), Path Intellisense, Snippets. |
+| **Debugging** | Qatorma-qator xatolikni tutish (`console.log` o'rniga). | VS Code o'rnatilgan JavaScript Debugger. |
 
-1. **Extensions** - Kerakli toollarni o'rnating
-2. **Settings** - User va Workspace settings'ni optimize qiling
-3. **Keybindings** - Tez-tez ishlatiladigan komandalarni yodlang
-4. **Debugging** - launch.json'ni project uchun sozlang
-5. **Snippets** - Takrorlanadigan kod uchun snippets yarating
-
-Professional setup = extensions + settings + keybindings + debugging configuration.
+VS Code to'g'ri sozlangan holda productivity'ni sezilarli oshiradi. Uni faqat "matn muharriri" deb o'ylamang. O'z IDE'ingizni o'rganishga va moslashtirishga vaqt ajrating, bu vaqt sizga kelajakda minglab soat bo'lib qaytadi. Professional setup = extensions + settings + keybindings + debugging configuration.

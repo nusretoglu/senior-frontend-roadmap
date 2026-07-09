@@ -1866,14 +1866,13 @@ export const useUserStore = defineStore('user', () => {
 
 ## Xulosa
 
-Pinia - Vue 3 uchun eng yaxshi state management yechimi:
+## Xulosa
 
-1. **Sodda API** - mutations yo'q, to'g'ridan state o'zgartirish
-2. **TypeScript** - to'liq type inference
-3. **Composition API** - setup syntax qo'llab-quvvatlash
-4. **DevTools** - time-travel, editing
-5. **Lightweight** - kichik bundle size
-6. **Modular** - har bir store mustaqil
-7. **Testable** - oson test qilish
+| Pinia Xususiyati | Vuex ga Nisbatan Ustunligi | Qanday Ishlaydi? |
+|------------------|-----------------------------|------------------|
+| **Mutations yo'q** | Ortiqcha qadamlar qisqardi | Action orqali to'g'ridan-to'g'ri state o'zgaradi |
+| **TypeScript** | 100% Type-safe | Avtomatik (Inference) typelar |
+| **Composition API**| Zamonaviy sintaksisga mos | `setup()` funksiyasi kabi yozish mumkin |
+| **Kichik hajm** | ~1kb gacha siqilgan | Brauzerga tezroq yuklanadi |
 
-Vue 3 loyihalari uchun Pinia rasmiy tavsiya etiladi.
+Pinia - Vue 3 uchun eng yaxshi state management yechimi bo'lib, loyihangizga yengillik, modullilik va zamonaviy yondashuv bag'ishlaydi. Yangi loyihalarda Vuex o'rniga doim Pinia'ni tanlang.

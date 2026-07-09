@@ -1145,10 +1145,11 @@ return {
 
 ## Xulosa
 
-Composition API Vue 3 ning eng muhim yangilanishi. U:
-- Kod organizatsiyasini yaxshilaydi
-- Mantiqni qayta ishlatishni osonlashtiradi
-- TypeScript bilan mukammal ishlaydi
-- Performance optimizatsiyaga yordam beradi
+| Yondashuv | Xususiyatlari | Qachon ishlatiladi? |
+|-----------|--------------|---------------------|
+| **Options API** | Mantiq (data, methods, computed) turiga qarab ajratilgan. | Kichik va oddiy komponentlar uchun, Vue 2 da eski kodlar bilan ishlaganda. |
+| **Composition API** | Mantiq (funksiya va state) vazifasiga qarab bitta joyda guruhlangan. | Katta komponentlar, mantiqni qayta ishlatish kerak bo'lganda (composables). |
+| **`ref()`** | Ixtiyoriy turdagi (primitive va obyekt) ma'lumotlarni reaktiv qiladi, qiymatini `.value` orqali oladi. | Asosan string, number, boolean qiymatlar uchun (eng tavsiya qilingan usul). |
+| **`reactive()`** | Faqat obyektlarni (Object, Array, Map) chuqur reaktiv qiladi. `.value` yozilmaydi. | Yirik formalar yoki bitta obyekt ichida ko'p ma'lumot saqlanganda. |
 
-Options API hali ham mavjud va kichik komponentlar uchun yaxshi, lekin katta loyihalarda Composition API tavsiya etiladi.
+Composition API Options API'ni almashtiradigan narsa emas, lekin kod organizatsiyasini tubdan yaxshilovchi, ayniqsa Typescript bilan ishlashda ideal echimdir.

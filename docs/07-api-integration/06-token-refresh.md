@@ -1173,6 +1173,13 @@ channel.onmessage = (event) => {
 
 ## Xulosa
 
+| Tushuncha | Asosiy Mohiyati | Qachon/Qayerda ishlatish kerak? |
+|-----------|-----------------|---------------------------------|
+| **Access Token** | Asosiy ruxsatnoma (Qisqa vaqtli) | Barcha xususiy API so'rovlarining `Authorization` header'ida |
+| **Refresh Token** | Pasport (Uzoq vaqtli) | Faqatgina yangi Access Token olishda (HttpOnly Cookie'da saqlash tavsiya etiladi) |
+| **Reactive Refresh**| Xatolik bo'lganda (401) yangilash | Standart usul, o'rnatish oson lekin mijoz xatolikni sezib qolishi mumkin |
+| **Proactive Refresh**| Xatolik bo'lishidan oldin (1 min) yangilash | Eng yaxshi UX beruvchi tajriba |
+
 Token refresh - zamonaviy authentication'ning muhim qismi. Access token memory'da, refresh token HttpOnly cookie'da saqlash eng xavfsiz. Race condition'lar va multi-tab sync to'g'ri handle qilinishi kerak. Proactive refresh eng yaxshi UX beradi.
 
 **Keyingi qadam:** [07-axios-vs-fetch.md](./07-axios-vs-fetch.md) - HTTP client tanlash va custom wrapper yaratish.

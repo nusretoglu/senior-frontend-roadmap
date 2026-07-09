@@ -2,8 +2,16 @@
 
 ## Kirish
 
-Mapbox GL JS - WebGL texnologiyasidan foydalanadigan zamonaviy xarita kutubxonasi. Vector tiles, 3D binolar, custom styling va smooth zoom/pan tajribasi bilan ajralib turadi. Uber, Strava, Facebook kabi kompaniyalar tomonidan ishlatiladi.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Agar siz zamonaviy taxi (Yandex, Uber), yetkazib berish (Uzum Tezkor, Glovo) kabi professional ilova yaratmoqchi bo'lsangiz, Leaflet'ning kuchi yetmaydi. Sizga real-vaqtda chiziladigan (Vector), binolarni 3D da ko'rsata oladigan va xaritani har tomonga burish imkonini beradigan WebGL dvigateli kerak. Mapbox — butun dunyo geolokatsiya sanoatida (GPS, Logistics) Oltin Standart (Gold Standard) hisoblanadi.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Rasm ko'rish vs 3D O'yin o'ynash"**  
+> Leaflet - bu tayyor chizilgan rasmlar (Rasmli kitob) galereyasi. Siz uni yaqinlashtirganda sifat xiralashishi (pixelate) mumkin, chunki u oddiy rasm (Raster).  
+> Mapbox - bu GTA kabi 3D o'yin. Siz xaritaga qaramaysiz, uning ichidasiz. Yo'llar, binolar va daryolar matematik formula orqali sizning brauzeringizning (Video kartasi - WebGL) o'zida real-vaqtda chiziladi (Vector). Shu sababli uni istalgancha aylantirib (Pitch/Bearing), sifatini yo'qotmasdan cheksiz yaqinlashtirishingiz mumkin.
+
+Mapbox GL JS - WebGL texnologiyasidan foydalanadigan zamonaviy xarita kutubxonasi. Vector tiles, 3D binolar, custom styling va smooth zoom/pan tajribasi bilan ajralib turadi. Uber, Strava, Facebook kabi kompaniyalar tomonidan ishlatiladi.
 ## Leaflet'dan Farqi
 
 | Xususiyat | Leaflet | Mapbox GL JS |
@@ -1252,6 +1260,21 @@ Alternative:
 - Self-hosted tiles (OpenMapTiles)
 ```
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Pullik xizmat (Billing) nazorati:** Mapbox - bu pullik xizmat (Freemium). Sizning obunangiz API Key (Token) orqali ishlaydi. Agar siz API Key ni frontend da himoyasiz qoldirsangiz, kimdir uni o'g'irlab, sizga minglab dollar zarar keltirishi mumkin. Har doim `URL Restriction` (Faqat sizning domeningizda ishlashi) ni Mapbox sozlamalarida yoqib qo'ying.
+2. **MapLibre GL alternativi:** 2020-yilda Mapbox o'zining ochiq kodli litsenziyasini o'zgartirib yopiqroq (pullik) modelga o'tgach, hamjamiyat MapLibre GL ni yaratdi. Agar byudjetingiz nol bo'lsa va to'liq tekin, ochiq-kodli Mapbox ekvivalentini izlayotgan bo'lsangiz MapLibre GL ni tanlang.
+3. **Layerlar ketma-ketligi (Z-Index):** Mapbox'da hamma narsa Canvas ichiga bitta rasm bo'lib chiziladi (DOM elementlar emas). Shuning uchun yo'llar, suv havzalari va poligonlarni qo'shayotganda ularning ID ketma-ketligiga (qaysi biri oldinda, qaysi biri orqada turishiga) qattiq e'tibor bering.
+
+---
+
 ## Xulosa
 
-Mapbox GL JS - professional darajadagi xaritalar uchun eng kuchli kutubxona. WebGL rendering, vector tiles va 3D qo'llab-quvvatlash uni katta loyihalar uchun ideal qiladi. Narxlash modelini hisobga olib, oddiy loyihalar uchun Leaflet yoki MapLibre GL alternativ sifatida ko'rib chiqilishi mumkin.
+| Xususiyat | Tavsif / Foydasi |
+|-----------|------------------|
+| **Asos (Texnologiya)** | Kompyuterning Video kartasidan (GPU) to'g'ridan-to'g'ri foydalanuvchi WebGL texnologiyasi. |
+| **Data formati** | Vector Tiles (Vektor format). Ya'ni rasm (PNG) emas, balki "Yo'l chiz" degan kod keladi, brauzer o'zi chizadi. |
+| **Katta ustunligi** | Kamera (Pitch/Bearing) ni burib 3D ko'rinishda (osmono'par binolar bilan) shaharni tomosha qilish imkoniyati. Smooth (Silliq) zoom. |
+| **Kamchiligi** | Pullik xizmat (Bepul limiti tugagach pul yechadi). Mapbox Studio orqali ishlash boshlanishiga qiyin ko'rinishi mumkin. |
+
+Mapbox GL JS - professional darajadagi (Enterprise, Logistics, Delivery) xaritalar uchun eng kuchli kutubxona. WebGL rendering, vector tiles va 3D qo'llab-quvvatlash uni katta loyihalar uchun ideal qiladi. Agar bepul va aynan shunday texnologiya kerak bo'lsa MapLibre GL alternativ sifatida ko'rib chiqilishi qat'iy tavsiya etiladi.

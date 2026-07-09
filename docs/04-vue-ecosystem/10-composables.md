@@ -1119,11 +1119,12 @@ Composable xususiyatlari:
 
 ## Xulosa
 
-Composables Vue 3 ning eng muhim pattern'laridan biri:
+| Composable Xususiyati | Afzalligi |
+|-----------------------|-----------|
+| **Qayta ishlatuvchanlik** | Bitta logikani (API so'rov, localStorage) o'nlab komponentlarda qayta yozmasdan ishlatish. |
+| **Guruhlash** | Bitta ishga javobgar barcha kod (state, funksiya, hook'lar) faqat bitta faylda yig'iladi. |
+| **O'qilish (Readability)** | Komponent qisqaradi, `setup()` ichida faqat qisqa chaqiruvlar `const { x, y } = useMouse()` qoladi. |
+| **Tur (Types) xavfsizligi** | Mixinlardan farqli o'laroq, qaysi o'zgaruvchi qayerdan kelayotganini muharrir (VSCode) to'liq ko'radi. |
+| **Testing (Sinov)** | DOM'dan butunlay ajralganligi uchun ularni unit test qilish juda onson. |
 
-- **Qayta ishlatish** - Mantiqni komponentlar orasida ulashish
-- **Organizatsiya** - Feature bo'yicha kod guruhlash
-- **TypeScript** - To'liq type inference
-- **Testing** - Oson test qilish
-
-VueUse kutubxonasi 200+ tayyor composable taqdim etadi.
+Loyihangizda Composables larni qo'lda yozishdan oldin, dunyodagi eng mashhur [VueUse](https://vueuse.org/) kutubxonasida aynan sizga keraklisi yo'qmi, izlab ko'ring!

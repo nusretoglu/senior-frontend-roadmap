@@ -1947,12 +1947,11 @@ const posts = await db
 
 ## Xulosa
 
-Samarali caching:
+| Caching Turi | Nima uchun kerak? | Qayerda saqlanadi? | Analogiya |
+|--------------|-------------------|--------------------|-----------|
+| **In-Memory** | API so'rovlarni kamaytirish, tezlik | RAM (O'zgaruvchilarda) | Cho'ntakdagi pul (Tez tugaydi, oson) |
+| **LocalStorage** | Kichik va doimiy ma'lumotlar uchun | Brauzer LocalStorage | Seyfdagi pul (Xavfsizroq, lekin sekinroq) |
+| **IndexedDB** | Katta hajmli fayllar, offline qo'llab-quvvatlash | Brauzer IndexedDB | Bankdagi pul (Katta xajm, biroz murakkab) |
+| **SWR (Stale-While-Revalidate)** | UI bloklanib qolmasligi uchun eski ma'lumotni ko'rsatib turish | Barcha Cachelarda | Yangi non yopilguncha eskini yeb turish |
 
-1. **Kerakli joyda** - hamma narsani cache qilmang
-2. **To'g'ri TTL** - data freshness vs performance
-3. **Invalidation strategy** - eskirgan data = xato
-4. **Memory management** - LRU, TTL, cleanup
-5. **User feedback** - stale indicator, loading state
-
-Cache = tezlik + murakkablik trade-off. Ehtiyotkorlik bilan ishlating.
+Samarali caching - bu shunchaki hamma narsani saqlash emas, balki "qachon yangilashni bilish" san'ati. Cache'ni xato boshqarish (Invalidation) yanglish ma'lumot ko'rinib qolishiga sabab bo'ladi. Ehtiyotkorlik bilan ishlating.

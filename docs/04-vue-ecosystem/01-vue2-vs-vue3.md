@@ -1008,11 +1008,13 @@ Bu ayniqsa table row, list item kabi elementlar uchun muhim.
 
 ## Xulosa
 
-Vue 3 fundamental jihatdan yaxshilangan:
-- **Performance:** Kichik bundle, tezroq render
-- **TypeScript:** Birinchi darajali qo'llab-quvvatlash
-- **Composition API:** Yaxshiroq kod organizatsiyasi
-- **Reactivity:** To'liq, cheklovsiz
-- **Tree-shaking:** Faqat kerakli kod
+| Xususiyat | Vue 2 | Vue 3 |
+|-----------|--------|-------|
+| **Reactivity** | `Object.defineProperty` (Cheklangan) | `Proxy` (To'liq qo'llab-quvvatlanadi) |
+| **API** | Options API | Options API + Composition API |
+| **TypeScript** | Qo'shimcha sozlash (Class API) | Yaxshi integratsiya qilingan (Native) |
+| **Multiple Roots** | Yo'q (faqat bitta ota-element kerak) | Ha (Fragmentlar qo'llab-quvvatlanadi) |
+| **State Management**| Vuex | Pinia |
+| **Performance** | O'rtacha (Kattaroq bundle) | Yuqori (Kichik bundle, yaxshi tree-shaking) |
 
-Vue 2 dan Vue 3 ga o'tish tavsiya etiladi, lekin migration path aniq bo'lishi kerak.
+Vue 2 dan Vue 3 ga o'tish hozirgi kunda shart, ayniqsa yangi proyektlarda Composition API bilan ishlash standartga aylanib ulgurgan.

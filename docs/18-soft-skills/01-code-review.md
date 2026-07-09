@@ -2,8 +2,16 @@
 
 ## Kirish
 
-Code review - bu jamoa a'zolari tomonidan yozilgan kodni ko'rib chiqish jarayoni. Bu faqat xatolarni topish emas - bu **bilim almashish, standartlarni saqlash va jamoa sifatini oshirish** vositasi.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturchilarning ko'pchiligi kodi ishlasa bo'ldi, uni boshqalar qanday tushunishi muhim emas deb o'ylaydi. Lekin, Code Review (Kodni tekshirish) bu shunchaki "Xatolarni izlash" emas, balki kompaniyaning Kod Sifatini bir xil darajada ushlab turish va o'zaro tajriba almashish jarayonidir. Yaxshi Code Review bera oladigan dasturchi Jamoaning 1-raqamli yordamchisi (Lideri) hisoblanadi. Agar siz faqat "LGTM" (Looks Good To Me) deb review bersangiz, siz hali Senior emassiz.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Yozuvchi va Muharrir"**  
+> Siz qanchalik iste'dodli yozuvchi bo'lmang (Dasturchi), kitobingiz nashr etilishidan oldin baribir Tajribali Muharrir (Reviewer) ko'rigidan o'tadi.  
+> Muharrir so'zlarni o'zgartirishi, noto'g'ri tasvirlarni to'g'rilashi yoki hatto bitta sahifani butunlay o'chirib, "Boshqacha yozing" deyishi mumkin. U buni sizni yomon ko'rgani uchun emas, Kitob (Loyiha) sifatli chiqib, xaridorlarga (Foydalanuvchiga) manzur bo'lishi uchun qiladi.
+
+Code review - bu jamoa a'zolari tomonidan yozilgan kodni ko'rib chiqish jarayoni. Bu faqat xatolarni topish emas - bu **bilim almashish, standartlarni saqlash va jamoa sifatini oshirish** vositasi.
 ## Nega Code Review Muhim?
 
 ### 1. Sifat Nazorati
@@ -779,15 +787,30 @@ Konkret savol bering.
 
 ## Xulosa
 
-Code review - bu:
+## Eng Yaxshi Amaliyotlar (Best Practices)
 
+1. **"Sen" o'rniga "Biz" yoki "Kod" ni ishlating:** EGO ni chetga suring. "Sen bu yerda xato qilibsan" deyish o'rniga, "Bu funksiyani boshqacharoq yozsak nima deysiz?" yoki "Bu kod Edge Caselarda qulab tushishi mumkin" deb izoh yozing. Insonni emas, Kodni tanqid qiling.
+2. **Kichik va tez-tez PR ochish:** 2000 qator kod o'zgargan PR ni hech kim sifatli Review qila olmaydi (Odatda charchab shunchaki Approve bosib yuborishadi). PR laringiz imkon qadar kichik (max 400 qator) va bitta maqsadga yo'naltirilgan bo'lishini ta'minlang.
+3. **Avtomatlashtirish mumkin bo'lgan narsani insonga qoldirmang:** Reviewer vergul, probel (Space) yoki qavslarni tekshirishiga vaqt sarflamasligi kerak. ESLint, Prettier va Husky (Pre-commit hooks) larni to'g'rilang. Insondan faqat "Biznes Mantiqi" va "Arxitektura" ni tekshirishni so'rang.
+
+---
+
+## Xulosa
+
+| Yondashuv | Yomon Review (Toxic) | Yaxshi Review (Senior) |
+|-----------|----------------------|------------------------|
+| **Fikr bildirish (Feedback)** | "Bu xato, o'zgartir." | "Bu yechim yaxshi, lekin `Array.map` o'rniga `Array.reduce` ishlatsak tezroq bo'lmaydimi?" |
+| **Xatolarni ko'rsatish** | Faqat xatoning o'zini yozib qoldirish. | Xatoni yozish bilan birga, yechimga havolani (Doc link) yoki kichik kod snippetni ilova qilish. |
+| **Maqtov (Praise)** | Hech qachon maqtamaslik. Faqat xato qidirish. | Chiroyli yechim ko'rsa albatta "Nice approach!" deb ruxlantirish. |
+| **Qarama-qarshilik (Conflict)** | "Mening aytganim to'g'ri" deb oxirigacha bahslashish. | Agar bahs 2 tadan ko'p Commentga aylansa, "Zoom ga kirib gaplashib olaylik" deyish. |
+
+Code review - bu:
 1. **Sifat vositasi** - xatolarni topish
 2. **O'rganish vositasi** - bilim almashish
 3. **Kommunikatsiya vositasi** - jamoa birlikda ishlashi
 4. **Madaniyat vositasi** - professional standartlar
 
-> "Code review yoqmasa, yolg'iz ishlang.
-> Jamoa bilan ishlasangiz - review majburiy."
+> "Code review yoqmasa, yolg'iz ishlang. Jamoa bilan ishlasangiz - review majburiy."
 
 ---
 

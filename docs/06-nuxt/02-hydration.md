@@ -1228,12 +1228,13 @@ describe('ProductPage', () => {
 
 ## Xulosa
 
-Hydration SSR'ning muhim qismi. To'g'ri tushunmasdan production'da qiyin muammolarga duch kelasiz:
+## Xulosa
 
-1. **Server va client** bir xil HTML render qilishi kerak
-2. **useFetch/useAsyncData** double fetch'ni oldini oladi
-3. **ClientOnly** browser-specific kod uchun
-4. **useState** SSR-safe state management
-5. **Performance** - payload size, lazy hydration, code splitting
+| Tushuncha | Ma'nosi | Asosiy Qoidasi |
+|-----------|---------|----------------|
+| **Hydration** | Serverdan kelgan quruq HTML ni interaktiv Vue ga aylantirish | Server va Client aynan bir xil kod yaratishi shart |
+| **Mismatch** | Server va Client o'rtasidagi kelishmovchilik (HTML farq qilishi) | Tasodifiy qiymatlar (`Math.random`, date) va notog'ri HTML yozish sabab bo'ladi |
+| **Double Fetch** | Ham server, ham client da bitta API ga so'rov jo'natish | Nuxt dagi `useFetch` dan foydalaning (u o'zi keshlash orqali buni hal qiladi) |
+| **`<ClientOnly>`** | Faqat Brauzerda ishlaydigan kodlarni ajratish | Agar kutubxona `window` kabi by default brauzer API larini ishlatsa, shu komponent ichida yoziladi |
 
-Hydration muammolarini debug qilish uchun Vue DevTools va console warnings'ga e'tibor bering.
+Hydration muammolarini debug qilish uchun Vue DevTools va browser console warnings'ga e'tibor bering. SSR bilan ishlayotganda Hydration jarayoni eng nozik qismdir va buni tushungan dasturchi o'ta yuqori darajadagi mutaxassis hisoblanadi.

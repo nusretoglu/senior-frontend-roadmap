@@ -1252,12 +1252,13 @@ if (error.value) {
 
 ## Xulosa
 
-Nuxt routing file-based approach bilan konfiguratsiyani minimallashtirib, development tezligini oshiradi:
+## Xulosa
 
-1. **File = Route** - `pages/about.vue` → `/about`
-2. **Dynamic** - `[param]` single, `[...slug]` multiple segments
-3. **Nested** - parent layout + `<NuxtPage />` child content
-4. **NuxtLink** - SPA navigation with prefetch
-5. **navigateTo** - programmatic, SSR-compatible
+| Fayl Nomi | Nuxt dagi Turi | Brauzerdagi URL |
+|-----------|----------------|-----------------|
+| `about.vue` | Standart (Static) Route | `/about` |
+| `[id].vue` | Dinamik (Dynamic) Route | `/123` yoki `/abc` |
+| `[...slug].vue` | Tutib Qoluvchi (Catch-all) | `/category/shoes/nike` (cheksiz chuqurlik) |
+| `index.vue` | Bosh (Index) Route | `/` yoki qaysi papkada bo'lsa o'shaning ildizi |
 
-To'g'ri route struktura UX, SEO va maintainability uchun muhim.
+Nuxt routing file-based approach bilan konfiguratsiyani minimallashtirib, development tezligini oshiradi. `NuxtLink` ni o'z o'rnida qo'llab, to'g'ri papkalar strukturasini tanlash loyihaning muvaffaqiyat garovidir.

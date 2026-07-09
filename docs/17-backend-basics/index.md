@@ -2,6 +2,15 @@
 
 Bu bo'lim frontend dasturchilari uchun backend texnologiyalarini tushuntirishga bag'ishlangan. Full-stack rivojlanish uchun zarur bo'lgan barcha fundamental tushunchalar qamrab olingan.
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> "Men faqat frontendchiman, orqa fonda nima bo'layotgani menga qiziq emas" degan fikr sizni faqatgina Junior darajasida ushlab turadi. Katta ma'lumotlar bilan ishlaganda Frontend qachon sekinlashishi, qachon kesh (Redis) ni so'rashi, qanday qilib API larni to'g'ri dizayn qilish kerakligini Backend'ni tushunmasdan bilib bo'lmaydi. Senior Frontend bo'lish yoki jamoaga arxitektura bo'yicha maslahat bera olish uchun Backend asoslarini bilish hayotiy zaruratdir.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Restoran va Oshpazxona"**  
+> **Frontend** — bu restoranning zali (Mijozlar o'tiradigan joy). Menyuning chiroyliligi, ofitsiantlarning xushmuomalaligi va musiqa.  
+> **Backend** — bu orqa tarafdagi oshxona.  
+> Agar siz faqat zalni bezashni bilsangiz, lekin oshxonada qanday qilib ovqat pishayotganini (Ma'lumotlar bazasi), oshpazlar qanday muloqot qilayotganini (API) yoki nima uchun buyurtma 40 minut kutilayotganini (Performance/Queues) tushunmasangiz, restorandagi haqiqiy muammolarni hech qachon yecha olmaysiz.
 ## Nima Uchun Frontend Dasturchisiga Backend Kerak?
 
 ### 1. Yaxshiroq Kommunikatsiya

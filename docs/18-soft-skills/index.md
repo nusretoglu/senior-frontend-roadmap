@@ -2,8 +2,17 @@
 
 ## Kirish
 
-Texnik bilim - bu faqat yarimsharoba. Haqiqiy senior developer bo'lish uchun **soft skills** (yumshoq ko'nikmalar) shart. Bu bo'limda siz kod yozishdan tashqari eng muhim professional ko'nikmalarni o'rganasiz.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Agar siz eng zo'r texnologiyalarni bilsangiz, lekin fikringizni Jamoaga tushuntira olmasangiz, Juniorlarga asabiylashib muomala qilsangiz yoki mijozning asl muammosini tushunmasdan keraksiz narsani kodlayversangiz, siz hech qachon Senior bo'lolmaysiz. Kompaniyalar "Yolg'iz qahramonlar" ni emas, "Jamoani kuchaytiradigan Liderlarni" yuqori maosh bilan qadrlaydilar. Soft Skills (Yumshoq Ko'nikmalar) — sizning texnik kodingizni qanchalik qimmatga sotila olishini belgilaydigan eng katta omildir.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Mukammal Osh vs Xizmat ko'rsatish"**  
+> Tasavvur qiling siz dunyodagi eng maza osh pishiradigan Oshpazsiz (Texnik ko'nikma).  
+> Lekin mijozlarga dag'al muomala qilasiz, ofitsiantlaringizga o'rgatmaysiz (Mentoring yo'q), ularni xatosi uchun mijoz oldida so'kasiz (Yomon Code Review), buyurtma kechikayotganini aytmaysiz (Communication yo'q).  
+> Natijada mijozlar oshingiz qanchalik zo'r bo'lmasin, sizning restoraningizga qaytib kelishmaydi. Dasturlashda ham huddi shunday — Jamoa va Kompaniya siz bilan ishlashdan zavq olishi kerak.
+
+Texnik bilim - bu faqat yarimsharoba. Haqiqiy senior developer bo'lish uchun **soft skills** (yumshoq ko'nikmalar) shart. Bu bo'limda siz kod yozishdan tashqari eng muhim professional ko'nikmalarni o'rganasiz.
 ## Nega Soft Skills Muhim?
 
 ```

@@ -2,8 +2,15 @@
 
 ## Kirish
 
-Ma'lumotlarni vizualizatsiya qilish — murakkab ma'lumotlarni grafik, diagramma va boshqa vizual elementlar orqali tushunarli ko'rinishga keltirish san'ati va fanidir. Zamonaviy web ilovalarida bu juda muhim bo'lib, foydalanuvchilar katta hajmdagi ma'lumotlarni bir qarashda tushunishlari kerak.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturlashda ko'pincha "Ma'lumotlar juda ko'p bo'lsa, ularni ko'rsatishdan foyda yo'q" deyishadi, sababi inson miyasi quruq raqamlarni qabul qilishga qiynaladi. Katta Dashboard'lar yasayotganingizda, ma'lumotlarni to'g'ri grafik (chart) larga ajrata olish biznes uchun juda katta qiymat (value) olib keladi. Qaysi joyda Pie Chart, qaysi joyda Bar Chart kerakligini bilmaslik mahsulotingizni tushunarsiz qilib qo'yadi.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Buxgalteriya daftari vs Spidometr"**  
+> Agar mashinaning tezligini bilish uchun mashina kompyuteri har soniyada sizga `v = 110.5 km/h` deb qog'ozda yozib berganda, siz tezlikka baho berishga ulgurmasdingiz. Buning o'rniga sizga oddiy chiziqli Spidometr (Data Visualization) berilgan. Siz strelkaning qizil zonaga o'tganini bir marta ko'rish bilanoq sekinlashish kerakligini tushunasiz. Vizualizatsiya – quruq axborotni oson hazm bo'ladigan xulosaga aylantirishdir.
+
+Ma'lumotlarni vizualizatsiya qilish — murakkab ma'lumotlarni grafik, diagramma va boshqa vizual elementlar orqali tushunarli ko'rinishga keltirish san'ati va fanidir. Zamonaviy web ilovalarida bu juda muhim bo'lib, foydalanuvchilar katta hajmdagi ma'lumotlarni bir qarashda tushunishlari kerak.
 ## Nega Data Visualization Muhim?
 
 ### 1. Kognitiv Yuklama Kamaytirish
@@ -36,47 +43,16 @@ Biznes qarorlarini qabul qilishda vizualizatsiya kritik rol o'ynaydi:
 
 ## Asosiy Chart Turlari
 
-### Categorical Data (Kategorik Ma'lumotlar)
-```
-Bar Chart      — kategoriyalarni solishtirish
-Column Chart   — vaqt bo'yicha kategoriyalar
-Pie/Donut      — ulushlarni ko'rsatish (5 dan kam kategoriya)
-```
-
-### Time Series (Vaqt Seriyalari)
-```
-Line Chart     — trendlar va o'zgarishlar
-Area Chart     — kümülatif qiymatlar
-Candlestick    — moliyaviy ma'lumotlar (OHLC)
-```
-
-### Distribution (Taqsimlanish)
-```
-Histogram      — qiymatlar taqsimlanishi
-Box Plot       — statistik xulosa (min, max, median, quartiles)
-Violin Plot    — taqsimlanish shakli
-```
-
-### Correlation (Korrelyatsiya)
-```
-Scatter Plot   — ikki o'zgaruvchi orasidagi munosabat
-Bubble Chart   — uch o'zgaruvchi (x, y, size)
-Heatmap        — matritsa ko'rinishidagi korrelyatsiya
-```
-
-### Hierarchical (Ierarxik)
-```
-Treemap        — tarkibiy ulushlar
-Sunburst       — ko'p darajali ierarxiya
-Sankey         — oqimlar va o'tishlar
-```
-
-### Geographic (Geografik)
-```
-Choropleth     — hududlar bo'yicha rang kodlash
-Bubble Map     — joylashuv va qiymat
-Flow Map       — yo'nalishlar va migratsiya
-```
+| Data Turi | Chart Nomi | Qachon ishlatiladi? |
+|-----------|------------|---------------------|
+| **Kategorik** | Bar Chart / Column Chart | Turli kategoriyalarni bir-biri bilan solishtirish uchun. |
+| **Kategorik** | Pie / Donut Chart | Umumiy butunning (100%) qismlarini ko'rsatish uchun (5 dan kam kategoriya). |
+| **Vaqt (Time)** | Line Chart / Area Chart | Vaqt o'tishi bilan o'sish/tushish tendensiyalarini (trend) ko'rsatish. |
+| **Vaqt (Time)** | Candlestick | Moliyaviy ma'lumotlar (Birja, Kriptovalyuta - OHLC). |
+| **Taqsimlanish**| Histogram / Box Plot | Ma'lumotlarning qay darajada tarqalganini (min, max, median) baholash. |
+| **Korrelyatsiya**| Scatter Plot / Bubble | Ikki (yoki uch) o'zgaruvchi bir-biriga qanday ta'sir qilishini ko'rish. |
+| **Ierarxik** | Treemap / Sunburst | Katta kategoriyalar ichidagi kichik ulushlarni ierarxik tasvirlash. |
+| **Geografik** | Choropleth / Flow Map | Hududlar va lokatsiyalardagi aktivlikni (masalan: qaysi davlatda ko'p xarid bo'ldi) rang orqali ifodalash. |
 
 ## Kutubxonalar Qiyosiy Tahlili
 

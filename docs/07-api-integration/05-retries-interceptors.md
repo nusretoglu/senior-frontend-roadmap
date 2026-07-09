@@ -1312,6 +1312,13 @@ useEffect(() => {
 
 ## Xulosa
 
-Retry va interceptors - production-ready API client'ning asosiy qismlari. Exponential backoff va circuit breaker server'ni himoya qiladi, interceptors esa kodni toza va maintainable qiladi. Har bir pattern o'z use case'iga ega.
+| Tushuncha | Ma'nosi | Asosiy Vazifasi |
+|-----------|---------|-----------------|
+| **Request Interceptor** | Yuborishdan oldingi nazorat | Barcha so'rovlarga Token (Auth) qo'shish, tilni (Language) kiritish |
+| **Response Interceptor**| Kelgandan keyingi nazorat | 401 xatolik bo'lsa darhol login sahifasiga otish, global xatoliklarni ushlash |
+| **Retry** | Qayta urinib ko'rish | Vaqtinchalik uzilishlar (500, 502) da 2-3 marta so'rovni takrorlash |
+| **Exponential Backoff** | Kutish vaqtini uzaytirish | Server o'lib qolmasligi uchun 1s, 2s, 4s kutish oralig'ida qayta urinish |
+
+Retry va interceptors - production-ready API client'ning asosiy qismlari. Exponential backoff va circuit breaker server'ni himoya qiladi, interceptors esa kodni toza va maintainable qiladi (DRY prinsiplariga mos holda). Har bir pattern o'z aniq holatiga ega.
 
 **Keyingi qadam:** [06-token-refresh.md](./06-token-refresh.md) - JWT token'larni xavfsiz boshqarish va silent refresh.

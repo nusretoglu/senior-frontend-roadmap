@@ -1542,6 +1542,13 @@ export const useCartStore = defineStore('cart', {
 
 ## Xulosa
 
+| Xususiyat | Vuex (Eski) | Pinia (Yangi) |
+|-----------|-------------|---------------|
+| **Mutations** | Majburiy (Kodni ko'paytiradi) | Yo'q (Sodda va tez) |
+| **Arxitektura** | Yagona katta daraxt (Root Store) | Ko'plab kichik store'lar (Modullar) |
+| **TypeScript** | Juda yomon, yozish qiyin | First-class qo'llab-quvvatlash |
+| **O'rnatish hajmi** | Og'irroq | ~1 KB (Juda yengil) |
+
 ### Final Recommendation
 
 > [!TIP]
@@ -1556,4 +1563,4 @@ export const useCartStore = defineStore('cart', {
 > - Hot reload to'liq ishlaydi
 > - Evan You: "Pinia is effectively Vuex 5"
 
-Vuex hali ham qo'llab-quvvatlanadi, lekin yangi loyihalar uchun Pinia tavsiya etiladi.
+Vuex hali ham qo'llab-quvvatlanadi, lekin barcha yangi loyihalar uchun qat'iy Pinia tavsiya etiladi.

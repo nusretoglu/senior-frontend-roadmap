@@ -855,15 +855,11 @@ deactivated() {
 
 ## Xulosa
 
-Lifecycle hooks Vue komponentining hayot siklini boshqarish uchun muhim vositalar:
+| Hook (Options API) | Hook (Composition API) | Eng yaxshi foydalanish usuli |
+|--------------------|------------------------|------------------------------|
+| `created` | `setup()` ni o'zi | Komponent yaratilganda boshlang'ich logikani yuritish (DOM ga bog'liq bo'lmagan). |
+| `mounted` | `onMounted()` | Backend API'dan ma'lumot olish, DOM'ga to'g'ridan-to'g'ri bog'lanish (masalan: echarts, swiper). |
+| `updated` | `onUpdated()` | DOM o'zgarishini vizual debug qilish. Asosiy state o'zgarishlarini `watch` da tuting. |
+| `beforeUnmount` | `onBeforeUnmount()` | Kutish kerak bo'lmagan tozalash ishlari (event listeners, timers, intervals o'chirish). |
 
-- **created** - Data initialization, API calls
-- **mounted** - DOM bilan ishlash, 3rd-party libraries
-- **updated** - DOM yangilangandan keyin
-- **beforeUnmount** - Cleanup, memory leak prevention
-
-Vue 3 da:
-- `beforeDestroy` → `beforeUnmount`
-- `destroyed` → `unmounted`
-- Yangi debug hooks: `renderTracked`, `renderTriggered`
-- Composition API: `on` prefix (`onMounted`, etc.)
+Vue 3 da e'tibor bering: `beforeDestroy` va `destroyed` degan nomlar qolmagan, ular o'rniga `beforeUnmount` va `unmounted` ishlatiladi.

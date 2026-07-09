@@ -1,7 +1,12 @@
 # CSS Architecture - Metodologiyalar va Patterns
 
-Katta loyihalarda CSS ni tashkil qilish, scale qilish va maintain qilish uchun arxitektura patternlari.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dastlab loyihada CSS ni xohlagancha yozish oson, lekin loyiha kattalashgani sari bitta o'zgarish boshqa joylarni ham buzib qo'yishni boshlaydi. CSS arxitekturasi (BEM, SMACSS kabi) aynan mana shu tartibsizlikni yo'qotadi va jamoa bo'lib ishlashda "hamma bitta tilda gaplashishini" ta'minlaydi. Senior dasturchi bo'lish shunchaki CSS yozish emas, balki uni qanday qilib barqaror tashkil etishni bilishdir.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Kutubxona"**  
+> Agar kutubxonada minglab kitoblar shunchaki yerga tashlab qo'yilsa, keraklisini topish imkonsiz. Kitoblarni avval fanlarga (SMACSS/ITCSS), so'ngra mualliflarga ko'ra javonlarga terib, ularga yorliqlar (BEM) yopishtirilsa, istalgan kitob 10 soniyada topiladi. CSS arxitekturasi ham sizning kodingiz uchun ana shunday "javon va yorliqlar" tizimidir.
 ## Mundarija
 
 1. [CSS Architecture muammolari](#css-architecture-muammolari)
@@ -1410,6 +1415,19 @@ $spacing: ( ... );
   .component { }
 }
 ```
+
+---
+
+## Xulosa
+
+| Metodologiya | Asosiy g'oyasi | Afzalligi |
+|--------------|----------------|-----------|
+| **BEM** | `Block__Element--Modifier` | CSS klasslari qanday vazifa bajarishini faqat nomiga qarab tushunish mumkin |
+| **OOCSS** | Tuzilma va Dizaynni ajratish | Kod qayta ishlatiluvchanligi oshadi, fayl hajmi kamayadi |
+| **SMACSS** | CSS ni 5 ta toifaga bo'lish (Base, Layout, Module...) | Loyiha strukturasi juda aniq bo'ladi |
+| **ITCSS** | Teskari uchburchak strukturasi | O'ziga xoslik (specificity) mojarolarining oldini oladi |
+| **Atomic/Utility** | Har bir klass faqat 1 ta ish qiladi (`mt-4`, `text-center`) | Hech qachon CSS yozmaslikka imkon beradi (TailwindCSS) |
+| **CSS Modules** | Har bir komponent o'zining "ajratilgan" CSSiga ega bo'ladi | Klass nomlari to'qnashib ketishi (conflict) umuman ro'y bermaydi |
 
 ---
 

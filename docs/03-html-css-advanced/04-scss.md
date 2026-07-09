@@ -1,7 +1,12 @@
 # SCSS/Sass - CSS Preprocessor
 
-SCSS (Sassy CSS) - CSS ni kengaytiruvchi preprocessor. Variables, nesting, mixins, functions va modular struktura imkonini beradi.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Oddiy CSS katta loyihalarda tezda yozish, o'qish va boshqarish qiyin bo'lgan yuzlab qatorlarga aylanib ketadi. SCSS (Sass) - bu CSS'ga "dasturlash tili" xususiyatlarini qo'shadi. O'zgaruvchilar (variables), funksiyalar (mixins) va takrorlanishlardan qochish (nesting) orqali yozadigan kodingiz hajmi qisqaradi va professional ko'rinishga keladi.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Pishiriq qolipi"**  
+> Tasavvur qiling siz yuzta bir xil pechenye pishirmoqchisiz. CSS da siz har bir pechenyeni qo'lda alohida shaklga keltirishingiz kerak bo'ladi (takroriy kod). SCSS esa xuddi tayyor "pechenye qolipi" ga (mixin) o'xshaydi: siz bir marta shaklni yaratib qo'yasiz va qolgan barchasini shunchaki bitta bosish (include) bilan shakllantirasiz. Natijada yuzlab tayyor va bir xil kiyingan kod bloklariga ega bo'lasiz.
 ## Mundarija
 
 1. [SCSS vs Sass vs CSS](#scss-vs-sass-vs-css)
@@ -1519,6 +1524,19 @@ $color: red;
 @forward 'button';
 @forward 'card';
 ```
+
+---
+
+## Xulosa
+
+| SCSS Xususiyati | Sintaksisi | Qachon ishlatiladi? |
+|-----------------|------------|---------------------|
+| **Variables** | `$color: red;` | Ranglar, shriftlar, padding'lar kabi qayta-qayta ishlatiladigan qiymatlarni saqlashda |
+| **Nesting** | `.parent { .child {} }` | HTML strukturasiga mos ravishda CSS yozishda, klasslarni qayta yozishdan qochish uchun |
+| **Partials / Use** | `@use 'mixins';` | Kodni bir necha fayllarga bo'lish (`_header.scss`) va ularni bitta joyga yig'ish uchun |
+| **Mixins** | `@mixin flex-center { ... }` | Argumentlar qabul qiladigan takroriy kod bloklarini yozishda (masalan, turli vendor prefixlar uchun) |
+| **Functions** | `@function rem($px) { ... }` | Hisob-kitob qilib bitta qiymat qaytarish kerak bo'lganda (px ni rem ga o'tkazish, rangni to'qlashtirish) |
+| **Extend** | `@extend .btn;` | Bir nechta element aynan bir xil stillarni ulashishini xohlaganda (kamroq CSS generatsiya qiladi) |
 
 ---
 

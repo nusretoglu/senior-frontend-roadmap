@@ -2,8 +2,16 @@
 
 ## Kirish
 
-Arxitektura qarorlari - bu tizim qanday qurilishini belgilaydigan fundamental decisions. Senior developer sifatida siz bu qarorlarni **taklif qilish, muhokama qilish va himoya qilish**ni bilishingiz kerak.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturlashda "Eng zo'r texnologiya" degan tushuncha yo'q, faqat "Eng mos texnologiya" degan tushuncha bor. Junior dasturchi doim oxirgi urfdagi (Hype) texnologiyani ishlatsak loyiha zo'r bo'ladi deb o'ylaydi (Masalan: "Kel hamma narsani Microservices qilib tashlaymiz"). Senior dasturchi esa har bir qarorning Qurbonligi (Trade-off) borligini biladi. Arxitekturani muhokama qila olish va ADR (Architecture Decision Record) yozish qobiliyati sizga katta tizimlarni to'g'ri qurish va xatolarning oldini olish imkonini beradi. Yomon arxitektura — tuzatib bo'lmaydigan kodga olib keladi.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Poydevor qurish"**  
+> Sizga "Uy qurib ber" deyishsa, darhol g'isht terishni (Kod yozishni) boshlab yubormaysiz.  
+> Avval so'raysiz: "Bu uyga qancha odam sig'adi? (Scalability)", "Balandligi qancha bo'ladi?", "Zilzilaga chidamli bo'lishi kerakmi? (Reliability)". Agar siz hovli uy uchun Mo'ljallangan poydevor qurib, keyin uning ustiga 9 qavatli bino qursangiz, u qulab tushadi (Monolitni kattalashtirib yuborish). Arxitektura muhokamasi — bu g'isht terishdan oldin chizma chizish jarayonidir.
+
+Arxitektura qarorlari - bu tizim qanday qurilishini belgilaydigan fundamental decisions. Senior developer sifatida siz bu qarorlarni **taklif qilish, muhokama qilish va himoya qilish**ni bilishingiz kerak.
 ## Arxitektura Muhokamasi Nima?
 
 ```
@@ -997,15 +1005,30 @@ Reasons:
 
 ## Xulosa
 
-Arxitektura discussion - bu:
+## Eng Yaxshi Amaliyotlar (Best Practices)
 
+1. **Yomon tomonlarini ham sanang (Trade-offs):** "Bu yechimda umuman kamchilik yo'q" desangiz, Jamoa sizga ishonmaydi. Hech narsa mukammal emas. Har doim taklifingizning Kamchiliklarini sanang. Masalan: "GraphQL ishlatsak frontend ga zo'r bo'ladi, LEKIN backendda kesh (Caching) qilish ancha qiyinlashadi va N+1 muammosi xavfi oshadi."
+2. **ADR (Architecture Decision Record) yuritish:** Nega o'tgan yili Redux o'rniga Zustand tanlanganini bugun kelgan yangi xodim qayerdan biladi? ADR — bu qarorlar tarixi yoziladigan qisqa hujjat. Unda: Kontekst (Muammo), Qaror va Oqibatlar (Consequences) yoziladi.
+3. **Qarorlar qaytarilmasligiga (Irreversibility) e'tibor:** Hamma arxitekturaviy qarorlar ham bir xil og'irlikda emas. Ba'zi qarorlarni (Masalan bitta kichik kutubxonani o'zgartirishni) keyinroq qaytarish (Revert) oson. Lekin Ma'lumotlar Bazasini (PostgreSQL dan MongoDB ga) o'zgartirish deyarli imkonsiz. Qaytarib bo'lmaydigan qarorlarga haftalab vaqt sarflang, oson qarorlarni tez qabul qiling.
+
+---
+
+## Xulosa
+
+| Yondashuv | Junior (Hype-driven) | Senior (Architecture-driven) |
+|-----------|----------------------|------------------------------|
+| **Texnologiya tanlash** | "React 19 chiqibdi, keling hamma narsani shunga o'tkazamiz". | "Hozirgi React 18 bizning 95% talabimizni qondiryapti. Migration'ga vaqt sarflash arziydimi?" |
+| **Muammoni yechish** | "Loyiha sekinlashdi, kesh(Redis) qo'shamiz". | "Nega sekinlashdi? DB indeksi bormi? N+1 emasmi? Avval asl muammoni topaylik." |
+| **Qaror qabul qilish** | Hech kim bilan maslahatlashmaydi yoki tortishib qoladi. | Barcha variantlarni qog'ozga yozib, jamoa bilan ADR (Record) qiladi. |
+| **Monolit vs Microservice** | "Microservices zo'r, FAANG shuni ishlatadi". | "Bizning jamoada atigi 3 kishi, Microservice lar infratuzilmasini boshqarish bizga ortiqcha yuk". |
+
+Arxitektura discussion - bu:
 1. **Structured thinking** - options, trade-offs, risks
 2. **Clear communication** - RFC, ADR, presentations
 3. **Collaborative** - team input, stakeholder alignment
 4. **Documented** - decisions survive people
 
-> "Arxitektura = decisions that are hard to change.
-> Make them carefully, document them always."
+> "Arxitektura = decisions that are hard to change. Make them carefully, document them always."
 
 ---
 

@@ -2,8 +2,16 @@
 
 ## Kirish
 
-Texnik intervyu - bu nafaqat kod yozish imtihoni, balki **muammolarni hal qilish, kommunikatsiya va professional mindset** ko'rsatish imkoniyati. Bu bo'limda intervyudan o'tish va intervyu olish ko'nikmalarini o'rganasiz.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Intervyu — bu Dasturchining "Sotuv (Sales) jarayoni"dir. Sizning texnik bilimlaringiz juda zo'r bo'lishi mumkin, lekin agar uni Intervyu paytida sotishni bilmasangiz, sizdan ko'ra texnik bilimi pastroq, lekin intervyuda o'zini yaxshi ko'rsatgan boshqa nomzod ishga qabul qilinadi. Senior dasturchi bo'lish uchun Intervyudan o'tishni ham, Intervyu olishni ham (Interviewing) chuqur bilish talab qilinadi. Kompaniyaga kirish yoki yangi a'zoni jamoaga qabul qilish butun loyiha taqdirini hal qiladi.
 
+> [!NOTE]
+> **Real-hayot analogiyasi: "Birinchi Uchrashuv (First Date)"**  
+> Intervyu huddi birinchi uchrashuvga o'xshaydi.  
+> Agar siz doim o'zingizni maqtasangiz, qarshingizdagiga savol bermasangiz yoki u sizga savol berganda qisqa "Ha/Yo'q" deb o'tiraversangiz, ikkinchi uchrashuv (Next Stage) bo'lmaydi. Kompaniya sizni intervyu qilganda faqat "JS ni biladimi?" deb emas, "Bu odam bilan har kuni 8 soat ishlash yoqimlimi? Agar qiyin muammo chiqsa u qanday yo'l tutadi?" deb baholaydi. Shuning uchun "Madaniyat (Culture Fit)" va muammoga yondashuv (Problem Solving) ko'pincha kodning o'zidan ham muhimroqdir.
+
+Texnik intervyu - bu nafaqat kod yozish imtihoni, balki **muammolarni hal qilish, kommunikatsiya va professional mindset** ko'rsatish imkoniyati. Bu bo'limda intervyudan o'tish va intervyu olish ko'nikmalarini o'rganasiz.
 ## Intervyu Turlari
 
 ```
@@ -958,27 +966,26 @@ Bu menga culture haqida ko'p narsa aytadi."
 
 ## Xulosa
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **STAR Metodi:** Behavior (Xulq-atvor) savollariga javob berishda "Ha/Yo'q" emas, Hikoya orqali javob bering. S (Situation - Qanday holat edi?), T (Task - Nima vazifa turardi?), A (Action - Siz nima qildingiz?), R (Result - Natija nima bo'ldi?). Bu sizni professional qilib ko'rsatadi.
+2. **"Ovoz chiqarib o'ylang" (Think out loud):** Live Coding (Jonli kodlash) vaqtida jimgina qotib qolmang. Tushunmasangiz ham, "Hozir men Array ni aylanib chiqishni o'ylayapman, lekin Map ishlasak tezroq bo'larmikan" deb o'ylaringizni gapiring. Intervyuer sizning Javobingizni emas, Fikrlash jarayoningizni (Thought process) tekshiradi.
+3. **Bilmasangiz tan oling (Lekin davomi bor):** "Buni bilmayman" deb jim o'tirish — Senior ga xos emas. "Buni ilgari ishlatmaganman, LEKIN u xuddi manabunga o'xshaydimi? Men uni Documentation ni o'qib 1-2 kunda o'rganib ola olaman" deng. O'rganishga tayyorligingiz bilimingizdan ustun.
+
+---
+
+## Xulosa
+
+| Intervyu Qismi | Junior Yondashuvi | Senior Yondashuvi |
+|----------------|-------------------|-------------------|
+| **Kodlash (Live Coding)** | Birdaniga kod yozishga kirishib ketadi va yarmida xatoga tiqilib qoladi. | Avval Savolni yaxshilab aniqlab oladi (Clarification). Keyin Pseudo-code yozadi. Keyin haqiqiy kodni yozadi. |
+| **Texnik Savol** | Faqat "Nima" ekanligini aytadi (Masalan: Redux bu state manager). | "Nima" ligini va "Nega" kerakligini, hamda "Qachon" ishlatmaslikni (Trade-off) aytadi. |
+| **Xatoga qilinganda** | O'zini oqlashga harakat qiladi yoki uzr so'raydi. | Feedback ni qabul qiladi: "Ajoyib fikr, haqiqatan ham u yerda N+1 xatosi bor ekan, shunday to'g'rilaymiz" deydi. |
+| **Sizning Savollaringiz** | "Oylik qancha? Qachon ish boshlayman?" (Yoki savolim yo'q deydi). | "Jamoada kod sifatini qanday ushlaysizlar? Eng katta texnik qarzingiz (Tech Debt) nima?" deb proyektni baholaydi. |
+
 Interview muvaffaqiyati = **Preparation + Communication + Mindset**
 
-```
-PREPARATION:
-- Fundamentals kuchli
-- Practice qilingan
-- Company haqida bilim
-
-COMMUNICATION:
-- Think out loud
-- Clarify before solve
-- Ask good questions
-
-MINDSET:
-- Curiosity, not arrogance
-- Learn from feedback
-- Be authentic
-```
-
-> "Interview - bu ikki tomonlama ko'rish.
-> Siz ham kompaniyani baholayapsiz."
+> "Interview - bu ikki tomonlama ko'rish. Siz ham kompaniyani baholayapsiz."
 
 ---
 

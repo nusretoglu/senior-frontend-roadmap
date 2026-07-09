@@ -163,6 +163,19 @@ graph LR
 
 ---
 
+## Xulosa
+
+| Yondashuv | Nima u? | Qachon ishlatiladi? |
+|-----------|---------|---------------------|
+| **Props/Events (Local)** | Komponentlar o'zaro (Ota-Bola) ma'lumot uzatishi. | Kichik qismlar (masalan, Input formasi) uchun. |
+| **Provide/Inject** | Ota komponentdan barcha pastki bolalariga ma'lumot berish. | Tema (Theme), Til (i18n) kabi o'zgarmas sozlamalar. |
+| **Vuex (Legacy)** | Vue 2 va ilk Vue 3 loyihalari uchun markazlashgan state. | Eskidan qolgan (Legacy) katta loyihalarni qo'llab-quvvatlash. |
+| **Pinia (Modern)** | Vue 3 ning rasmiy, yengil va tiplangan State menejeri. | Barcha yangi Vue 3 loyihalari uchun standart. |
+
+State Management - bu loyihangizning "Miyagi". Qachon oddiy (Local) xotirani va qachon umumiy (Global) miyani ishlatishni bilish arxitekturangiz poydevorini belgilaydi.
+
+---
+
 ## O'rganish Tartibi
 
 1. **Boshlang'ich**: Vuex/Pinia asoslarini o'rganing

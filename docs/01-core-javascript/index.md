@@ -12,6 +12,32 @@ Bu bo'lim JavaScript'ning fundamental tushunchalarini chuqur o'rganishga bag'ish
 
 ## Bo'lim Tarkibi
 
+```mermaid
+graph TD
+    A[01-closures] --> B[04-prototypes]
+    A --> E[05-this-binding]
+    B --> E
+    C[02-event-loop] --> D[03-promises-async]
+    F[06-debounce-throttle]
+    G[07-memory-management]
+    
+    subgraph Fundamentals
+    A
+    B
+    E
+    end
+    
+    subgraph Asynchronous
+    C
+    D
+    end
+    
+    subgraph Advanced
+    F
+    G
+    end
+```
+
 | # | Mavzu | Tavsif |
 |---|-------|--------|
 | 01 | [Closures](./01-closures.md) | Leksik muhit, closure mexanizmi, memory leak, practical patterns |

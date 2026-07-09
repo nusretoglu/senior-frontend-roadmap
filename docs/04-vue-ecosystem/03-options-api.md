@@ -1194,10 +1194,12 @@ this.chart.update()
 
 ## Xulosa
 
-Options API Vue ning original va stabil API sifati. U:
-- O'rganish oson - strukturalangan options
-- Kichik komponentlar uchun ideal
-- Vue 2 dan o'tishda tanish
-- TypeScript bilan ishlaganda Composition API yaxshiroq
+| Option (Blok) | Vazifasi | Asosiy qoida |
+|---------------|----------|--------------|
+| **`data()`** | Komponentning ichki holati (state) | Har doim ob'ekt qaytaradigan funksiya bo'lishi kerak. |
+| **`methods`** | Komponent bajaradigan harakatlar | Arrow funksiya (`=>`) ishlatmaslik kerak (this yo'qoladi). |
+| **`computed`** | Mavjud data asosida hisoblanuvchi yangi qiymat | Faqat qaytarishi (return) kerak, uni ichida datani o'zgartirmang (mutatsiyasiz). Keshlanadi. |
+| **`watch`** | Data o'zgarganda biror qo'shimcha reaksiya qilish (API ga so'rov kabi) | Dastlabki renderda ishlashi uchun `immediate: true`, obyektlarni chuqur kuzatish uchun `deep: true` ishlating. |
+| **`props`** | Ota (Parent) komponentdan ma'lumot qabul qilish | Ma'lumot turini (type) va majburiyligini (required) albatta yozib keting. |
 
-Katta loyihalarda Composition API tavsiya etiladi, lekin Options API hali ham to'liq qo'llab-quvvatlanadi.
+Katta loyihalarda Composition API tavsiya etiladi, lekin Options API Vue ning an'anaviy va juda tushunarli yondashuvidir.

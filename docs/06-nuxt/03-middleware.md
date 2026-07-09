@@ -1071,11 +1071,11 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 
 ## Xulosa
 
-Nuxt middleware route-level logika uchun kuchli vosita:
+| Middleware Turi | Fayl Nomi | Qayerda ishlaydi? | Qachon ishlatish kerak? |
+|-----------------|-----------|-------------------|-------------------------|
+| **Global** | `*.global.ts` | Har bir sahifaga o'tishda | Analytics (Statistika), Global texnik xizmat holati |
+| **Named** | `auth.ts` | Sahifa meta'sida nom bilan ko'rsatilganda | Auth (Foydalanuvchini tekshirish), Admin ruxsatnomalari |
+| **Inline** | `definePageMeta` ichida | Faqat bitta komponent ichida | Kichik Wizard, Anketalar orasidagi yo'nalishlar |
+| **Server** | `server/middleware` | Backend ga har so'rov tushganda | API Xavfsizligi, CORS sozlamalari, Server Loglar |
 
-1. **Global middleware** - har route'da: analytics, init, maintenance mode
-2. **Named middleware** - tanlangan route'larda: auth, admin, feature flags
-3. **Inline middleware** - bir sahifa uchun: checkout flow, wizard
-4. **Server middleware** - HTTP level: CORS, logging, API auth
-
-To'g'ri ishlatilsa, middleware kodingizni toza va maintainable qiladi. Noto'g'ri ishlatilsa - infinite loops va performance muammolari kelib chiqadi.
+Nuxt Middleware marshrutlash bo'yicha kuchli nazorat beradi. To'g'ri ishlatilsa loyihani xavfsiz va boshqarish oson qiladi, xato yozilsa (Cheksiz Loop) esa loyihani butunlay "qotirib" qo'yadi.
