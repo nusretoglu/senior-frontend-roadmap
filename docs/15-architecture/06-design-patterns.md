@@ -6,33 +6,35 @@ Design Patterns - bu dasturlashda tez-tez uchraydigan muammolarning sinab ko'ril
 
 ## Nazariy Asos
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturlashda ko'p muammolar aslida oldin kimdir tomonidan hal qilingan bo'ladi. Har safar g'ildirakni qaytadan kashf qilish o'rniga, Design Pattern'lar (Dasturlash andozalari) ni ishlatsangiz, kodingizni tushunish, kengaytirish va boshqa dasturchilar bilan ishlash keskin osonlashadi. Pattern'lar — bu muammoga nisbatan isbotlangan yechimlardir.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Bino Qurish"**  
+> Tasavvur qiling siz bino qurmoqchisiz.  
+> 1. Har bir eshikni noldan o'lchab, o'zingiz yasamaysiz. Tayyor fabrikadan (Factory Pattern) o'lchamini berib buyurtma qilasiz.  
+> 2. Agar uyga elektr kerak bo'lsa, uni to'g'ridan-to'g'ri simga ulamaysiz. Rozetkadan (Adapter Pattern) foydalanasiz.  
+> 3. Yong'in chiqqanda signalizatsiya barcha xonalarga xabar yuborishi kerak bo'ladi (Observer Pattern).  
+> Dasturlash ham aynan xuddi shunday qurilish qoidalariga bo'ysunadi.
+
 ### Pattern Categories
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    DESIGN PATTERN CATEGORIES                     │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│   ┌─────────────────┐  ┌─────────────────┐  ┌───────────────┐   │
-│   │   CREATIONAL    │  │   STRUCTURAL    │  │  BEHAVIORAL   │   │
-│   │                 │  │                 │  │               │   │
-│   │  • Factory      │  │  • Adapter      │  │  • Observer   │   │
-│   │  • Singleton    │  │  • Decorator    │  │  • Strategy   │   │
-│   │  • Builder      │  │  • Facade       │  │  • Command    │   │
-│   │  • Prototype    │  │  • Proxy        │  │  • State      │   │
-│   │                 │  │  • Composite    │  │  • Mediator   │   │
-│   └─────────────────┘  └─────────────────┘  └───────────────┘   │
-│                                                                  │
-│   ┌─────────────────────────────────────────────────────────┐   │
-│   │                  FRONTEND-SPECIFIC                       │   │
-│   │                                                          │   │
-│   │  • Container/Presentational  • Provider/Consumer        │   │
-│   │  • Compound Components       • Render Props             │   │
-│   │  • Higher-Order Components   • Hooks/Composables        │   │
-│   │  • Module Pattern           • Flux/Redux Pattern        │   │
-│   └─────────────────────────────────────────────────────────┘   │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+mindmap
+  root((Design Patterns))
+    Creational
+      ::icon(fa fa-plus-circle)
+      (Factory, Builder<br/>Singleton, Prototype)
+      [Obyekt yaratishni<br/>boshqarish]
+    Structural
+      ::icon(fa fa-sitemap)
+      (Adapter, Decorator<br/>Facade, Proxy)
+      [Tuzilmalarni moslashtirish<br/>va qurish]
+    Behavioral
+      ::icon(fa fa-cogs)
+      (Observer, Strategy<br/>Command, State)
+      [Obyektlar o'zaro<br/>aloqasi]
 ```
 
 ### Pattern Selection Guide
@@ -1465,5 +1467,17 @@ ANTI-PATTERNS:
 - Team'ga pattern tanlovini asoslaydi
 
 ---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Keep it Simple, Stupid (KISS):** Design Pattern'ni ishlata olaman deb o'ylab topilgan joyda ishlatavermang. Agar muammoni 3 qator if-else bilan hal qilsa bo'lsa, abstrakt interfeyslar va Strategy qilib o'tirmang.
+2. **Qoidalarga yopishib olmang:** Dasturlash qattiq dogmatik qonunlardan emas, ko'proq sharoitga qarab moslashishdan iborat. Pattern kodingizni tushunarli qilishiga ko'zingiz yetsagina uni qo'llang.
+3. **Yagona javobgarlik (SRP):** Tanlagan pattern'ingiz har doim kodning yagona javobgarligini himoya qilishi kerak (Bitta klass/funksiya - bitta vazifa).
+
+---
+
+## Xulosa
+
+Design Pattern'lar — muammoga duch kelganingizda uni "silliq" hal qilish uchun foydalanadigan retseptlar kitobidir. Ular kodning arxitekturasini chiroyli va o'qilishi oson qiladi.
 
 > **Eslatma:** Pattern - bu tool, maqsad emas. Muammoni hal qilish muhim, pattern ishlatish emas. "When in doubt, leave it out."

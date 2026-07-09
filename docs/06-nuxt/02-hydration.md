@@ -4,56 +4,33 @@ Hydration - bu SSR'da server tomonidan yaratilgan statik HTML'ni client'da inter
 
 ## Nazariya
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Agar siz "Hydration Mismatch" degan yashil/qizil xatoni ko'rgan bo'lsangiz, demak bu bo'lim aynan siz uchun. Hydration - Nuxt yoki Next.js dagi eng sehrli, shu bilan birga eng asabni buzadigan jarayon. Server chizib bergan o'lik HTML sahifani "tiriltirish" (Reactivity va Event Listenerlarni ulash) amaliyotini Hydration deb ataymiz. Buni tushunmaslik "Nega DOM taglarim takrorlanib qolyapti?" degan savolni tug'diradi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Skelet va Ruh (Jon berish)"**  
+> - **Server:** Shifokor odamning suyaklari va terisini qotirib bitta "Skelet" yasadi va yubordi. Bu **Static HTML** (u o'lik, bossangiz hech narsa qilmaydi, faqat ko'rinishi odamga o'xshaydi).
+> - **Brauzer:** Bu skeletni darhol mijozga ko'rsatadi (FCP zo'r!).
+> - **Hydration:** Endi "Ruh" uchib keladi (JavaScript) va bu skeletning har bir uzvini tanib chiqib, qon yugurtiradi (Event Listeners ulaydi). Shundan keyingina u qo'lini qimirlata oladigan haqiqiy insonga aylanadi.
+> **Hydration Mismatch:** Agar server "O'ng qo'li tepada bo'lsin" deb skelet yasagan bo'lsa-yu, ruh uchib kelib "Yo'q, o'ng qo'l pastda bo'lishi kerak" deb tortishsa, "Hydration Mismatch" xatosi kelib chiqadi. Ikkalasi bir xil narsani ko'rishi shart.
+
 ### Hydration Nima?
 
 Hydration - "suv qo'shish" degan ma'noni anglatadi. Server'dan kelgan "quruq" HTML'ga JavaScript "suv qo'shib" uni jonli qilish.
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Hydration Flow                            │
-└─────────────────────────────────────────────────────────────┘
-
-SERVER SIDE:
-┌─────────────────────────────────────────────────────────────┐
-│                                                              │
-│  Vue Component Tree                                          │
-│  ┌─────────────────┐                                        │
-│  │ <App>           │                                        │
-│  │  ├─ <Header/>   │  ──renderToString()──►  HTML String    │
-│  │  ├─ <Content/>  │                                        │
-│  │  └─ <Footer/>   │                                        │
-│  └─────────────────┘                                        │
-│                                                              │
-│  State: { count: 0, user: {...} }  ──►  window.__NUXT__     │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-CLIENT SIDE:
-┌─────────────────────────────────────────────────────────────┐
-│                                                              │
-│  1. HTML darhol ko'rinadi (FCP)                             │
-│     ┌──────────────────────────────────┐                    │
-│     │ <div id="__nuxt">                │                    │
-│     │   <header>...</header>           │  ← Statik HTML     │
-│     │   <main>Hello World</main>       │    (klik ishlamaydi)│
-│     │   <footer>...</footer>           │                    │
-│     │ </div>                           │                    │
-│     └──────────────────────────────────┘                    │
-│                                                              │
-│  2. JavaScript yuklanadi                                     │
-│                                                              │
-│  3. Vue app mount qilinadi                                   │
-│                                                              │
-│  4. HYDRATION:                                               │
-│     - Mavjud DOM'ni Vue virtual DOM bilan solishtirish      │
-│     - Event listeners ulash                                  │
-│     - Reactivity faollashtirish                             │
-│     - State restore qilish (window.__NUXT__)                │
-│                                                              │
-│  5. App interaktiv bo'ladi (TTI)                            │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant Server
+    
+    Browser->>Server: URL ga so'rov
+    Server-->>Browser: 1. Tayyor HTML + State (window.__NUXT__) yuboradi
+    Note over Browser: Foydalanuvchi darhol HTML ni ko'radi<br/>Lekin u o'lik (bosish ishlamaydi)
+    Browser->>Browser: 2. JavaScript bundle larni yuklaydi
+    Browser->>Browser: 3. HYDRATION boshlanadi
+    Note right of Browser: - Virtual DOM quriladi<br/>- Haqiqiy DOM bilan solishtiriladi<br/>- Event Listener'lar ulanadi
+    Note over Browser: Sahifa endi to'liq interaktiv!
 ```
 
 ### Hydration vs Re-render
@@ -1240,6 +1217,14 @@ describe('ProductPage', () => {
   })
 })
 ```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Vaqt va Tasodifiylik:** Component ichida hech qachon `new Date()`, `Math.random()`, `uuid()` ishlata ko'rmang, chunki bu funksiyalar serverda bir xil, mijozda boshqa xil qiymat qaytaradi va Hydration Mismatch ga olib keladi.
+2. **Qora quti (`<ClientOnly>`):** Agar qandaydir uchinchi tomon kutubxonasi (Masalan Carousel, Chart.js) document/window bilan ishlasa, uni har doim `<ClientOnly>` komponentiga o'rab qo'ying, shunda server uni umuman chizishga urinib ko'rmaydi.
+3. **Semantik HTML:** `<p>` ichida `<div>` ochib qo'yish kabi oddiy HTML qoidalari buzilishlari ham hydration xatolariga olib kelishi mumkin. Brauzer yomon HTML ni o'zicha tuzatib (masalan, `div` ni `p` dan tashqariga chiqarib) oladi, Vue Virtual DOM esa hali ham eski xato HTML ni ko'radi - natijada Mismatch! HTML qoidalariga jiddiy rioya qiling.
+
+---
 
 ## Xulosa
 

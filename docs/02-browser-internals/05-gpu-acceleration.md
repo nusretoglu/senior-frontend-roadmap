@@ -2,43 +2,46 @@
 
 ## Kirish
 
-Zamonaviy brauzerlar GPU (Graphics Processing Unit) dan foydalanib rendering'ni tezlashtiradi. GPU acceleration to'g'ri ishlatilsa 60fps animatsiyalar va silliq scrolling ta'minlanadi. Noto'g'ri ishlatilsa - memory leak va jank.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Foydalanuvchilar o'yinlar yoki mobil ilovalar kabi silliq, hech qanday "qotish"larsiz ishlaydigan animatsiyalarni kutishadi. Agar barcha hisob-kitoblar va animatsiyalar brauzerning CPU (Markaziy protsessor - Main Thread) zimmasida qolsa, sahifa har qanday yuklamada (masalan, API so'rov bajarilganda) qotib qoladi (jank). **GPU Acceleration (GPU orqali tezlashtirish)** bizga animatsiyalarni GPU (Video karta) ga o'tkazib, kompyuter protsessorini yuklamadan xalos qilish va 60 FPS tezlikdagi o'ta silliq interfeyslar qurish imkonini beradi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Teatrdagi fon ko'rgazmasi (Compositing Layers)"**  
+> - **CPU Rendering (Barcha rasmni bitta qog'ozga chizish):** Siz bitta katta qog'ozga daraxt, uy va osmonni chizdingiz. Agar daraxtni qimirlatmoqchi bo'lsangiz (Animatsiya), butun qog'ozni o'chirib, barcha narsalarni yangidan chizishingiz kerak (Layout + Paint). Bu juda qiyin va uzoq davom etadi.
+> - **GPU Rendering (Shaffof sellofan qatlamlar - Layers):** Siz shaffof sellofanning birinchi qatlamiga uyni, ikkinchisiga daraxtni, uchinchisiga osmonni chizdingiz. Agar endi daraxtni siljitmoqchi bo'lsangiz, faqat ikkinchi sellofanning o'zini surasiz (Composite). Qolgan sellofanlarga (qatlamlarga) tegish shart emas. Video karta (GPU) aynan shu shaffof sellofanlarni bir-birining ustiga qo'yib, juda tez harakatlantiruvchi kuchdir.
+
+---
 
 ---
 
 ## Brauzer Rendering Architecture
 
-```
-┌────────────────────────────────────────────────────────────────────────────┐
-│                           MAIN THREAD                                      │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────┐ │
-│  │   DOM    │─▶│  Style   │─▶│  Layout  │─▶│  Paint   │─▶│ Layer Tree   │ │
-│  │  Parse   │  │  Calc    │  │          │  │ Records  │  │ Construction │ │
-│  └──────────┘  └──────────┘  └──────────┘  └──────────┘  └──────────────┘ │
-│                                                                   │        │
-└───────────────────────────────────────────────────────────────────┼────────┘
-                                                                    │
-                    ┌───────────────────────────────────────────────┘
-                    ▼
-┌────────────────────────────────────────────────────────────────────────────┐
-│                        COMPOSITOR THREAD                                   │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────────────────┐ │
-│  │    Layer     │─▶│    Tile      │─▶│      Raster (GPU or CPU)         │ │
-│  │  Management  │  │  Management  │  │                                  │ │
-│  └──────────────┘  └──────────────┘  └──────────────────────────────────┘ │
-│                                                         │                  │
-└─────────────────────────────────────────────────────────┼──────────────────┘
-                                                          │
-                    ┌─────────────────────────────────────┘
-                    ▼
-┌────────────────────────────────────────────────────────────────────────────┐
-│                            GPU PROCESS                                     │
-│            ┌──────────────────────────────────────────────────┐           │
-│            │              COMPOSITING                          │           │
-│            │   Layer textures → Final pixels on screen         │           │
-│            └──────────────────────────────────────────────────┘           │
-└────────────────────────────────────────────────────────────────────────────┘
-```
+### Brauzer Rendering Oqimi va Thread'lar (Threads Architecture)
+
+```mermaid
+graph TD
+    subgraph Main Thread (CPU)
+        DOM[DOM Parse] --> Style[Style Calc]
+        Style --> Layout[Layout]
+        Layout --> Paint[Paint Records]
+        Paint --> LT[Layer Tree Construction]
+    end
+
+    subgraph Compositor Thread
+        LT --> LM[Layer Management]
+        LM --> TM[Tile Management]
+        TM --> Raster[Rasterization CPU/GPU]
+    end
+
+    subgraph GPU Process
+        Raster --> Comp[Compositing: Textures to screen]
+    end
+
+    style Main Thread (CPU) fill:#ffebee,stroke:#c62828
+    style Compositor Thread fill:#e8f5e9,stroke:#2e7d32
+    style GPU Process fill:#e3f2fd,stroke:#1565c0
+
 
 ### Thread Roles
 
@@ -944,20 +947,23 @@ class AnimatedComponent {
 
 ---
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Layer-explosion (Qatlamlar portlashi) dan ehtiyot bo'ling:** Agar sizda juda ko'p elementlar (masalan, 100 ta kartochka) bo'lsa va ularning har biriga `will-change: transform` bersangiz, brauzer har biri uchun alohida GPU texture yaratishga majbur bo'ladi. Bu kompyuterning video xotirasini (VRAM) to'ldirib yuboradi va mobil qurilmalarda brauzerning shunchaki yopilib qolishiga (crash bo'lishiga) sabab bo'lishi mumkin.
+2. **will-change ni faqat kerakli paytda vaqtinchalik ishlating:** JS orqali elementga animatsiya boshlanishidan oldin (masalan, hover bo'lganda) `willChange = 'transform'` ni bering va animatsiya to'liq tugashi bilan uni yana `willChange = 'auto'` ga o'zgartirib, video xotirani bo'shating.
+3. **Passive Event Listeners qo'llang:** Silliq skrolling animatsiyalari uchun scroll va touch listenerlarga `passive: true` parametrini bering. Bu brauzerga scroll harakatini JS dagi `preventDefault` amali tugashini kutmasdan darhol bajarishga ruxsat beradi, natijada scroll o'ta silliq bo'ladi.
+
+---
+
 ## Xulosa
 
-| Technique | Performance | Memory | Use Case |
-|-----------|-------------|--------|----------|
-| `transform` | Excellent | Low | Position, scale, rotate |
-| `opacity` | Excellent | Low | Fade effects |
-| `will-change` | Excellent | Medium | Known animations |
-| CSS Animation | Excellent | Low | Simple animations |
-| Web Animations API | Great | Low | Controlled animations |
-| `requestAnimationFrame` | Good | Low | Complex logic |
+GPU Acceleration texnologiyalari taqqoslashi va xulosasi:
 
-**Asosiy qoidalar:**
-1. Animatsiyada faqat `transform` va `opacity`
-2. `will-change` faqat kerakli elementlarga
-3. Layer sonini minimal saqlang
-4. `passive: true` scroll/touch event'larda
-5. DevTools bilan doim profiling qiling
+| Texnologiya / Atribut | Tezlik (Performance) | Xotira yuki (Memory) | Eng yaxshi foydalanish sohasi (Use Case) |
+| --- | --- | --- | --- |
+| **`transform`** |  **A'lo (60fps)** | 🟢 Kam | Joylashuv, kattalik, burish animatsiyalari |
+| **`opacity`** |  **A'lo (60fps)** | 🟢 Kam | O'chib-yonish (Fade in/out) effektlari |
+| **`will-change`** |  **A'lo** | 🟡 O'rtacha (VRAM) | Oldindan ma'lum bo'lgan og'ir animatsiyalar |
+| **CSS Animations** |  **A'lo** | 🟢 Kam | Oddiy hover va transition effektlar |
+| **Web Animations API**|  **Juda Yaxshi** | 🟢 Kam | Kod orqali boshqariluvchi murakkab animatsiyalar |
+| **`requestAnimationFrame`** | 🟡 Yaxshi | 🟢 Kam | JS bilan boshqariladigan vizual hisob-kitoblar |

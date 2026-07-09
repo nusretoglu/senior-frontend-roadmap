@@ -4,30 +4,34 @@
 
 Scalability (kengaytiriluvchanlik) - bu loyihaning foydalanuvchilar soni, ma'lumotlar hajmi, funksionallik va jamoa o'sishi bilan birga samarali ishlashni davom ettirish qobiliyatidir. Frontend arxitekturasida scalability faqat performance emas, balki kod bazasining boshqariluvchanligini ham o'z ichiga oladi.
 
-## Nazariy Asos
+### Nazariy Asos
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Boshida har qanday loyiha chiroyli va tartibli bo'ladi. Ammo oylar (yillar) o'tgach, funksiyalar va talablar ko'payganda, agar boshlang'ich arxitektura to'g'ri qurilmagan bo'lsa, kod ustida ishlash dahshatga aylanadi. Bitta joyni o'zgartirsangiz 5 ta joy buziladi (Spaghetti code). Scalability (Kengayuvchanlik) - bu "loyihaga minglab fayllar va yangi dasturchilar qo'shilganida ham ishlash tezligi va kod sifati tushib ketmasligini ta'minlash" dir.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Shahar qurilishi"**  
+> Tasavvur qiling siz shahar quryapsiz. Boshida 100 ta odam yashaydi, bitta quduq va bitta yo'l hamma uchun yetarli (Small scale).
+> Ammo 10 yil o'tib aholi 1 millionga yetdi. Agar siz boshidan keng ko'chalar tashlab ketmagan bo'lsangiz, kanalizatsiya trubalarini markazlashgan qilib qurmagan bo'lsangiz, endi uylarni buzib ko'cha kengaytirishga majbur bo'lasiz. Dasturlashda ham huddi shunday — loyiha arxitekturasi kelajakdagi o'sishga tayyor turishi (Scalable bo'lishi) kerak.
 
 ### Scalability Turlari
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    SCALABILITY DIMENSIONS                        │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│   ┌─────────────┐    ┌─────────────┐    ┌─────────────────┐     │
-│   │  VERTICAL   │    │ HORIZONTAL  │    │  TEAM           │     │
-│   │  Scaling    │    │ Scaling     │    │  Scaling        │     │
-│   │             │    │             │    │                 │     │
-│   │  • Bundle   │    │  • Module   │    │  • Independent  │     │
-│   │    size     │    │    federation│   │    teams        │     │
-│   │  • Memory   │    │  • Micro-   │    │  • Clear        │     │
-│   │  • CPU      │    │    frontends│    │    ownership    │     │
-│   │             │    │  • CDN      │    │  • Contracts    │     │
-│   └─────────────┘    └─────────────┘    └─────────────────┘     │
-│         │                  │                    │                │
-│         ▼                  ▼                    ▼                │
-│   Performance        Distribution          Organization         │
-│   Optimization       Strategy             Structure             │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+mindmap
+  root((Scalability))
+    Vertical
+      ::icon(fa fa-arrow-up)
+      (Bundle size<br/>Memory / CPU)
+      [Performance<br/>Optimization]
+    Horizontal
+      ::icon(fa fa-arrows-alt-h)
+      (Module federation<br/>Micro-frontends)
+      [Distribution<br/>Strategy]
+    Team
+      ::icon(fa fa-users)
+      (Independent teams<br/>Clear ownership)
+      [Organization<br/>Structure]
 ```
 
 ### Murakkablik O'sishi
@@ -944,5 +948,18 @@ const metrics = {
 - Technical debt'ni boshqaradi
 
 ---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **High Cohesion, Low Coupling:** Bir-biriga bog'liq bo'lgan ma'lumotlarni (UI, logika, API call) bitta modulda (Cohesion) ushlang va u boshqa modullarga juda ko'p bog'lanib qolishini (Coupling) oldini oling.
+2. **Kengayuvchi Struktura:** Barcha komponentlarni bitta "components" jildida saqlamang. Feature-Sliced Design (FSD) yoki Module-based arxitektura orqali loyihani bo'laklarga ajrating.
+3. **Yagona Haqiqat Manbai (Single Source of Truth):** Har bir modul ma'lumotni o'zidan olsa, synchronization muammosi kelib chiqadi. State Management orqali Global va Local statelarni to'g'ri rejalashtiring.
+4. **ADR yozing:** Muhim arxitektura qarorlarini nega aynan shu tarzda qabul qilganingizni hujjatlashtiring (Architecture Decision Records). Yangi jamoa a'zolari "nega bunday qilingan" deb o'ylab qolishmasin.
+
+---
+
+## Xulosa
+
+Scalability - bu tayyor formula emas, balki qadam-baqadam shakllanadigan tafakkur usuli. Har qanday texnologiya, xoh Vue, xoh React bo'lsin, arxitektura noto'g'ri bo'lsa oxir-oqibat sinadi. Eng muhimi — chegaralarni (boundaries) aniq belgilash va hamma o'zi tushungan tarzda kod yozishining oldini olishdir.
 
 > **Eslatma:** Scalability - bu marathon, sprint emas. Eng yaxshi vaqt refactor qilish uchun - hozir. Eng yomon vaqt - "keyinroq qilamiz" deganda.

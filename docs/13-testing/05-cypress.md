@@ -1,10 +1,37 @@
 # Cypress
 
+## Kirish
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturingiz o'sgach uni har gal o'zgarish bo'lganda qo'lda test qilib chiqish (Manual QA) juda ko'p vaqt va mablag' talab qiladi. Cypress o'zining "Time Travel" (vaqt bo'ylab sayohat) va "Avtomatik kutish" xususiyatlari orqali, qachonlardir juda murakkab bo'lgan E2E test yozishni xuddi jQuery kod yozishdek oson va qiziqarli qilib yubordi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Sirkdagi O'rgatilgan Ayiq vs Odam kiyimidagi Robot"**  
+> **Selenium (Eski usul):** Robotni masofadan boshqarish. Buyruqlar network orqali boradi. U robot nima qilayotganini va atrofni qanchalik to'g'ri ko'rayotganini tushunmaydi (Network gecikmelari, sinishlar ko'p).
+> **Cypress (Zamonaviy usul):** Bu sizning dasturingiz bilan bitta sirk (brauzer) ichida ishlaydigan ayiq. U qachon animatsiya tugashini, qachon ma'lumot kelishini darhol "his qiladi". Siz unga "Kutib tur!" deyishingiz shart emas, u o'zi vaziyatga qarab ish tutadi.
+
 Cypress - bu zamonaviy E2E testing framework. Real browser'da test yozish, debug qilish va visual testing uchun eng yaxshi toollardan biri.
 
 ## Cypress Nima?
 
 Cypress JavaScript-da yozilgan all-in-one testing framework. E2E, component, va API testing uchun ishlatiladi. Real browser ichida ishlaydi va developer experience'ga katta e'tibor beradi.
+
+```mermaid
+graph LR
+    subgraph Selenium/Playwright
+        N[Node.js] -.-> |Remote Command<br/>WebSocket/HTTP| B1[Browser]
+    end
+
+    subgraph Cypress
+        B2[Browser]
+        B2 --- C[Cypress Test Runner]
+        B2 --- A[Sizning Ilovangiz]
+    end
+    
+    style N fill:#f5f5f5,stroke:#9e9e9e
+    style B2 fill:#e8f5e9,stroke:#2e7d32
+```
 
 ### Cypress Xususiyatlari
 
@@ -1136,6 +1163,14 @@ cy.intercept('GET', '/api/user/*', (req) => {
 4. Test isolation - har test o'z state'ida
 5. Retries - CI da retry qilish
 6. Data-testid selectors - CSS class'larga bog'liq bo'lmaslik
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Wait(ms) ishlatmang**: Hech qachon `cy.wait(3000)` kabi qattiq vaqt belgilamang. Uning o'rniga Tarmoq so'rovlarini ushlab olib (intercept), o'sha so'rovning yakunlanishini kuting (`cy.wait('@getUsers')`).
+2. **`data-testid` ishlating**: Elementlarni CSS class (`.btn-primary`) yoki id orqali topmang. Dizaynerlar CSSni tez-tez o'zgartirib turadi va testlaringiz doim qulaydi. Test uchun ataylab `data-testid="submit-button"` attributlarini ishlating.
+3. **Session'dan foydalaning**: Har bir sahifani test qilishda avval foydalanuvchini UI orqali login qildirish juda ko'p vaqt oladi. `cy.session()` orqali login holatini barcha testlar uchun bitta martada saqlab oling.
+
+---
 
 ## Xulosa
 

@@ -2,7 +2,21 @@
 
 ## Kirish
 
-Vue directives DOM elementlariga maxsus xatti-harakat berish uchun ishlatiladi. `v-if`, `v-for`, `v-model` kabi built-in direktivalar mavjud, lekin o'z maxsus direktivalarimizni ham yaratishimiz mumkin.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturchilar UI yaratayotganda elementlar bilan to'g'ridan-to'g'ri (DOM orqali) ishlashdan imkon qadar qochishlari kerak (chunki buni Framework qiladi). Ammo ba'zan uchinchi tomon kutubxonalari bilan ishlash, Input'ga fokus qaratish, Scroll eventlarini kuzatish kabi pastki-daraja (low-level) amallar kerak bo'ladi. Bunday holatlarda HTML atributlarga o'zimiz yasagan qo'shimcha "sehrli so'zlarni" (`v-focus`, `v-tooltip`) yopishtirib, Vue ichida DOM elementini erkin boshqarishimiz mumkin. Buni **Custom Directives** deymiz.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Sehrli tayoqcha"**  
+> Tasavvur qiling, har safar eshikni ochish uchun qo'lingiz bilan tutqichga borish o'rniga, shunchaki eshikka "Ochil" degan tumor yopishtirib qo'yasiz. `v-tooltip` yoki `v-focus` ham huddi shunday "tumor" — uni HTML dagi oddiy tag (masalan `<input>`) ga yopishtirsangiz, Vue unga yangi xususiyatlarni biriktirib, jon kiritadi.
+
+```mermaid
+graph LR
+    A(HTML Element) -->|v-my-directive yopishtiriladi| B(Directive Hooks)
+    B -->|mounted| C{DOM manipulate}
+    B -->|updated| C
+    C -->|Qaytaradi| A
+```
 
 ## Direktiva Lifecycle Hooks
 
@@ -798,6 +812,14 @@ const vColor = (el, binding) => {
 }
 // mounted va updated da bir xil function chaqiriladi
 ```
+
+---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Juda ko'p ishlatavermang:** Agar muammoni `Components` yoki `Composables` orqali hal qila olsangiz, ularni ishlating. Direktivalar asosan DOM bilan yalang'och (raw) ishlash kerak bo'lgandagina kerak. Mantiq yozish joyi emas u.
+2. **Nomlanish (Naming conventions):** O'z direktivangizga aniq va nima ish qilishini tushuntiruvchi nom bering (Masalan: `v-scroll-to-top`, `v-focus`).
+3. **Tozalashni (Cleanup) unutmang:** Event listener qo'shgan bo'lsangiz (`addEventListener`), uni albatta `unmounted` hook'ida olib tashlang (`removeEventListener`). Aks holda ilovangiz xotirasiga og'irlik tushadi (Memory leak).
 
 ---
 

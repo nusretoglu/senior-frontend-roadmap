@@ -19,26 +19,45 @@ Bu bo'limda Vue.js ilovalarida state management (holat boshqaruvi) haqida chuqur
 
 ## State Management Nima?
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Loyiha kichikligida komponentlar o'rtasida ma'lumot almashish (props va events orqali) oson bo'ladi. Ammo loyiha kattalashgani sari, bu jarayon juda qiyinlashib, "prop drilling" (ma'lumotni uzoqdagi komponentga yetkazish uchun o'rtadagi barcha komponentlardan o'tkazish) muammosiga aylanadi. State management ma'lumotlarni markazda saqlash orqali bu muammoni hal qiladi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Pochta vs Kuryer Xizmati"**  
+> **Prop drilling (Oddiy usul):** Toshkentdan Samarqandga xat yuborish uchun o'rtadagi hamma shaharlardan qo'ldan-qo'lga uzatib o'tish.
+> **State Management (Markazlashtirilgan usul):** Pochtaga (Store) xatni berasiz, u to'g'ridan-to'g'ri Samarqanddagi qabul qiluvchiga yetkazadi. O'rtadagi shaharlar aralashmaydi.
+
 State management - bu ilovadagi ma'lumotlar holatini markazlashtirilgan tarzda boshqarish usuli. Katta ilovalarda komponentlar o'rtasida ma'lumot almashish murakkablashadi va bu muammoni hal qilish uchun state management kutubxonalari ishlatiladi.
 
-### Muammo
+### Muammo (Prop Drilling)
 
-```
-ComponentA ────┐
-               │
-ComponentB ────┼──► Ma'lumot almashish qanday?
-               │
-ComponentC ────┘
+```mermaid
+graph TD
+    Root[Root Component] --> C1[Component A]
+    Root --> C2[Component B]
+    C1 --> C3[Component C]
+    C1 --> C4[Component D]
+    C2 --> C5[Component E]
+    C4 -. Ma'lumot kerak .-> C5
+    style C4 fill:#ffcccc,stroke:#ff0000
+    style C5 fill:#ffcccc,stroke:#ff0000
 ```
 
-### Yechim
+### Yechim (Store)
 
-```
-ComponentA ────┐
-               │
-ComponentB ────┼──► [Markaziy Store] ◄──► Ma'lumotlar
-               │
-ComponentC ────┘
+```mermaid
+graph TD
+    Store[(Markaziy Store)]
+    Root[Root Component]
+    C4[Component D]
+    C5[Component E]
+    
+    Root -.-> Store
+    C4 <==>|To'g'ridan-to'g'ri| Store
+    C5 <==>|To'g'ridan-to'g'ri| Store
+    
+    style Store fill:#e1f5fe,stroke:#03a9f4,stroke-width:2px
 ```
 
 ---
@@ -122,11 +141,25 @@ store.state.user = newUser
 ```
 
 ### Unidirectional Data Flow
+```mermaid
+graph LR
+    Action -->|commit/update| State
+    State -->|render| View
+    View -->|dispatch/call| Action
+    
+    style Action fill:#f9f9f9,stroke:#333
+    style State fill:#e1f5fe,stroke:#03a9f4
+    style View fill:#f9f9f9,stroke:#333
 ```
-Action ──► Mutation ──► State ──► View
-   ▲                               │
-   └───────────────────────────────┘
-```
+
+---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **State minimal bo'lishi kerak**: Faqatgina bir nechta komponentlarga kerak bo'ladigan ma'lumotlarni store'da saqlang. Local holatda ishlashi mumkin bo'lgan narsani o'z komponentida saqlagan ma'qul.
+2. **Computed property'lardan maksimal foydalanish**: State dagi asl ma'lumotni o'zgartirmasdan, getters/computed orqali uni turli ko'rinishlarga o'tkazing (masalan, filterlash, sanash).
+3. **Katta state'larni parchalang**: Hamma narsani bitta ulkan store ichiga yozmang. User, Cart, Products kabi kichik va izolyatsiya qilingan store'larga bo'ling.
+4. **Side-effect'larni Action'ga qo'ying**: API chaqiruvlari, localStorage ga yozish yoki asinxron operatsiyalarni faqat action ichida bajaring, state'ni to'g'ridan-to'g'ri mutation qiladigan joyda emas.
 
 ---
 

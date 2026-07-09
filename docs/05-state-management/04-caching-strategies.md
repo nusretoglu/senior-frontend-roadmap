@@ -16,32 +16,50 @@
 
 ## Caching Nima va Nima Uchun Kerak?
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Foydalanuvchilar tezlikni yaxshi ko'rishadi. Har safar sahifa o'zgarganda serverdan bir xil ma'lumotlarni qayta so'rash tarmoqni band qiladi va foydalanuvchini kuttirib qo'yadi. Caching orqali ilova tezligini oshiramiz va serverga tushadigan yuklamani kamaytiramiz.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Muzlatgich"**  
+> Tasavvur qiling, har doim suv ichgingiz kelganda do'konga borib kelasiz (Bu Cachesiz holat - API'ga har safar murojaat qilish). Boshqa yo'li esa suvni bir marta sotib olib, muzlatgichga qo'yishdir. Keyingi safar suv ichgingiz kelsa, muzlatgichdan olasiz (Bu Caching). Agar suv eskirgan bo'lsa, yana do'konga borib yangisini olib kelasiz (Cache invalidation/update).
+
 Caching - tez-tez ishlatiladigan ma'lumotlarni vaqtincha saqlash, qayta fetch qilmaslik uchun.
 
-### Muammo
+### Muammo (Cachesiz)
 
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant A as API
+    U->>A: Sahifani ochish (Request)
+    Note right of U: 500ms kutish
+    A-->>U: Render
+    U->>A: Sahifa almashish (Request)
+    Note right of U: 500ms kutish
+    A-->>U: Render
+    U->>A: Orqaga qaytish (Request)
+    Note right of U: Har safar 500ms kutish!
+    A-->>U: Render
 ```
-Cachesiz:
 
-User opens page ──► API call ──► Wait 500ms ──► Render
-User navigates   ──► API call ──► Wait 500ms ──► Render
-User returns     ──► API call ──► Wait 500ms ──► Render
-                     ▲
-                     │
-              Har safar 500ms kutish!
-```
+### Yechim (Cache bilan)
 
-### Yechim
-
-```
-Cache bilan:
-
-User opens page ──► API call ──► Wait 500ms ──► Render + Cache
-User navigates   ──► Cache hit ──► Instant ──► Render
-User returns     ──► Cache hit ──► Instant ──► Render
-                     ▲
-                     │
-              Faqat 1 marta kutish!
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant C as Cache
+    participant A as API
+    U->>A: Sahifani ochish
+    Note right of U: 500ms kutish
+    A-->>C: Saqlash (Cache)
+    A-->>U: Render
+    U->>C: Sahifa almashish
+    Note right of U: Instant! (0ms)
+    C-->>U: Render
+    U->>C: Orqaga qaytish
+    Note right of U: Instant! (0ms)
+    C-->>U: Render
 ```
 
 ### Caching Afzalliklari
@@ -1674,16 +1692,22 @@ async function updateUser(data) {
 
 SWR - eskirgan cache'dan javob berib, fonda yangi ma'lumot olish.
 
-```
-Traditional:
-Request ──► Check Cache ──► Cache Miss ──► Fetch ──► Wait... ──► Response
-                                                      │
-                                                   (slow)
+```mermaid
+graph TD
+    subgraph Traditional [Traditional (Pessimistic)]
+        T_Req[Request] --> T_Check[Check Cache]
+        T_Check -->|Miss| T_Fetch[Fetch]
+        T_Fetch -->|Wait... slow| T_Resp[Response]
+    end
 
-SWR:
-Request ──► Check Cache ──► Return Stale ──► Response (instant!)
-                │
-                └──► Background Fetch ──► Update Cache ──► Update UI
+    subgraph SWR [Stale-While-Revalidate]
+        S_Req[Request] --> S_Check[Check Cache]
+        S_Check -->|Hit| S_Ret[Return Stale]
+        S_Ret --> S_Resp[Response - Instant!]
+        S_Check -->|Background| S_Fetch[Fetch]
+        S_Fetch --> S_Upd[Update Cache]
+        S_Upd --> S_UI[Update UI]
+    end
 ```
 
 ```javascript
@@ -1911,6 +1935,13 @@ const posts = await db
 - **Qachon:** Static assets, API responses
 - **Misol:** Images, CSS, GET requests
 - **Hajm:** Browser managed
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Caching Layer'ni aniq belgilang**: Cache'ni to'g'ridan-to'g'ri komponentlar ichida emas, Pinia store yoki maxsus composable (masalan, Vue Query) orqali boshqaring.
+2. **SWR Pattern'dan keng foydalaning**: User kutishni yoqtirmaydi. Iloji bo'lsa, eskirgan cache ma'lumotini ko'rsatib, fonda yangilash usulini ishlating.
+3. **Invalidation shartlarini yoddan chiqarmang**: Keshni qachon tozalash kerakligini rejalashtiring (Masalan: User logout bo'lganda, ma'lumot tahrirlanganda yoxud vaqti tugaganda).
+4. **Faqat kerakli narsani cache qiling**: Hamma narsani Cache qilaverish memory leak va ma'lumotlar chalkashligiga olib keladi. Katta datalarda IndexedDB'dan foydalaning.
 
 ---
 

@@ -1,10 +1,32 @@
 # Testing Patterns
 
+## Kirish
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Testlarni yozish qiyin emas, ammo "yaxshi tushuniladigan" va "oson xizmat ko'rsatiladigan" (maintainable) testlarni yozish katta tajriba talab qiladi. Dasturchilar o'nlab yillar davomida to'plagan eng yaxshi yondashuvlarni (Pattern'larni) o'rganish orqali, siz 10 qatorli "tushunib bo'lmaydigan" test o'rniga, o'z-o'zini tushuntiradigan professional kod yozishni o'rganasiz.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Pishiriq tayyorlash" (AAA Pattern)**  
+> **Arrange (Tayyorlash):** Unni o'lchash, tuxumni chaqish, idishlarni tayyorlash.
+> **Act (Harakat):** Masalliqlarni pechda 200 gradusda 30 daqiqa pishirish.
+> **Assert (Tekshirish):** Pishiriqni pichoq bilan kesib ko'rish (ichiga pishganmi yo'qmi) va ta'mini tatib ko'rish. Agar siz bu ketma-ketlikni buzsangiz (avval pishirib, keyin tuxum qo'shsangiz), tort o'xshamaydi. Testlarda ham xuddi shunday qat'iy tartib bor.
+
 Testing patterns - bu takrorlanadigan test muammolarini hal qilish uchun ishlatiladigan yondashuvlar va best practice'lar. Bu bo'limda eng muhim testing pattern'larni o'rganamiz.
 
 ## Arrange-Act-Assert (AAA)
 
 Eng keng tarqalgan test strukturasi pattern. Testni uch qismga ajratadi.
+
+```mermaid
+graph LR
+    A[Arrange<br>Tayyorgarlik] --> B[Act<br>Harakat]
+    B --> C[Assert<br>Tekshirish]
+    
+    style A fill:#e3f2fd,stroke:#1565c0
+    style B fill:#fff3e0,stroke:#e65100
+    style C fill:#e8f5e9,stroke:#2e7d32
+```
 
 ### AAA Pattern
 
@@ -1233,6 +1255,14 @@ test.each([
   expect(validateEmail(email)).toBe(expected)
 })
 ```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Bitta Assert (G'oya) Qoidasi**: Har bir test imkon qadar faqat "Bitta Narsani" tekshirishi kerak. Bitta test ichida ham qidiruvni, ham savatni, ham to'lovni test qilish uning nima maqsadda yozilganini xiralashtiradi. Agar bitta funksiya turli natijalar bersa, uni turli testlarda (Test suites) tekshiring.
+2. **Qismlarni vizual ajratib qo'ying**: AAA patternini ishlatganda, kodingiz o'qilishini osonlashtirish uchun qismlar orasida 1 qator bo'sh joy qoldiring yoki `// Arrange`, `// Act`, `// Assert` kommentlarini ishlatib keting.
+3. **Sehrli raqamlarni yo'qoting**: Testdagi "5" yoki "100" qayerdan kelganligini bilish qiyin bo'lishi mumkin. O'zgaruvchilarga mantiqiy nomlar bering (masalan: `const DISCOUNT_PERCENTAGE = 20;`).
+
+---
 
 ## Xulosa
 

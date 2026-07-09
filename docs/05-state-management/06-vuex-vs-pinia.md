@@ -15,20 +15,25 @@
 
 ## Umumiy Taqqoslash
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Ko'plab eski Vue loyihalari Vuex'dan foydalanadi, yangi loyihalar esa Pinia'ni tanlaydi. Ushbu ikki texnologiyaning farqini tushunish, loyihani to'g'ri baholash, xatolarni tezda topish va agar kerak bo'lsa Vuex'dan Pinia'ga og'riqsiz migratsiya qilish uchun eng kerakli bilimdir.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Qattiqqo'l menejer va O'z-o'ziga xizmat do'koni"**  
+> **Vuex (Eski uslub):** Do'kondan nimadir olmoqchi yoki o'zgartirmoqchi bo'lsangiz, menejerga (Action) borishingiz kerak. U ishchilarga (Mutation) buyruq beradi va ishchilar omborni (State) o'zgartiradi. Juda xavfsiz, lekin ortiqcha qadamlar ko'p.
+> **Pinia (Yangi uslub):** O'z-o'ziga xizmat do'koni. Qoidalarga (Action) amal qilgan holda o'zingiz to'g'ridan-to'g'ri omborni (State) o'zgartira olasiz. O'rtakashlar (Mutation) yo'q, tez va oson.
+
 ### Tarix va Status
 
-```
-Timeline:
-─────────────────────────────────────────────────────────────►
-
-2015        2019        2020        2021        2022
-  │           │           │           │           │
-  ▼           ▼           ▼           ▼           ▼
-Vuex 1    Vuex 3      Vue 3     Pinia 2     Pinia
-(Vue 1)   (Vue 2)    release   (stable)    (official)
-
-                                Evan You:
-                                "Pinia is Vuex 5"
+```mermaid
+timeline
+    title Vue State Management Evolyutsiyasi
+    2015 : Vuex 1 (Vue 1)
+    2019 : Vuex 3 (Vue 2)
+    2020 : Vue 3 release
+    2021 : Pinia 2 (stable)
+    2022 : Pinia (Official recommended - Evan You: "Pinia is effectively Vuex 5")
 ```
 
 ### Asosiy Farqlar
@@ -47,34 +52,26 @@ Vuex 1    Vuex 3      Vue 3     Pinia 2     Pinia
 
 ### Arxitektura
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                         VUEX                                 │
-│                                                              │
-│   Component ──► dispatch() ──► Action ──► commit() ──►      │
-│       │                                      │               │
-│       ▼                                      ▼               │
-│   mapGetters ◄── Getters ◄── State ◄── Mutation             │
-│                                                              │
-│   ┌─────────────────────────────────────────────────────┐   │
-│   │                     FLOW                             │   │
-│   │  View → Action → Mutation → State → View            │   │
-│   └─────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph Vuex
+        V_Comp[Component] -->|dispatch| V_Action[Action]
+        V_Action -->|commit| V_Mutation[Mutation]
+        V_Mutation -->|mutate| V_State[(State)]
+        V_State --> V_Getter[Getters]
+        V_Getter -->|mapGetters| V_Comp
+    end
 
-┌─────────────────────────────────────────────────────────────┐
-│                         PINIA                                │
-│                                                              │
-│   Component ──► store.action() ──► State update ──►         │
-│       │                               │                      │
-│       ▼                               ▼                      │
-│   storeToRefs ◄── Getters ◄── State ◄─┘                     │
-│                                                              │
-│   ┌─────────────────────────────────────────────────────┐   │
-│   │                     FLOW                             │   │
-│   │  View → Action → State → View (soddalashtirilgan)   │   │
-│   └─────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
+    subgraph Pinia
+        P_Comp[Component] -->|store.action| P_Action[Action]
+        P_Action -->|update| P_State[(State)]
+        P_State --> P_Getter[Getters]
+        P_State -->|storeToRefs| P_Comp
+        P_Getter -->|storeToRefs| P_Comp
+    end
+    
+    style Vuex fill:#f9f9f9,stroke:#333
+    style Pinia fill:#e1f5fe,stroke:#333
 ```
 
 ---
@@ -1535,25 +1532,28 @@ export const useCartStore = defineStore('cart', {
 
 ---
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Yangi loyiha = Pinia**: Vue 2 da ishlaysizmi yoki Vue 3 da farqi yo'q. Hozirda barcha yangi loyihalar uchun Pinia ishlatish standarti tavsiya etiladi. Vuex yangilanmaydi.
+2. **State mutate qilmang (Vuex)**: Agar loyiha eski va Vuex ishlatsa, hech qachon stateni to'g'ridan-to'g'ri o'zgartirmang (doim mutation ishlating). Pinia da bo'lsa buni to'g'ridan-to'g'ri qilsangiz bo'ladi.
+3. **Module o'rniga bir nechta Pinia Store**: Vuex'dagi katta bir daraxt va namespace'lar o'rniga, Pinia'da turli kichik fayllarda alohida-alohida do'konlar (`useUserStore`, `useCartStore`) saqlash afzal. Bu TypeScript ga tiplarni tezroq topishga yordam beradi.
+
+---
+
 ## Xulosa
 
 ### Final Recommendation
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                                                             │
-│   2024+ loyihalar uchun: PINIA                             │
-│                                                             │
-│   Sabablar:                                                 │
-│   • Vue core team tomonidan rasmiy                         │
-│   • Sodda API (no mutations)                               │
-│   • TypeScript first-class                                 │
-│   • ~7x kichikroq bundle                                   │
-│   • Yaxshi DevTools                                        │
-│   • Hot reload to'liq ishlaydi                            │
-│   • Evan You: "Pinia is effectively Vuex 5"               │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
+> [!TIP]
+> **2024+ Loyihalar uchun: PINIA**
+> 
+> Sabablar:
+> - Vue core team tomonidan rasmiy
+> - Sodda API (no mutations)
+> - TypeScript first-class
+> - ~7x kichikroq bundle
+> - Yaxshi DevTools
+> - Hot reload to'liq ishlaydi
+> - Evan You: "Pinia is effectively Vuex 5"
 
 Vuex hali ham qo'llab-quvvatlanadi, lekin yangi loyihalar uchun Pinia tavsiya etiladi.

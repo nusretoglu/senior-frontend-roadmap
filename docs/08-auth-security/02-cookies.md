@@ -1,13 +1,18 @@
 # Cookies
 
-## Mundarija
-1. [Cookie Asoslari](#cookie-asoslari)
-2. [Cookie Attributes](#cookie-attributes)
-3. [Session Management](#session-management)
-4. [Zaif vs Xavfsiz Kod](#zaif-vs-xavfsiz-kod)
-5. [Real Attack Scenarios](#real-attack-scenarios)
-6. [Best Practices](#best-practices)
-7. [Interview Savollari](#interview-savollari)
+## Kirish
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Veb-saytingiz xavfsizligini ta'minlashda cookielarni to'g'ri sozlash eng muhim omillardan biridir. Agar siz auth tokenlarni cookie-da saqlab, unga `HttpOnly` va `Secure` bayroqlarini (flags) qo'ymasangiz, xakerlar oddiygina XSS hujumi orqali foydalanuvchining sessiyasini o'g'irlashi mumkin. Yoki `SameSite` atributini noto'g'ri belgilasangiz, saytingiz CSRF hujumlariga osonlikcha taslim bo'ladi. Cookie xavfsizligini bilish — sizni professional darajadagi xavfsiz frontend dasturchiga aylantiradi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Mehmonxona Kalit-Kartasi (Key-Card)"**  
+> Siz mehmonxonaga bordingiz va ro'yxatdan o'tdingiz (Login). Admin sizga xonangizning plastik kalitini (Cookie) berdi.  
+> - **HttpOnly yo'qligi:** Kalitingizni stol ustida qoldirdingiz, uni istalgan odam (XSS - zararli skript) ko'rib, nusxa olib ketishi mumkin.  
+> - **HttpOnly borligi:** Kalit maxsus sumkacha ichida bo'lib, uni faqat eshik qulfi (Server) o'qiy oladi, siz ham, boshqalar ham sumkani ocha olmaysiz.  
+> - **Secure borligi:** Bu kalit faqat mehmonxonaning maxsus xavfsiz liftlarida (HTTPS) ishlaydi.  
+> - **SameSite:** Kalit faqat shu mehmonxona hududida (Same-Site) ishlaydi, uni ko'chada boshqa birov sizni aldab ishlata olmaydi (CSRF).
 
 ---
 
@@ -15,27 +20,18 @@
 
 Cookie - bu server tomonidan yuborilgan va brauzer tomonidan saqlanadigan kichik ma'lumot parchasidir. Har bir keyingi request'da brauzer cookie'ni serverga qaytaradi.
 
-### Cookie Lifecycle
+### Cookie Lifecycle (Cookie Hayot Sikli)
 
-```
-┌─────────┐                              ┌─────────┐
-│ Browser │                              │ Server  │
-└────┬────┘                              └────┬────┘
-     │                                        │
-     │  1. Initial Request (no cookies)       │
-     │ ──────────────────────────────────────▶│
-     │                                        │
-     │  2. Response + Set-Cookie header       │
-     │ ◀──────────────────────────────────────│
-     │                                        │
-     │  Browser saves cookie locally          │
-     │                                        │
-     │  3. Subsequent Request + Cookie header │
-     │ ──────────────────────────────────────▶│
-     │                                        │
-     │  4. Server reads cookie                │
-     │ ◀──────────────────────────────────────│
-     │                                        │
+```mermaid
+sequenceDiagram
+    participant Browser as Brauzer (Kliyent)
+    participant Server as Server
+    
+    Browser->>Server: 1. Dastlabki so'rov (Cookielarsiz)
+    Server-->>Browser: 2. Javob + Set-Cookie sarlavhasi (sessionId=abc123)
+    Note over Browser: Brauzer cookieni xotirada saqlaydi
+    Browser->>Server: 3. Keyingi so'rov + Cookie sarlavhasi (sessionId=abc123)
+    Server->>Server: 4. Server cookieni o'qiydi va foydalanuvchini taniydi
 ```
 
 ### Cookie Headers
@@ -48,26 +44,14 @@ Set-Cookie: sessionId=abc123; Path=/; HttpOnly; Secure; SameSite=Strict
 Cookie: sessionId=abc123; theme=dark; language=en
 ```
 
-### Cookie Types
+### Cookie Turlari
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        Cookie Types                              │
-├───────────────────┬─────────────────────────────────────────────┤
-│ Session Cookie    │ Expires bilan belgilanmagan                 │
-│                   │ Brauzer yopilganda o'chadi                  │
-├───────────────────┼─────────────────────────────────────────────┤
-│ Persistent Cookie │ Expires/Max-Age bilan belgilangan           │
-│                   │ Disk'da saqlanadi                           │
-├───────────────────┼─────────────────────────────────────────────┤
-│ First-party       │ Joriy domain tomonidan o'rnatilgan          │
-│                   │ example.com → example.com cookie            │
-├───────────────────┼─────────────────────────────────────────────┤
-│ Third-party       │ Boshqa domain tomonidan o'rnatilgan         │
-│                   │ ads.tracker.com → example.com sahifasida    │
-│                   │ (Blocking bo'lmoqda - privacy)              │
-└───────────────────┴─────────────────────────────────────────────┘
-```
+| Cookie Turi | Xususiyati | O'chib ketish vaqti (Expiration) |
+| --- | --- | --- |
+| **Session Cookie** | `Expires` yoki `Max-Age` belgilanmagan | Brauzer (yoki tab) yopilganda o'chadi |
+| **Persistent Cookie** | `Expires`/`Max-Age` ko'rsatilgan | Belgilangan muddat tugaganda yoki o'chirilganda |
+| **First-party Cookie** | Joriy domen tomonidan o'rnatilgan | Masalan, `example.com` uchun `example.com` cookielari |
+| **Third-party Cookie** | Boshqa domen tomonidan o'rnatilgan | Reklama yoki treker domenlari tomonidan (ko'pincha bloklanadi) |
 
 ---
 
@@ -917,5 +901,25 @@ __Secure-token=xyz; Secure; Path=/api
 - Domain, Path cheklovsiz
 
 **Qachon ishlatish:**
-- Session cookies: `__Host-` (maximum protection)
-- Other secure cookies: `__Secure-`
+- Session cookies: `__Host-` (maksimal himoya)
+- Boshqa xavfsiz cookielar: `__Secure-`
+
+---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **HttpOnly va Secure bayroqlarini doim yoqing:** Maxfiy ma'lumotlar saqlanadigan cookielarga (masalan, auth token) har doim `HttpOnly; Secure;` atributlarini o'rnating. Bu XSS orqali sessiyangizni o'g'irlashlarini 99% ga to'xtatadi.
+2. **SameSite=Strict yoki Lax ishlatish:** CSRF hujumlaridan himoyalanish uchun SameSite atributini `Lax` (tavsiya etilgan) yoki `Strict` deb sozlang. `SameSite=None` ni faqat alohida domenlararo (cross-site) aloqa zarur bo'lsagina ishlating va bunda `Secure` majburiyligini unutmang.
+3. **Prefixlardan foydalaning:** Eng yuqori xavfsizlik uchun session cookielarga `__Host-` prefiksini bering. Bu cookie-faylni faqat HTTPS orqali va faqat joriy domendagina ishlashini kafolatlaydi (subdomenlar ta'sir qilolmaydi).
+
+---
+
+## Xulosa
+
+Cookie xavfsizligi bo'yicha yakuniy xulosa:
+
+| Xavfsizlik darajasi | Atributlar | Natija |
+| --- | --- | --- |
+| **Xavfli (Zaif)** | `sessionId=123` | XSS va CSRF hujumlariga ochiq |
+| **O'rtacha** | `sessionId=123; HttpOnly; Secure` | XSS dan himoyalangan, CSRF xavfi bor |
+| **Yuqori (Tavsiya etiladi)**| `__Host-sessionId=123; HttpOnly; Secure; SameSite=Lax; Path=/` | XSS va CSRF dan maksimal himoya |

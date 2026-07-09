@@ -1,90 +1,56 @@
 # Middleware
 
-Nuxt middleware - route o'zgarishlarida avtomatik ishga tushadigan funksiyalar. Auth tekshiruvlari, redirect'lar, logging va boshqa route-level logikalar uchun ishlatiladi.
+## Kirish
 
-## Nazariya
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Foydalanuvchilar veb-sahifalar o'rtasida harakatlanayotganda (masalan, `/login` dan `/dashboard` ga o'tayotganda), ularni ma'lum bir tekshiruvlardan o'tkazish kerak bo'ladi. Ular ro'yxatdan o'tganmi? Ularning bunga huquqi bormi? Xuddi shu vazifalarni **Nuxt Middleware** orqali hal qilamiz. Middleware sahifa ko'rsatilishidan avval ishga tushib, foydalanuvchini yo'naltirish, qaytarib yuborish (redirect) yoki statistika yig'ish imkonini beradi.
 
-### Middleware Nima?
+> [!NOTE]
+> **Real-hayot analogiyasi: "Bojxona nazorati"**  
+> Tasavvur qiling, siz bir davlatdan ikkinchi davlatga (Sahifa A dan Sahifa B ga) uchib o'tmoqchisiz.  
+> Samolyot qo'nganidan keyin, shaharga kirishdan oldin **Bojxona tekshiruvidan (Middleware)** o'tasiz:
+> 1. Pasportingiz bormi? (Auth tekshiruvi)
+> 2. Vizada muammo yo'qmi? (Role tekshiruvi)
+> 3. Hamma narsa joyida bo'lsagina shaharga kiritilasiz (Sahifa ochiladi). Aks holda, orqaga (login sahifasiga) qaytarib yuborilasiz.
+
+## Middleware Nima?
 
 Middleware - bu "oraliq dastur" ma'nosini anglatadi. Route'lar orasida ishlaydigan kod - foydalanuvchi bir sahifadan ikkinchisiga o'tganida, middleware avval ishga tushadi.
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Middleware Flow                           │
-└─────────────────────────────────────────────────────────────┘
-
-User clicks link: /dashboard
-         │
-         ▼
-┌─────────────────────┐
-│  Global Middleware  │  ← analytics.global.ts
-│  (*.global.ts)      │
-└─────────────────────┘
-         │
-         ▼
-┌─────────────────────┐
-│  Route Middleware   │  ← definePageMeta({ middleware: 'auth' })
-│  (named)            │
-└─────────────────────┘
-         │
-         ▼
-┌─────────────────────┐
-│  Inline Middleware  │  ← definePageMeta({ middleware: [fn] })
-│  (page-level)       │
-└─────────────────────┘
-         │
-         ▼
-┌─────────────────────┐
-│  Page Rendered      │
-└─────────────────────┘
+```mermaid
+graph TD
+    A([Foydalanuvchi linkka bosdi: /dashboard]) --> B[Global Middleware<br>*.global.ts]
+    B --> C[Route Middleware<br>Named middleware]
+    C --> D[Inline Middleware<br>Page-level]
+    D --> E(((Sahifa Render qilinadi)))
+    
+    style A fill:#e3f2fd,stroke:#1976d2
+    style E fill:#c8e6c9,stroke:#388e3c
 ```
 
 ### Middleware Turlari
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Middleware Types                          │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│  1. GLOBAL MIDDLEWARE (*.global.ts)                         │
-│     ├── Har bir route o'zgarishida ishga tushadi            │
-│     ├── Avtomatik yuklanadi                                 │
-│     └── Fayl nomi: xxx.global.ts                            │
-│                                                              │
-│  2. NAMED MIDDLEWARE                                         │
-│     ├── Faqat belgilangan sahifalarda ishlaydi              │
-│     ├── definePageMeta({ middleware: 'auth' })              │
-│     └── Fayl nomi: middleware/auth.ts                       │
-│                                                              │
-│  3. INLINE MIDDLEWARE                                        │
-│     ├── Sahifa ichida aniqlangan                            │
-│     ├── Faqat shu sahifada ishlaydi                         │
-│     └── definePageMeta({ middleware: [fn] })                │
-│                                                              │
-│  4. SERVER MIDDLEWARE                                        │
-│     ├── API requests uchun                                  │
-│     ├── server/middleware/ papkasida                        │
-│     └── Har bir server request'da ishlaydi                  │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
-```
+| Turi | Qayerda ishlatiladi? | Fayl nomi formati | Xususiyati |
+| --- | --- | --- | --- |
+| **Global** | Barcha routelarda | `*.global.ts` | Har safar sahifa o'zgarganda avtomatik ishlaydi. |
+| **Named** | Ma'lum sahifalarda | `middleware/auth.ts` | `definePageMeta({ middleware: 'auth' })` orqali ulanadi. |
+| **Inline** | Biriktirilgan sahifa ichida | Sahifa `script`ida | Faqat shu sahifaga tegishli bo'ladi. |
+| **Server** | API Requestlarda | `server/middleware/` | Node.js (Nitro) qatlamida har bir HTTP so'rovda ishlaydi. |
 
-### Middleware Execution Order
+### Middleware Execution Order (Ishlash Ketma-ketligi)
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Execution Order                           │
-└─────────────────────────────────────────────────────────────┘
-
-1. Global middlewares (alphabetical: 01.auth.global.ts → 02.analytics.global.ts)
-2. Page middlewares (array order: ['auth', 'admin'])
-3. Inline middlewares (array order)
-
-Timeline:
-─────────────────────────────────────────────────────────────►
-│         │           │            │            │
-│ Global  │  Global   │   Named    │   Inline   │  Page
-│   #1    │    #2     │   'auth'   │    fn      │  Render
+```mermaid
+sequenceDiagram
+    participant G as Global
+    participant N as Named
+    participant I as Inline
+    participant P as Page
+    
+    G->>N: 1. Alphabetical (.global.ts)
+    N->>I: 2. Array Order (named)
+    I->>P: 3. Array Order (inline)
+    P-->>G: Render Completed
 ```
 
 ## Kod Misollari
@@ -1092,6 +1058,16 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   }
 })
 ```
+
+---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Cheksiz Loopdan saqlaning:** Redirect qilinayotgan sahifada ham shu middleware ishlamasligiga ishonch hosil qiling. (Masalan, loginga redirect qildingiz, lekin login sahifada ham middleware yana loginga jo'natsa cheksiz loop bo'ladi). `if (to.path === '/login') return` bilan himoyalang.
+2. **Global Middleware'ni og'irlashtirmang:** Global middleware har safar route o'zgarganda ishlaydi. Unda sekin ishlovchi (heavy) API chaqiruvlarni yoki qiyin hisob-kitoblarni unchalik ko'p amalga oshirmang.
+3. **Mantiqni ajrating:** UI / Component mantig'i bilan Middleware mantig'ini aralashtirmang. Middleware asosan marshrutlash va yo'naltirish bilan shug'ullanishi kerak. Murakkab huquq tekshiruvlarini alohida xizmatga (`useAuth`) chiqarib qo'ying.
+
+---
 
 ## Xulosa
 

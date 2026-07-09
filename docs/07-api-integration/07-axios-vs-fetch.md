@@ -2,9 +2,37 @@
 
 ## Kirish
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Loyiha boshida tarmoq (network) kutubxonasini to'g'ri tanlash juda muhim, chunki keyinchalik butun loyihani o'zgartirish katta mehnat talab qiladi. Fetch bu quruq fundament (brauzerga o'rnatilgan), Axios esa tayyor imorat. Ikkalasining afzalliklari va cheklovlarini tushunish, loyihaning hajmiga qarab to'g'ri qaror qabul qilishingizga yordam beradi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Pitsa tayyorlash vs Tayyor pitsa buyurtma qilish"**  
+> **Fetch (Pitsa tayyorlash):** Hamiri, pomidori, pishlog'ini alohida-alohida o'zingiz sotib olasiz va o'zingiz pishirasiz. Arzon tushadi (Bundle size = 0), lekin mehnat ko'p (Manual JSON parse, error handling).
+> **Axios (Tayyor pitsa):** Kuryer tayyor quti bilan olib keladi. Barcha xizmatlar ichida bor (Automatic JSON parse, Interceptors). Lekin kuryerga ozgina haq to'laysiz (Bundle size ~11kb).
+
 HTTP so'rovlar yuborish uchun JavaScript'da ikki asosiy variant mavjud: browser native `fetch()` API va third-party `axios` kutubxonasi. Har birining o'z kuchli va kuchsiz tomonlari bor. Bu bo'limda ularni chuqur solishtiramiz va qachon qaysi birini tanlash kerakligini ko'rib chiqamiz.
 
 ## Asosiy Farqlar
+
+```mermaid
+graph TD
+    subgraph Browser
+        Native[Fetch API native]
+    end
+
+    subgraph External
+        Axios[Axios Library] -->|O'rab oladi| XHR[XMLHttpRequest]
+    end
+    
+    Axios -.-> |Qo'shimcha qulayliklar| Interceptor[Interceptors]
+    Axios -.-> Automatic[Avtomatik JSON parsing]
+    Native -.-> |Qo'lda bajarish kerak| Manual[Manual JSON parsing]
+    Native -.-> |Qo'lda yozish kerak| NativeInterceptor[Custom wrapper]
+    
+    style Native fill:#e8f5e9,stroke:#2e7d32
+    style Axios fill:#e3f2fd,stroke:#1565c0
+```
 
 ### 1. Syntax va Ergonomics
 
@@ -1000,6 +1028,14 @@ axios.get(url, { signal: controller.signal });
 // Cancel
 controller.abort();
 ```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Native Fetch ni o'rganing**: Axios o'rniga hozirgi kunda Fetch API ning o'zi ham juda ko'p loyihalarga yetarli. Zamonaviy framework'lar (masalan Nuxt) o'zining Fetch wrapper'iga (ofetch) ega.
+2. **Katta loyihalarga custom wrapper yozing**: Fetch yoki Axios ishlatishingizdan qat'iy nazar, loyihangiz uchun `apiClient.js` nomli markazlashtirilgan ob'ekt yarating. Qachondir Axios dan Fetch ga o'tish kerak bo'lsa, faqat bitta faylni o'zgartirasiz.
+3. **HTTP xatolarni Fetch da to'g'ri ushlang**: Har doim `if (!response.ok) throw new Error(...)` tekshiruvini yozishni unutmang. Aks holda `fetch` sizga 500 yoki 404 kelganda ham "hammasi joyida" (success) deb o'tqazib yuboradi.
+
+---
 
 ## Xulosa
 

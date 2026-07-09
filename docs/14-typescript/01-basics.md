@@ -19,6 +19,15 @@
 
 ## Primitive Types
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> TypeScript JavaScript'ga tiplar (types) qo'shadi. Bu xuddi qoidalari qat'iy yozilgan shartnomaga o'xshaydi: qanday ma'lumot kiritish kerakligi oldindan aytiladi. Shunda siz kod ishlamasdan oldin (yozish jarayonidayoq) xatolarni ko'rasiz, ilovangiz buzilmaydi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Pochtachi va Posilka"**  
+> **JavaScript:** Pochtachi (Funksiya) har qanday posilkani olib ketaveradi. Agar siz unga televizor qutisini ichida suv yuborsangiz, yo'lda u suv oqib ketib hamma narsani buzadi (Runtime Error).
+> **TypeScript:** Pochtachi oldida tekshiruvchi (Compiler) turibdi. U qutining ustiga yozilgan yorliqqa (Type) qaraydi: "Bu qutida faqat televizor bo'lishi kerak!". Ichini ochib tekshiradi va agar suv bo'lsa, qutini pochtachiga bermaydi (Compile-time Error).
+
 TypeScript JavaScript'ning barcha primitive tiplarini qo'llab-quvvatlaydi va qo'shimcha tiplar qo'shadi.
 
 ### Asosiy Primitivelar
@@ -1468,6 +1477,15 @@ interface UserWithMetadata extends User {
   metadata: Record<string, string>;
 }
 ```
+
+---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **`any` ni ishlatavermang**: `any` yozdingizmi, TypeScript'ni o'chirib qo'ydingiz degani. Uning o'rniga nima kelishi noma'lum bo'lsa, `unknown` ishlating va Type Guard'lar bilan tekshirib keyin ishlating.
+2. **Inference (Avtomatik tip topish)**: Hamma narsaga tip yozish shart emas. `let count = 0` yozganingizda TS uning son ekanini o'zi tushunadi (`let count: number = 0` deyish shart emas). O'zingizni kodga ko'mib yubormang.
+3. **Type Alias vs Interface**: Umumiy qoida - obyektlar tuzilishini tasvirlash uchun har doim `interface` ishlating. Boshqa barcha holatlarda (masalan string yoki number'larni birlashtirish) `type` ishlating.
+4. **Striktlikni saqlang**: TypeScript config faylida `strict: true` rejimini yoqing. Bu sizni ko'pgina yashirin xatolardan himoya qiladi (masalan, `null` ob'ektlardan field o'qish xatolari).
 
 ---
 

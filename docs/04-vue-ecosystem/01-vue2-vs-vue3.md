@@ -2,19 +2,35 @@
 
 ## Kirish
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Bugungi kunda ham ko'plab eskirgan (legacy) proyektlar Vue 2 da ishlayapti va ularni Vue 3 ga ko'chirish talab qilinmoqda. Vue 2 va Vue 3 qanday farq qilishini (ayniqsa Reactivity tizimi va Composition API qanday ustunliklar berishini) bilish sizni intervyularda qutqaradi va eski proyektlar bilan muammosiz ishlashga tayyorlaydi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Kuzatuvchi Kameralar"**  
+> **Vue 2 (Object.defineProperty):** Uyingizga har bir xona uchun alohida kuzatuv kamerasi qo'ydingiz. Lekin siz uyni qurgach, hovliga yangi garaj qo'shsangiz (ob'ektga yangi propery qo'shish), unga kamera o'rnatilmagani uchun sizning ekraningizda u ko'rinmaydi.
+> **Vue 3 (Proxy):** Siz butun boshli "Aqlli Uy" tizimini sotib oldingiz. Uyga nima qo'shmang (yangi garaj, basseyn - ob'ektning yangi xossalari) yoki uyni qayta qurmang (Array indexlar), tizim markaziy darvoza (Proxy) orqali hamma narsani ko'ra oladi va nazorat qiladi.
+
 Vue 3 2020-yil sentabrda chiqarildi va Vue.js ekotizimida katta o'zgarishlar olib keldi. Bu hujjat ikkala versiya orasidagi asosiy farqlarni chuqur tahlil qiladi.
 
 ## Arxitektura Farqlari
 
 ### Reaktivlik Tizimi
 
-```
-Vue 2: Object.defineProperty()          Vue 3: Proxy
-─────────────────────────────          ─────────────────
-✗ Yangi property qo'shish kuzatilmaydi  ✓ Barcha o'zgarishlar kuzatiladi
-✗ Array index o'zgarishi kuzatilmaydi   ✓ Array index kuzatiladi
-✗ delete operator kuzatilmaydi          ✓ delete operator kuzatiladi
-✗ Map, Set, WeakMap qo'llab-quvvatlanmaydi  ✓ Collection'lar qo'llanadi
+```mermaid
+graph LR
+    subgraph Vue 2
+        V2[Object.defineProperty] -.->|Xossani kuzatish| O2[Eski ob'ekt]
+        V2 -.->|Yangi xossa| M2[Kuzatolmaydi]
+    end
+    
+    subgraph Vue 3
+        V3[Proxy] -->|Barcha amallar intercept qilinadi| O3[Yangi ob'ekt]
+        V3 -->|Yangi xossa| O3
+    end
+    
+    style V2 fill:#ffcdd2,stroke:#d32f2f
+    style V3 fill:#c8e6c9,stroke:#388e3c
 ```
 
 #### Vue 2 Reaktivlik (Muammo)
@@ -981,6 +997,12 @@ Bu ayniqsa table row, list item kabi elementlar uchun muhim.
 2. `@vue/compat` (compatibility build) ishlatish
 3. Warning'larni birma-bir tuzatish
 4. To'liq Vue 3 ga o'tish
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Yangi loyihada faqat Vue 3 + Composition API ishlating:** Hozirgi kunda Vue 2 yoki Options API da yangi proyekt boshlash tavsiya etilmaydi. Composition API typescript bilan ajoyib tarzda birga ishlaydi.
+2. **Kichik helper'larni composables'ga ko'chiring:** Options API da Mixin ishlatsangiz nima qayerdan kelayotganini topish qiyin bo'ladi. Composition APIda `useUser()` shaklida qayta ishlatiluvchi funksiyalarni ajrating.
+3. **Fragmentlardan qo'rqmang:** Vue 3 da shunchaki bitta ortiqcha `<div class="wrapper">` qo'yishdan voz keching va toza `<template>` ichida bittadan ortiq blok ishlatishni odat qiling.
 
 ---
 

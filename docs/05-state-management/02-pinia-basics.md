@@ -17,26 +17,34 @@
 
 ## Pinia Nima?
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Pinia modern Vue ilovalarining "miya markazi" hisoblanadi. U state'ni markazlashgan holda ushlab turadi, bu esa proplar yordamida chuqur komponentlarga ma'lumot uzatish (prop drilling) muammosidan qutqaradi. Vue 3 ning Composition API'si bilan uzviy bog'langan bo'lib, Type-safe bo'lgani uchun xatolarni kod yozish jarayonidayoq ushlash mumkin.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Kutubxona tizimi"**  
+> Tasavvur qiling, har bir Vue komponenti — bu alohida o'quvchi. O'quvchilar kitoblarni (State) o'zaro almashishsa, qaysi kitob kimdaligini kuzatish qiyinlashadi. 
+> Pinia — bu **Kutubxona boshqaruv tizimi**. Siz kitob olish yoki holatini o'zgartirish (Action) uchun murojaat qilasiz. Kutubxonachi vazifasini o'tovchi kod to'g'ridan-to'g'ri kitoblarni o'zgartiradi (Vuex'dagi kabi ortiqcha Mutation'larsiz). Qidiruv tizimi orqali (Getters) qaysi kitoblar borligini filtrlab bilib olasiz.
+
 Pinia - Vue.js uchun rasmiy state management kutubxonasi. Vue 3 Composition API asosida qurilgan va Vuex'ning zamonaviy, soddalashtirilgan versiyasi.
 
 ### Pinia vs Vuex
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                          VUEX                                │
-│  ┌────────┐  ┌───────────┐  ┌─────────┐  ┌─────────┐       │
-│  │ State  │→│ Mutations │→│ Actions │→│ Getters │        │
-│  └────────┘  └───────────┘  └─────────┘  └─────────┘       │
-│              (majburiy)     (asinxron)                      │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph Vuex
+    V_State[(State)] -.->|Majburiy o'tish| V_Mutations[Mutations]
+    V_Mutations -.->|Asinxron ishlar| V_Actions[Actions]
+    V_State --> V_Getters[Getters]
+    end
 
-┌─────────────────────────────────────────────────────────────┐
-│                          PINIA                               │
-│  ┌────────┐  ┌─────────┐  ┌─────────┐                       │
-│  │ State  │→│ Actions │→│ Getters │                        │
-│  └────────┘  └─────────┘  └─────────┘                       │
-│              (sinxron+asinxron)                             │
-└─────────────────────────────────────────────────────────────┘
+    subgraph Pinia
+    P_State[(State)] -->|Sinxron va Asinxron| P_Actions[Actions]
+    P_State --> P_Getters[Getters]
+    end
+    
+    style Vuex fill:#f9f9f9,stroke:#333
+    style Pinia fill:#e1f5fe,stroke:#333
 ```
 
 ### Pinia Afzalliklari
@@ -1845,6 +1853,14 @@ export const useUserStore = defineStore('user', () => {
 - SSR'da hydration muammolari bo'lishi mumkin
 - Juda ko'p kichik store'lar - overhead
 - Store'lar orasida ko'p bog'lanish - complexity
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Modulli dizayn**: Bitta ulkan store o'rniga kichik, mustaqil store'lar (`useUserStore`, `useCartStore`) yarating. Pinia avtomatik ravishda bularni modullashtiradi.
+2. **Setup API dan foydalaning**: Composition API'ni ishlatsangiz, Pinia'da ham **Setup syntax** dan foydalaning. Bu ko'proq moslashuvchanlik beradi va Vue 3 uslubiga tushadi.
+3. **State vs Local component state**: Hamma narsani ham Pinia'ga tiqavermang. Agar state faqatgina bitta komponentga tegishli bo'lsa (masalan, oyna ochiq/yopiq holati), local `ref` yetarli.
+4. **Xatolarni tutish**: Action'larda asinxron so'rovlarni albatta `try/catch` ichida yozing, to'g'ri error state yarating.
+5. **storeToRefs**: Komponent ichida store ma'lumotlarini destructure qilyapsizmi? Reaktivlikni yo'qotmaslik uchun faqatgina `storeToRefs` ishlating.
 
 ---
 

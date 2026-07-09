@@ -1,6 +1,15 @@
 # Modules
 
-Nuxt modules - build time'da Nuxt funksionalligini kengaytirish uchun ishlatiladi. Module'lar Nuxt configuration'ni o'zgartiradi, hook'larni qo'shadi, plugin'lar inject qiladi va auto-import'lar sozlaydi.
+## Kirish
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Plaginlar (Plugins) faqat mijozning brauzeriga yetib borganidan keyingina ishlay boshlaydi (Runtime). Ammo siz shunday bir kutubxona yasamoqchisizki, u kodlaringizni qurish jarayonida (Build time) fayllarni yaratib berishi, Vue komponentlarini avto-import qilib qo'yishi, yoki Nuxt ni qanday ishlashini o'zgartirishi kerak. Bunga Plaginlar orqali erishib bo'lmaydi. **Modules (Modullar)** shu maqsadda — Nuxt'ning qurish (build) jarayoniga aralashish va uni kengaytirish uchun ishlatiladi. Masalan: `@nuxtjs/tailwindcss`, `@nuxtjs/i18n`, `@pinia/nuxt` kabilarning hammasi Modullardir.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Zavod va Aksessuar"**  
+> - **Plaginlar (Aksessuar):** Mashina yig'ilib bo'ldi, endi uni ichiga gul va xushbo'y hid beruvchi sprey sepib qo'ydingiz (Mashina ishlashiga tayyor bo'lganidan keyingi qadam - Runtime).
+> - **Modullar (Zavod):** Mashina yig'ilayotgan konveyer liniyasiga aralashib, zavod stanoklarini o'zgartirib, mashina dvigatelini kuchaytirish jarayoni (Build time).
 
 ## Nazariya
 
@@ -8,66 +17,22 @@ Nuxt modules - build time'da Nuxt funksionalligini kengaytirish uchun ishlatilad
 
 Module - Nuxt app build vaqtida ishga tushadigan kod. Runtime'da emas, balki build/dev vaqtida configuration va functionality qo'shadi.
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Module vs Plugin                          │
-└─────────────────────────────────────────────────────────────┘
+### Module vs Plugin
 
-BUILD TIME                          RUNTIME
-────────────────────────────────    ────────────────────────
-
-    Modules                             Plugins
-    ┌─────────────────────┐            ┌─────────────────────┐
-    │ - nuxt.config extend│            │ - Vue app extend    │
-    │ - Auto-imports      │            │ - Provide/inject    │
-    │ - Components        │            │ - Directives        │
-    │ - Plugins inject    │            │ - Global components │
-    │ - Build hooks       │            │ - Runtime logic     │
-    │ - Transpile config  │            │                     │
-    └─────────────────────┘            └─────────────────────┘
-            │                                    │
-            ▼                                    ▼
-    ┌─────────────────────────────────────────────────────────┐
-    │                    Nuxt Application                      │
-    └─────────────────────────────────────────────────────────┘
-```
+| Xususiyat | Module (Modul) | Plugin (Plagin) |
+| --- | --- | --- |
+| **Qachon ishlaydi?** | Build time (npm run dev/build paytida) | Runtime (Browser/Serverda dastur ishga tushganda) |
+| **Nima qila oladi?** | Nuxt configuration'ni kengaytiradi, avto-importlar qo'shadi, papkalar yaratadi | Vue app instance'ga globallar qo'shadi (Provide/Inject) |
+| **Qanday yoziladi?** | `defineNuxtModule()` orqali Node.js muhitida ishlaydi | `defineNuxtPlugin()` orqali Browser/Node da ishlaydi |
 
 ### Module Lifecycle
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Module Lifecycle                          │
-└─────────────────────────────────────────────────────────────┘
-
-npm run dev / npm run build
-         │
-         ▼
-┌─────────────────────┐
-│  Load nuxt.config   │
-│  (modules array)    │
-└─────────────────────┘
-         │
-         ▼
-┌─────────────────────┐
-│  Execute modules    │  ← defineNuxtModule()
-│  (sequential)       │
-└─────────────────────┘
-         │
-         ▼
-┌─────────────────────┐
-│  Hooks executed     │  ← 'modules:done', 'ready', etc.
-└─────────────────────┘
-         │
-         ▼
-┌─────────────────────┐
-│  Build starts       │
-│  (Vite/Webpack)     │
-└─────────────────────┘
-         │
-         ▼
-┌─────────────────────┐
-│  App ready          │
-└─────────────────────┘
+```mermaid
+graph TD
+    A([npm run dev / npm run build]) --> B[nuxt.config fayli o'qiladi]
+    B --> C[Modullar ketma-ket ishga tushiriladi<br>defineNuxtModule]
+    C --> D[Nuxt Hooks lari ishlaydi<br>modules:done, ready]
+    D --> E(((Nuxt Build jarayoni boshlanadi<br>Vite/Webpack)))
 ```
 
 ### Module Categories
@@ -1280,6 +1245,16 @@ export default defineNuxtModule({
   }
 })
 ```
+
+---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **`@nuxt/kit` dan to'liq foydalaning:** Modul yozayotganda standart Node.js asboblaridan ko'ra, har doim Nuxt jamoasi yaratgan `@nuxt/kit` ni ishlating (masalan fayl yaratish, plagin qo'shish kabi ishlar uchun u xavfsiz va kafolatlangan usul).
+2. **Kodni ikkiga ajrating:** Modul kodi faqat build time da ishlashi kerak. Agar modul dastur runtime da nimanidir ko'rsatishi (masalan, Component) kutilsa, uni runtime jildiga olib, `addPlugin` yoki `addComponent` orqali moduldan turib chaqirib qo'ying. Hech qachon brauzer kodini modulni asosiy qismida yozmang.
+3. **Konfliktlardan himoyalaning:** Modulingiz konfiguratsiya opsiyalarini va qo'shilgan plaginlar nomini takrorlanmas qiling. Boshqa uchinchi tomon modullari bilan to'qnash kelib qolmasligi uchun modul ismingizni prevfiks (prefix) sifatida qo'shing.
+
+---
 
 ## Xulosa
 

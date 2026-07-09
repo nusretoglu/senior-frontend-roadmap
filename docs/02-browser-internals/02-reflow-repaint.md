@@ -2,7 +2,17 @@
 
 ## Kirish
 
-**Reflow** (Layout) va **Repaint** brauzer rendering pipeline'ning eng "qimmat" operatsiyalari. Noto'g'ri foydalanish 60fps o'rniga 10fps hosil qiladi.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturchi sifatida sahifadagi bitta matn rangini o'zgartirish (Repaint) va element o'lchamini o'zgartirish (Reflow) orasidagi farqni bilish loyihangizning ishlash tezligini (performance) aniqlaydi. Ko'pincha, JS kodi ichida o'lchamlarni tinimsiz o'qib, keyin yozish (Layout Thrashing) brauzerning har bir kadrda qayta-qayta hisoblash ishlarini bajarishiga olib keladi va bu sahifani butunlay muzlatib qo'yadi. Reflow va Repaint tushunchalarini chuqur bilish bu og'ir jarayonlarning oldini olishga yordam beradi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Sahnadagi dekoratsiyalar (Reflow vs Repaint)"**  
+> Tasavvur qiling, siz teatr sahnasini bezayapsiz.  
+> - **Repaint (Pardozlash/Bo'yash):** Sahnadagi bitta stulning rangini qizildan yashilga o'zgartirdingiz. Barcha narsalar o'z joyida turibdi, faqatgina chiroqlar va bo'yoq (Paint) o'zgardi. Bu oson va tez bitadi.
+> - **Reflow (Qayta joylashtirish):** Siz stulni kattaroq stolga o'zgartirdingiz. Endi boshqa barcha mebellarni (elementlarni) joyini surish kerak bo'ladi, chunki yangi stol sig'maydi (Layout o'lchamlari o'zgardi). Barcha aktyorlarning (elementlarning) yangi joylashuv koordinatalarini qayta belgilash juda og'ir va vaqt talab qiladi.
+
+---
 
 ---
 
@@ -14,10 +24,14 @@ Element geometriyasi (position, size, margin, padding) o'zgarganda butun yoki qi
 ### Repaint (Paint)
 Element ko'rinishi (color, background, visibility) o'zgarganda piksellar qayta chiziladi.
 
-### Qoida
-```
-Reflow → doim Repaint trigger qiladi
-Repaint → Reflow trigger QILMAYDI
+### Qoida (Trigger Flow)
+
+```mermaid
+flowchart TD
+    A[Layout/Geometriya o'zgarishi] -->|Triggers| B(Reflow <br/> Qayta hisoblash)
+    B -->|Always triggers| C(Repaint <br/> Qayta chizish)
+    D[Visual/Ko'rinish o'zgarishi] -->|Triggers| C
+    C -->|Does NOT trigger| E(Reflow)
 ```
 
 ---
@@ -732,17 +746,20 @@ function processElements(elements) {
 
 ---
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Read va Write amallarini guruhlang (Batching):** DOM-dan qiymat o'qish (read: `offsetHeight`, `getBoundingClientRect`) va yozish (write: `style.height = ...`) ketma-ketlikda kelganda har safar brauzer o'lchamlarni qayta hisoblashga majbur bo'ladi (Forced Synchronous Layout). Avval barcha o'qish amallarini bajaring, keyin esa yozish amallarini guruhlab bajaring.
+2. **requestAnimationFrame'dan foydalaning:** Vizual o'zgarishlar va DOM tahrirlarini brauzerning keyingi kadr chizish vaqtiga (AnimationFrame) moslash uchun `requestAnimationFrame(callback)` ichiga joylashtiring. Bu Layout Thrashing'ni sezilarli darajada kamaytiradi.
+3. **contain: layout yoki paint dan foydalaning:** CSS'ning `contain` xususiyati yordamida elementni sahifaning qolgan qismidan mutlaqo ajratib qo'ying (izolyatsiya qiling). Bu element ichidagi o'zgarishlar faqat o'sha hududdagina Reflow/Repaint chaqirishini ta'minlaydi (butun sahifa qayta hisoblanmaydi).
+
+---
+
 ## Xulosa
 
-| Operation | Cost | Trigger |
-|-----------|------|---------|
-| Layout (Reflow) | HIGH | Geometry change, DOM read after write |
-| Paint (Repaint) | MEDIUM | Visual change (color, shadow) |
-| Composite | LOW | transform, opacity |
+Reflow va Repaint jarayonlari xulosasi:
 
-**Eng muhim qoidalar:**
-1. READ va WRITE operatsiyalarini ajrating
-2. `transform` va `opacity` animatsiya uchun
-3. `contain` bilan layout scope cheklang
-4. `requestAnimationFrame` bilan batch qiling
-5. DevTools Performance panel bilan profiling qiling
+| Operatsiya | Tizim yuki (Cost) | Qachon ishga tushadi? | Yechim / Optimizatsiya |
+| --- | --- | --- | --- |
+| **Layout (Reflow)** | 🔴 **Juda Yuqori** | Element geometriyasi (`width`, `height`, `left`), DOM element qo'shish/o'chirish | `transform` ishlatish, DOM tahrirlarini guruhlash |
+| **Paint (Repaint)** | 🟡 **O'rtacha** | Ko'rinish o'zgarishi (`color`, `background-color`, `box-shadow`) | Murakkab CSS effektlarni kamaytirish |
+| **Composite (Yig'ish)**| 🟢 **Juda Kam** | GPU qatlamlari o'zgarishi (`transform`, `opacity`) | Animatsiyalarni faqat composite darajasida saqlash |

@@ -17,7 +17,28 @@
 
 ## Utility Types Nima?
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Agar siz TypeScript'da DRY (Don't Repeat Yourself) qoidasiga amal qilmoqchi bo'lsangiz, Utility Types bu sizning eng yaqin do'stingizdir. Bitta Interface'ni (masalan `User`) yozib olib, qolgan joylarda (User yaratish, o'chirish, tahrirlash) xuddi shu tiplarni bittadan ko'chirib yozish o'rniga, uning shaklini tayyor "pichoqlar" yordamida kesib, bo'lib, o'zgartirib ishlatasiz.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Shveytsariya pichog'i"**  
+> Faraz qiling sizda katta pishloq (Katta Interface) bor. 
+> **`Pick`**: Pishloqning faqat eng shirin qismini tanlab qirqib olish.
+> **`Omit`**: Pishloqning ustidagi qattiq po'stlog'ini (keraksiz qismni) kesib tashlab, qolganini olish.
+> **`Partial`**: Pishloqni shunday maydalashki, siz barcha bo'laklarini yeyishga majbur emassiz, xohlasangiz bitta bo'lak oling, xohlasangiz hammasini.
+
 TypeScript'da utility types - bu **mavjud tiplarni transformatsiya qilish** uchun tayyor "toollar". Ular generic asosida qurilgan va yangi tiplar yaratishda vaqt tejaydi.
+
+```mermaid
+graph LR
+    U[User Interface<br/>id, name, email] -->|Omit 'id'| C[CreateUserDto<br/>name, email]
+    C -->|Partial| Update[UpdateUserDto<br/>name?, email?]
+    
+    style U fill:#f5f5f5,stroke:#9e9e9e
+    style C fill:#e3f2fd,stroke:#1565c0
+    style Update fill:#e8f5e9,stroke:#2e7d32
+```
 
 ### Nima Uchun Kerak?
 
@@ -1309,6 +1330,14 @@ const STATUS = {
 type Status = typeof STATUS[keyof typeof STATUS];
 // "pending" | "approved" (precise!)
 ```
+
+---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **`Omit` dan ko'ra `Pick` afzalroq**: Odatda obyektdan 10 ta xususiyatni chiqarib tashlashdan ko'ra (`Omit`), o'zingizga kerakli 2 ta xususiyatni olganingiz (`Pick`) ancha xavfsizroq. Chunki original Interface'ga ertaga yangi maydon qo'shilsa, `Omit` ishlatgan joyingizga u ham qo'shilib qoladi va siz kutmagan muammolarni keltirib chiqaradi.
+2. **`any` o'rniga `Record` ishlating**: Agar obyektning kalitlari noma'lum (masalan, ID larga bog'langan obyekt bo'lsa), `{[key: string]: any}` yozish o'rniga `Record<string, User>` yozing.
+3. **Zanjir (Chain) qilmang**: Utility Types'ni ketma-ket 3-4 marta chaqirmang (`Partial<Readonly<Pick<User, 'id'>>>`). Uning o'rniga Type Alias yordamida bosqichma-bosqich o'qilishi oson ko'rinishga keltiring.
 
 ---
 

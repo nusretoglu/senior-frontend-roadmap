@@ -2,7 +2,32 @@
 
 ## Kirish
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Foydalanuvchi bir xil ma'lumotni ko'rish uchun har safar serverga so'rov yuborishi va kutishi kerak emas. Kesh xotiradan foydalanish (Caching) orqali biz dastur tezligini 10 barobargacha oshiramiz, server xarajatlarini kamaytiramiz va foydalanuvchiga muammosiz UX taqdim etamiz. Lekin, "eski" (stale) ma'lumotni ko'rsatib qo'ymaslik juda nozik masala.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Oziq-ovqat do'koni va Muzlatgich"**  
+> **Keshsiz holat:** Har safar suvsaganingizda uyga qarab yugurib borib emas, supermarketga (Server) borib bitta suv sotib olib kelasiz. Sekin va charchatadigan jarayon.
+> **Kesh bilan holat:** Supermarketdan bir quti suv olib kelib muzlatgichingizga (Cache) qo'yib qo'yasiz. Suvsaganda, shunchaki muzlatgichni ochib olasiz (Juda tez). Lekin ma'lum vaqtdan so'ng suvning muddati o'tsa (Cache expiry), siz muzlatgichdagi suvni to'kib tashlab, yana yangisini olib kelishingiz (Cache invalidation) kerak bo'ladi.
+
 Caching - tez-tez ishlatiladigan data'ni vaqtinchalik saqlash texnikasi. API integration'da caching network request'larni kamaytiradi, UX yaxshilaydi, va server yukini tushiradi. Lekin "Cache invalidation" kompyuter fanidagi eng qiyin muammolardan biri hisoblanadi.
+
+```mermaid
+sequenceDiagram
+    participant UI as Foydalanuvchi UI
+    participant C as Cache
+    participant S as Server
+
+    UI->>C: Ma'lumot bormi?
+    alt Cache'da mavjud va yangi
+        C-->>UI: Darhol qaytarish (Tez)
+    else Yo'q yoki eskirdi
+        C->>S: Yangi ma'lumot so'rash
+        S-->>C: Yangi ma'lumot
+        C-->>UI: Javobni qaytarish va keshlash
+    end
+```
 
 ## HTTP Caching
 
@@ -1065,6 +1090,15 @@ window.addEventListener('storage', (event) => {
   }
 });
 ```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **GET so'rovlarini keshlang**: Faqat o'qish (GET) operatsiyalarini keshga oling. Hech qachon POST, PUT, DELETE operatsiyalari javoblarini keshlashga urinmang.
+2. **SWR (Stale-While-Revalidate) patternini ishlating**: Iloji boricha SWR'dan (VueUse'dagi `useFetch` yoki `@tanstack/vue-query`) foydalaning. Bu UX uchun eng ideal variant — foydalanuvchiga eski ma'lumotni darhol ko'rsatib, orqa fonda jimgina uni yangilab qo'yadi.
+3. **Invalidation (Tozalash) muhim**: Agar ma'lumot qayerdadir o'zgargan bo'lsa (masalan foydalanuvchi ismini tahrirladi), butun foydalanuvchi profili keshini darhol tozalashingiz (`invalidateQueries`) shart, aks holda tahrirlangan profil sahifada eski ism bilan ko'rinib qoladi.
+4. **ETag'dan foydalaning**: Katta o'lchamdagi fayllar yoki ma'lumotlar ro'yxatini yuklashda ETag'larni (If-None-Match) server sozlamalarida yoqtirib qo'ying (304 Not Modified).
+
+---
 
 ## Xulosa
 

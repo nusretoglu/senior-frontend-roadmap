@@ -1,6 +1,15 @@
 # Routing
 
-Nuxt.js file-based routing systemasi Vue Router ustiga qurilgan. `pages/` papkasidagi fayllar avtomatik route'larga aylanadi. Bu yondashuv konfiguratsiya yozmay routing tuzishni osonlashtiradi.
+## Kirish
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> An'anaviy Vue.js da (`Vue Router` yordamida) har bir yangi sahifa yaratganda, uni bitta katta "router" fayliga borib qo'lda ro'yxatdan o'tkazish (import qilish va path ko'rsatish) kerak. Loyiha kattalashgani sari, bu joy minglab qatorlarga aylanib ketadi. **Nuxt Routing** bu muammoni avtomatlashtiradi. Siz shunchaki `pages/` papkasiga fayl yaratasiz, Nuxt.js uning nomi va joylashuviga qarab o'zi router'ni shakllantiradi (File-system based routing). 
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Yangi Xodimlar va Ish xonasi"**  
+> - **Vue Router:** Har safar yangi xodim ishga kelsa (yangi sahifa yaratsangiz), ofis menejeriga borib qog'oz to'ldirishingiz, unga bo'sh xona qidirishingiz (router konfig yozishingiz) kerak. 
+> - **Nuxt Routing:** Ofisning tartibi aniq. "Menegerlar" bo'limida bo'sh stol bor, xodim shu joyga kelib o'tiradi va ish boshlaydi (pages papkasiga tushdi — o'z-o'zidan url tayyor).
 
 ## Nazariya
 
@@ -8,73 +17,41 @@ Nuxt.js file-based routing systemasi Vue Router ustiga qurilgan. `pages/` papkas
 
 Nuxt `pages/` papkasidagi fayl strukturasini Vue Router konfiguratsiyasiga aylantiradi:
 
-```
-pages/                          Route
-────────────────────────────────────────────────
-index.vue                    →  /
-about.vue                    →  /about
-contact.vue                  →  /contact
-
-users/
-├── index.vue                →  /users
-└── profile.vue              →  /users/profile
-
-blog/
-├── index.vue                →  /blog
-├── [slug].vue               →  /blog/:slug (dynamic)
-└── [...slug].vue            →  /blog/:slug+ (catch-all)
+```mermaid
+graph LR
+    A["pages/index.vue"] -->|Yaratadi| B["/"]
+    C["pages/about.vue"] -->|Yaratadi| D["/about"]
+    E["pages/users/[id].vue"] -->|Yaratadi| F["/users/:id"]
+    G["pages/blog/[...slug].vue"] -->|Yaratadi| H["/blog/:slug+"]
 ```
 
 ### Route Types
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Route Types                               │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│  1. STATIC ROUTES                                           │
-│     pages/about.vue         →  /about                       │
-│                                                              │
-│  2. DYNAMIC ROUTES                                          │
-│     pages/users/[id].vue    →  /users/:id                   │
-│                                                              │
-│  3. CATCH-ALL ROUTES                                        │
-│     pages/[...slug].vue     →  /:slug(.*)*                  │
-│                                                              │
-│  4. OPTIONAL PARAMETERS                                     │
-│     pages/[[slug]].vue      →  /:slug?                      │
-│                                                              │
-│  5. NESTED ROUTES                                           │
-│     pages/users.vue                                         │
-│     pages/users/                                            │
-│       ├── index.vue         →  /users (NuxtPage inside)     │
-│       └── [id].vue          →  /users/:id                   │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
-```
+### Route Turlari
+
+| Turi | Misol fayl formati | Yaratilgan URL Route | Tushuntirish |
+| --- | --- | --- | --- |
+| **Statik (Static)** | `pages/about.vue` | `/about` | Aniq va o'zgarmas manzillar. |
+| **Dinamik (Dynamic)** | `pages/users/[id].vue` | `/users/:id` | `id` joyiga istalgan qiymat tushishi mumkin (`/users/12`). |
+| **Barchasini qamrab oluvchi (Catch-all)** | `pages/[...slug].vue` | `/:slug(.*)*` | Slash `/` bilan ajratilgan hamma narsani ushlab oladi (`/a/b/c`). |
+| **Majburiy emas (Optional)** | `pages/[[slug]].vue` | `/:slug?` | Bo'lmasa ham xato bermaydi. |
+| **Ichki (Nested)** | `pages/users.vue` + `pages/users/index.vue` | `/users` | Ota komponent ichida (NuxtPage) bola komponentlarini chiqarish. |
 
 ### Route Resolution
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Route Resolution Order                    │
-└─────────────────────────────────────────────────────────────┘
+### Route Resolution Order (Izlash ketma-ketligi)
 
-Request: /users/123
+URL ga so'rov kelganida Nuxt sahifalarni quyidagi qat'iy tartibda qidiradi (M: `/users/123` so'ralganda):
 
-1. Check static routes first:
-   pages/users/123.vue  ✗ (not found)
-
-2. Check dynamic routes:
-   pages/users/[id].vue  ✓ (match!)
-   params: { id: '123' }
-
-3. If no match, check catch-all:
-   pages/[...slug].vue
-   params: { slug: ['users', '123'] }
-
-4. If no match at all:
-   404 error page
+```mermaid
+flowchart TD
+    A([So'rov: /users/123]) --> B{1. Statik Route<br>users/123.vue?}
+    B -- Yo'q --> C{2. Dinamik Route<br>users/[id].vue?}
+    B -- Bor --> F[Topildi]
+    C -- Yo'q --> D{3. Catch-all Route<br>[...slug].vue?}
+    C -- Bor --> F
+    D -- Yo'q --> E[4. Sahifa topilmadi 404]
+    D -- Bor --> F
 ```
 
 ## Kod Misollari
@@ -1262,6 +1239,16 @@ if (error.value) {
 }
 </script>
 ```
+
+---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Juda ko'p papkalar ochmang:** `/pages/category/subcategory/item/[id].vue` kabi juda chuqur fayl strukturasi papkalar o'rtasida navigatsiya qilishni va fayllarni izlashni qiyinlashtiradi. Mantiqiy jihatdan tekisroq ushlashga harakat qiling.
+2. **`NuxtLink` ni to'g'ri ishlating:** Barcha ichki havolalar (internal links) uchun oddiy `<a>` emas, `<NuxtLink>` ishlating. U orqa fonda (hover qilinganda) sahifa ma'lumotlarini o'zi yuklab keladi, bu mijozga sahifa zumda (instantly) ochilayotgandek tuyg'u beradi.
+3. **SEO uchun SEO Metani dinamik Route larda unutmang:** Dinamik routelarda har doim `useSeoMeta` dan foydalanib, canonical url va title ni moslab keting, aks holda barcha mahsulotlaringiz Google'da bitta sahifa kabi indexlanishi mumkin.
+
+---
 
 ## Xulosa
 

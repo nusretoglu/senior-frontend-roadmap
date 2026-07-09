@@ -2,7 +2,35 @@
 
 ## Kirish
 
-Options API - Vue.js ning original va eng ko'p ishlatiladigan API sifati. Komponent mantiqini oldindan belgilangan options (data, methods, computed, watch, lifecycle) orqali tashkil qiladi.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Options API – Vue'ning o'zagi hisoblanadi. Unda hamma narsaning (ma'lumotlar, metodlar, hisoblanadigan qiymatlar) o'ziga xos qattiq joyi bor. Bu xuddi javondagi har bir narsaning o'z tortmasi borligiga o'xshaydi. Kod qayerda va qanday yozilishi oldindan aniq bo'lgani uchun uni o'rganish va o'qish (ayniqsa yangi boshlovchilarga) juda oson.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Restoran Oshxonasi"**  
+> Restoran oshxonasini tasavvur qiling. Unda maxsus joylar bor:
+> - Muzlatgich qismi: Bu yerda faqat mahsulotlar saqlanadi (`data()`).
+> - Kesish taxtasi qismi: Bu yerda oshpaz ishlaydi (`methods`).
+> - Retseptlar kitobi: Qanday pishirish yozilgan (`computed`).
+> - Qorovul: Kim kelib ketayotganini qarab turadi (`watch`).
+> Oshpazlar bu tartibga qat'iy rioya qilishi shart. Options API ham aynan shunday, har bir vazifa uchun alohida "xona" (obyekt kaliti) mavjud.
+
+```mermaid
+mindmap
+  root((Options API))
+    State
+      ::icon(fa fa-database)
+      data
+      computed
+    Logic
+      ::icon(fa fa-cogs)
+      methods
+      watch
+    Lifecycle
+      ::icon(fa fa-clock)
+      created
+      mounted
+```
 
 ## Asosiy Tuzilma
 
@@ -1151,6 +1179,16 @@ this.chartData = newData
 await this.$nextTick()
 this.chart.update()
 ```
+
+---
+
+---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Logical bog'lanishlarga e'tibor qarating:** Options API da bir xil biznes logikaga tegishli bo'lgan narsalar tarqalib ketishi mumkin (data tepada, method pastda, watch eng oxirida). Shuning uchun bir xil mantiqqa tegishli narsalarni iloji boricha nomlashda bir-biriga bog'liq ismlar bering yoki Composition API ga o'tishni ko'rib chiqing.
+2. **`this` kontekstiga ehtiyot bo'ling:** Arrow funksiyalarni (`=>`) `methods` ichida aslo ishlata ko'rmang, chunki ular `this` ni yo'qotib qo'yadi. Faqat standart funksiyalarni ishlating: `myMethod() { ... }`.
+3. **Data har doim funksiya qaytarishi kerak:** Komponent qayta-qayta ishlatilganda state (holat) aralashib ketmasligi uchun `data` har doim funksiya ko'rinishida bo'lib, yangi ob'ekt qaytarishi (return qilinishi) shart.
 
 ---
 

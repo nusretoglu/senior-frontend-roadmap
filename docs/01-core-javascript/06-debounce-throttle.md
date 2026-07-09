@@ -2,6 +2,15 @@
 
 ## Nazariya
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Foydalanuvchilar ba'zan juda "sho'x" bo'lishadi: sichqonchani tinmay qimirlatib `mousemove` ni ishga tushirishadi, yoki qidiruv qatoriga tez-tez yozib API ni so'rovlarga ko'mib yuborishadi. Bunga qarshi hech narsa qilmasangiz, serveringiz xarajatlardan yonib ketishi, mijozning kompyuteri esa to'lib qotib qolishi (Performance ishlari) aniq. Debounce va Throttle - qaysar oqimni boshqarish (Rate limiting) uchun 2 xil qurol hisoblanadi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Lift va Avtobus"**  
+> **Debounce (Lift):** Lift ichida turibsiz, eshik yopilayapti. Shu payt kimdir yugurib keldi va tugmani bosdi. Eshik yana ochiladi va yopilish uchun *yana noldan boshlab kutadi*. Odamlar kelaversa, lift kutishda davom etaveradi. U faqat hech kim kelmay qolganda, jimlik bo'lgandagina yopilib yuqoriga chiqadi. (Input Search ga yozishda ishlatiladi).  
+> **Throttle (Avtobus):** Avtobus bekatda 15 minut kutadi va ketadi. Unga farqi yo'q, odam kelib-ketaveradi, to'lib ketadi yoki bo'm-bo'sh — baribir har 15 minutda bittadan avtobus jo'nab turaveradi. (Scroll yoki Resize da ishlatiladi).
+
 ### Muammo
 
 Ba'zi hodisalar juda tez-tez sodir bo'ladi (masalan, `scroll`, `resize`, `input`). Har bir hodisada og'ir operatsiya bajarish performance muammolariga olib keladi.
@@ -22,11 +31,20 @@ window.addEventListener('scroll', () => {
 
 **Debounce** — funksiyani faqat hodisalar to'xtagandan keyin chaqirish. Agar belgilangan vaqt ichida yangi hodisa sodir bo'lsa, taymer qayta boshlanadi.
 
-```
-Hodisalar:  ─●─●─●─●─●────────────●─●─●─────────
-Debounce:   ────────────────────●─────────────●─
-                        ↑ 300ms                ↑ 300ms
-                        keyin                  keyin
+```mermaid
+gantt
+    title Debounce Ishlashi (300ms kutadi)
+    dateFormat  s
+    axisFormat  %S
+    
+    section Harakatlar
+    Yozdi 'a' :done, 0, 1s
+    Yozdi 'b' :done, 0.5, 1s
+    Yozdi 'c' :done, 1.2, 1s
+    
+    section Natija
+    (Kutmoqda...) :active, 1.2, 3.2s
+    Qidiruvga yuborish :crit, 3.2, 3.3s
 ```
 
 **Qachon ishlatish:**
@@ -39,11 +57,19 @@ Debounce:   ────────────────────●─�
 
 **Throttle** — funksiyani belgilangan vaqt oralig'ida maksimum bir marta chaqirish. Hodisalar davom etsa ham, funksiya muntazam ravishda chaqiriladi.
 
-```
-Hodisalar:  ─●─●─●─●─●─●─●─●─●─●─●─●─●─●─●─●─●──
-Throttle:   ─●─────────●─────────●─────────●───
-             ↑          ↑          ↑          ↑
-             0ms       300ms      600ms      900ms
+```mermaid
+gantt
+    title Throttle Ishlashi (Har 2 sek qat'iy)
+    dateFormat  s
+    axisFormat  %S
+    
+    section Scroll
+    Scroll qilindi :done, 0, 5s
+    
+    section Natija
+    1-Marta chaqirish :crit, 0, 0.1s
+    2-Marta chaqirish :crit, 2, 2.1s
+    3-Marta chaqirish :crit, 4, 4.1s
 ```
 
 **Qachon ishlatish:**
@@ -874,3 +900,10 @@ function SearchComponentWithRef() {
   return <input onChange={(e) => debouncedSearchRef.current(e.target.value)} />;
 }
 ```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **`lodash` ishlatishni odat qiling:** O'zingiz `debounce` yozish o'rniga barqaror bo'lgan `import { debounce } from 'lodash-es'` (yoki VueUse, React-use dagi toollar) ishlating.
+2. **React/Vue dagi reaktivlik balosi:** Agar komponentingiz har render bo'lganda (state o'zgarganda) debounced funksiya qaytadan yaraladigan bo'lsa, u hech qachon ishlamaydi. Uni Vue'da `ref` / `shallowRef` tashqarisida yoki React'da `useCallback` / `useMemo` yordamida qotirib qo'yish kerak.
+3. **Leading / Trailing opsiyalari:** Tugma bosilganda API darhol ishlab keyingilari 3 soniya kuttirishini (Leading debounce - *darhol ishlab qotirib qo'yish*) loyiha talabiga qarab albatta tushunib oling.
+

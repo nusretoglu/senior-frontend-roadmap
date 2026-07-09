@@ -2,75 +2,48 @@
 
 ## Kirish
 
-Live notifications - bu foydalanuvchilarga real vaqtda muhim hodisalar haqida xabar berish tizimi. Bu in-app notifications (toast, badge), push notifications va email/SMS kanallarni o'z ichiga oladi. Professional notification tizimi prioritization, grouping, delivery tracking va user preferences'ni boshqaradi.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Foydalanuvchilarni yangi xabarlar, to'lov muvaffaqiyatli o'tganligi yoki xavfsizlik ogohlantirishlari haqida vaqtida xabardor qilish (Notifications) ilovaning qayta ishlatilishini (Retention) 40% gacha oshiradi. Notification tizimini to'g'ri loyihalashtirish — foydalanuvchining asabiga tegmaydigan qilib unga kerakli kanallar (In-App Toast, Web Push, SMS, Email) orqali xabar yuborish, hamda tizim yuki oshib ketmasligi uchun xabarlarni guruhlash (Batching) va filtrlash (Deduplication) mantiqini to'g'ri tashkil qilishdir.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Mehmonxona xizmati (In-App, Push, Email, SMS)"**  
+> - **In-App Notification (Toast - Mehmonxonadagi ichki radio):** Siz mehmonxona xonangizda o'tiribsiz, ichki radiodan "Kechki ovqat boshlandi" degan e'lon berildi. Bu faqat bino ichida bo'lganingizda (Ilova ochiq turganda) eshitiladi.
+> - **Web Push Notification (FCM - Telefoningizga kelgan sms):** Siz mehmonxonadan chiqib shaharga ketdingiz, lekin telefoningizga mehmonxona tizimidan "Xonangiz tozalandi" degan xabar keldi. Buning uchun ilova ochiq bo'lishi shart emas (Service Worker orqali ishlaydi).
+> - **Email / SMS (Katta bildirishnoma):** Muhim shartnomalar yoki hisob-kitoblar kelganda, ularni qog'ozda pochtangizga yoki uyingizga yuborish.
+
+---
 
 ## Notification Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                    NOTIFICATION ARCHITECTURE                             │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│   Event Sources              Notification Service           Channels    │
-│   ─────────────              ────────────────────           ────────    │
-│                                                                          │
-│  ┌───────────┐                ┌──────────────┐           ┌─────────┐   │
-│  │ User      │───────────────►│              │──────────►│ In-App  │   │
-│  │ Actions   │                │              │           │ (Toast) │   │
-│  └───────────┘                │              │           └─────────┘   │
-│                               │              │                          │
-│  ┌───────────┐                │  Processor   │           ┌─────────┐   │
-│  │ System    │───────────────►│  ──────────  │──────────►│  Push   │   │
-│  │ Events    │                │  - Filter    │           │ (FCM)   │   │
-│  └───────────┘                │  - Dedupe    │           └─────────┘   │
-│                               │  - Batch     │                          │
-│  ┌───────────┐                │  - Route     │           ┌─────────┐   │
-│  │ External  │───────────────►│  - Priority  │──────────►│  Email  │   │
-│  │ Webhooks  │                │              │           │         │   │
-│  └───────────┘                │              │           └─────────┘   │
-│                               │              │                          │
-│  ┌───────────┐                │              │           ┌─────────┐   │
-│  │ Scheduled │───────────────►│              │──────────►│   SMS   │   │
-│  │ Jobs      │                │              │           │         │   │
-│  └───────────┘                └──────────────┘           └─────────┘   │
-│                                      │                                   │
-│                                      ▼                                   │
-│                               ┌──────────────┐                          │
-│                               │   Database   │                          │
-│                               │ (History +   │                          │
-│                               │  Preferences)│                          │
-│                               └──────────────┘                          │
-│                                                                          │
-└─────────────────────────────────────────────────────────────────────────┘
+### Bildirishnoma Arxitekturasi (Notification Architecture)
+
+```mermaid
+graph TD
+    ES1[User Actions] --> Proc[Notification Processor <br/> Filter, Dedupe, Batch, Route]
+    ES2[System Events] --> Proc
+    ES3[Webhooks] --> Proc
+    ES4[Scheduled Jobs] --> Proc
+    
+    Proc --> InApp[In-App Toast]
+    Proc --> Push[Push FCM]
+    Proc --> Email[Email Service]
+    Proc --> SMS[SMS Gateway]
+    
+    Proc --> DB[(History & Prefs DB)]
 ```
 
 ## Notification Types
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                      NOTIFICATION TYPES                                  │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│  URGENCY        TYPE              EXAMPLES                              │
-│  ───────        ────              ────────                              │
-│                                                                          │
-│  ████████████   Critical          Security alerts, payment failures,   │
-│  (Immediate)                      account issues                        │
-│                                                                          │
-│  ████████░░░░   High              New messages, mentions,               │
-│  (Real-time)                      order updates                         │
-│                                                                          │
-│  █████░░░░░░░   Medium            Likes, follows, comments              │
-│  (Batched)                                                              │
-│                                                                          │
-│  ███░░░░░░░░░   Low               News digest, tips,                    │
-│  (Digest)                         weekly summary                        │
-│                                                                          │
-│  █░░░░░░░░░░░   Silent            Analytics, sync complete              │
-│  (Background)                                                           │
-│                                                                          │
-└─────────────────────────────────────────────────────────────────────────┘
-```
+### Bildirishnoma turlari va shoshilinchligi (Urgency & Types)
+
+| Shoshilinchlik darajasi | Turi (Type) | Qachon ishlatiladi (Misollar) | Yetkazish Usuli |
+| --- | --- | --- | --- |
+| 🔴 **Critical** | Shoshilinch (Immediate) | Xavfsizlik signallari, To'lov xatoliklari, Hisob bloklanishi | In-App + Push + SMS (darhol) |
+| 🟡 **High** | Real-time | Yangi shaxsiy xabar, mention (@ism), buyurtma holati o'zgarishi | In-App + Push |
+| 🟢 **Medium** | Rejalashtirilgan (Batched) | Like, follow, yangi kommentlar | In-App (Toast'siz, shunchaki qizil nuqta) |
+| 🔵 **Low** | Jamlangan (Digest) | Haftalik xulosalar, maslahatlar, yangiliklar | Email digest |
+| ⚪ **Silent** | Maxfiy (Background) | Tizim sinxronizatsiyasi, analitika yangilanishi | UI da ko'rinmaydi (Faqat fon xizmatlarida) |
 
 ## Core Notification System
 
@@ -1565,31 +1538,21 @@ response.responses.forEach((res, idx) => {
 });
 ```
 
-## Xulosa
+## Eng Yaxshi Amaliyotlar (Best Practices)
 
-Professional notification tizimi quyidagilarni talab qiladi:
-
-1. **Multi-channel delivery** - in-app, push, email, SMS
-2. **User preferences** - channels, types, quiet hours
-3. **Batching** - spam prevention
-4. **Priority system** - critical vs low
-5. **Delivery tracking** - sent, delivered, read
-6. **Reconnect handling** - sync missed notifications
-
-Notification UX - user engagement uchun kritik.
+1. **User Preferences (Foydalanuvchi sozlamalari) bo'lishi shart:** Foydalanuvchiga qaysi bildirishnomalarni qaysi kanallar orqali (masalan, emailni o'chirib, faqat in-app qoldirish) olishni o'zi tanlashiga ruxsat bering. Marketing xabarlarini o'chirish imkoniyati (Opt-out) qonuniy majburiyatdir.
+2. **Batching (Guruhlash) qiling:** Agar foydalanuvchiga har 1 daqiqada 10 ta like kelsa, uning telefoniga 10 ta push notification yuborib bezovta qilmang. Ularni bitta qilib jamlang: "Ali va yana 9 kishi rasmingizga layk bosdi" (Notification Batching).
+3. **Invalid tokenlarni tozalang:** Firebase (FCM) orqali push notification yuborganda, agar FCM serveri token nofaol (FCM token expired / uninstalled) ekanligini aytsa, o'sha tokenni ma'lumotlar bazangizdan darhol o'chirib tashlang. Bu server resurslari va keraksiz so'rovlarni tejaydi.
 
 ---
 
-## Bo'lim Yakunlandi
+## Xulosa
 
-Bu bo'limda realtime tizimlarning barcha asosiy komponentlari ko'rib chiqildi:
+Live Notifications bo'yicha yakuniy xulosa:
 
-1. **WebSocket** - full-duplex communication
-2. **SSE** - server-to-client streaming
-3. **Polling** - fallback strategy
-4. **Reconnect Strategies** - reliability
-5. **Presence Systems** - online tracking
-6. **Chat Implementation** - messaging
-7. **Live Notifications** - user alerts
-
-Har bir mavzu production-ready kod misollari, real-world case'lar va interview savollari bilan to'ldirilgan.
+| Kanal | Latency (Tezlik) | Foydalanuvchi Oflayn Bo'lsa | Asosiy maqsadi |
+| --- | --- | --- | --- |
+| **In-App Toast** | Millisekundda | Xabarni ko'ra olmaydi | Ilova ochiq turganda tezkor feedback |
+| **Web Push** | Real-time (soniyalar) | Brauzer yopiq bo'lsa ham telefon ekraniga chiqadi | Foydalanuvchini ilovaga qaytarish (Retention) |
+| **Email** | Sekinroq | Pochtada saqlanib turadi | Katta hajmdagi hisobotlar, hisob-fakturalar |
+| **SMS** | Tez (soniyalar) | Telefon yoqilishi bilanoq keladi | Kritik xabarlar (Tranzaksiyalar, 2FA kodlar) |

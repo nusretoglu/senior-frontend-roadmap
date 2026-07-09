@@ -1,28 +1,29 @@
 # Bundle Optimization
 
-Bundle optimization - bu JavaScript va CSS fayllarini kichiklashtirish va samarali yetkazish texnikalari to'plami. Bu initial load vaqtini kamaytirish va foydalanuvchi tajribasini yaxshilashning asosiy usuli.
+## Kirish
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Foydalanuvchilar veb-saytingizga kirganda, brauzer JavaScript kodini ko'chirib olishi, o'qishi (parse) va ishga tushirishi kerak bo'ladi. Hatto Code Splitting qilsangiz ham, agar bitta sahifaga `moment.js` (juda og'ir sana kutubxonasi) ni butunlay yuklasangiz sahifa muzlab qolishi mumkin. **Bundle Optimization** kodning hajmini iloji boricha kichiklashtirish, faqat ishlatilgan qismlarnigina qoldirish (Tree shaking) va keraksiz bo'shliqlarni yo'q qilish (Minification) jarayonidir.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Sayohat Jomadoni (Chemodan)"**  
+> - **Optimizatsiyasiz (Yomon):** Siz 3 kunlik sayohatga ketyapsiz, lekin chemodaningizga butun yillik kiyimlaringizni, dazmolni va 10 juft oyoq kiyimni tiqib oldingiz. Uni ko'tarib yurish tugul, o'rnidan jildira olmaysiz. (JS ichida ishlatilmaydigan minglab qator kodlar - Dead Code).
+> - **Optimizatsiya qilingan (Yaxshi):** Faqatgina 3 kunga yetadigan va iqlimga mos bo'lgan kiyimlarnigina olasiz. Ularni ham maxsus vakuum paketga solib, havosini so'rib siqasiz (Minification & Compression). Chemodan yengil va olib yurish oson.
 
 ## Nazariya
 
 ### Bundle Muammolari
 
+Odatiy (optimizatsiya qilinmagan) SPA Bundle tahlili:
+
+```mermaid
+pie title SPA Bundle (Umumiy 2.5MB)
+    "node_modules (Kutubxonalar)" : 72
+    "Sizning kodingiz" : 20
+    "Rasmlar/CSS (Assets)" : 8
 ```
-Typical SPA Bundle Analysis:
-┌─────────────────────────────────────────┐
-│ Total: 2.5MB                            │
-│                                         │
-│ ├── node_modules: 1.8MB (72%)           │
-│ │   ├── moment.js: 300KB                │
-│ │   ├── lodash: 70KB                    │
-│ │   ├── chart.js: 200KB                 │
-│ │   └── ... (unused code)               │
-│ │                                       │
-│ ├── app code: 500KB (20%)               │
-│ │   └── dead code: 150KB                │
-│ │                                       │
-│ └── assets: 200KB (8%)                  │
-└─────────────────────────────────────────┘
-```
+Aksariyat muammo loyihaga shunchaki `npm install` orqali qo'shilgan og'ir kutubxonalar (Moment, Lodash, Chart.js) da yashiringan bo'ladi.
 
 ### Optimization Texnikalari
 
@@ -882,32 +883,13 @@ jobs:
           fi
 ```
 
-## Best Practices Checklist
+## Eng Yaxshi Amaliyotlar (Best Practices)
 
-```markdown
-## Build Time
-[ ] ES Modules only (lodash-es, date-fns)
-[ ] sideEffects: false yoki specific
-[ ] manualChunks configured
-[ ] Heavy libs lazy loaded
-[ ] Dead code removed (prod flags)
+1. **Faol tekshiruv (Bundle Analyzer):** Har gal kodni productionga chiqarishdan oldin `vite-plugin-bundle-visualizer` (Vite) yoki `webpack-bundle-analyzer` (Webpack/Nuxt) orqali kodingizdagi eng og'ir nuqtalarni ko'rib chiqing. Nima bunchalik og'ir ekanini tahlil qiling.
+2. **Import Cost ishlatish:** VSCode da *Import Cost* degan maxsus kengaytma (extension) ni o'rnating. U har bir import qilayotgan kutubxonangiz hajmini yozayotgan paytingizdayoq yonida qizil yoki yashil rangda ko'rsatib turadi. Bu og'ir paketlarni vaqtida aniqlashga yordam beradi.
+3. **Kutubxonalarning "Yengil" alternativini topish:** Masalan, `moment.js` o'rniga `dayjs` yoki `date-fns` (har bir funksiya alohida import qilinadi), `lodash` o'rniga esa `lodash-es` ishlating (Tree shaking yaxshi ishlashi uchun doim ES modullarni tanlang).
 
-## Compression
-[ ] Gzip + Brotli enabled
-[ ] Pre-compressed files
-[ ] Static assets cached
-
-## Analysis
-[ ] Bundle visualizer
-[ ] Size budget defined
-[ ] CI size checks
-[ ] Import cost checked
-
-## Dependencies
-[ ] No duplicate packages
-[ ] Minimal polyfills
-[ ] Tree-shakable libs
-```
+---
 
 ## Xulosa
 
@@ -920,11 +902,9 @@ Bundle optimization strategiyasi:
 5. **Compress** - gzip/brotli
 6. **Monitor** - CI/CD da size check
 
-```
-Target Bundle Sizes (gzip):
-├── Initial JS: < 150KB
-├── Initial CSS: < 30KB
-├── Per route: < 50KB
-├── Heavy feature: lazy load
-└── Total initial: < 200KB
-```
+| Target Bundle Hajmlari (gzip qilingan holatda) | Maksimal Hajm |
+| --- | --- |
+| **Boshlang'ich JS (Initial JS)** | < 150KB |
+| **Boshlang'ich CSS (Initial CSS)**| < 30KB |
+| **Har bir sahifa (Route chunk)** | < 50KB |
+| **Umumiy dastlabki yuklanish (Total initial)**| < 200KB |

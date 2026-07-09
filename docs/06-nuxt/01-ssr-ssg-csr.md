@@ -4,52 +4,49 @@ Rendering strategiyalari web application'ning performance, SEO va user experienc
 
 ## Nazariya
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Oddiy Vue (yoki React) dagi eng katta muammo bu SEO (Qidiruv tizimi optimizatsiyasi) va Birinchi Ekranning yuklanish tezligi (FCP) hisoblanadi. Chunki server mijozga shunchaki "bo'sh oq varaq" jo'natadi, qolgan hamma narsani brauzerning o'zi yuklab chizishi kerak. Bunga CSR deyiladi. SSR va SSG esa "oq varaq" o'rniga "tayyor chizilgan rasm" ni yuborish texnologiyalaridir. Qachon va qayerda qaysi birini ishlatishni bilish - Nuxt mutaxassisining asosiy belgisidir.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Restoranda Ovqatlanish (Rendering)"**  
+> - **CSR (Client-Side Rendering):** Siz restoranga bordingiz. Ofitsiant sizga bo'sh idish (Bo'sh HTML), xom go'sht, sabzavotlar (JSON Data) va retsept kitobi (JS fayllar) olib keldi. O'tirib o'zingiz ovqatni pishirasiz (Brauzerda chizish). **Kamchiligi:** Ko'p vaqt va kuch ketadi, lekin bir marta pishirgach, qolgan hamma narsani stolda hal qilaverasiz (Tez navigatsiya).
+> - **SSR (Server-Side Rendering):** Siz restoranga bordingiz. Oshpaz (Server) oshxonada siz istagan ovqatni to'liq pishirdi va tayyor holda (HTML) oldingizga olib keldi. **Afzalligi:** Darhol yeysiz (Tez ko'rinadi). **Kamchiligi:** Har safar yangi ovqat (yangi Page) xohlaganda oshxonada pishishini kutasiz.
+> - **SSG (Static Site Generation):** Siz restoranga kelguningizcha hamma ovqatlar allaqachon pishirib muzlatgichga (CDN) taxlab qo'yilgan. Siz so'rashingiz bilan tayyorini berishadi. **Afzalligi:** Eng tezi va arzonga tushadigani. **Kamchiligi:** Ovqat tez-tez o'zgarib turmaydi (Statik).
+
 ### Rendering Nima?
 
 Rendering - bu JavaScript/Vue kodni HTML'ga aylantiirish jarayoni. Bu jarayon **qayerda** va **qachon** sodir bo'lishi rendering strategiyasini belgilaydi.
 
-```
-Source Code (Vue)  →  Rendering  →  HTML + CSS + JS
-                          ↑
-                    Qayerda? Qachon?
+```mermaid
+graph TD
+    Source[Source Code Vue] --> R{Rendering<br/>Qayerda? Qachon?}
+    R -->|Build vaqtida| SSG[SSG - Static Site Generation]
+    R -->|Serverda so'rov tushganda| SSR[SSR - Server Side Rendering]
+    R -->|Mijoz brauzerida| CSR[CSR - Client Side Rendering]
+    
+    style SSG fill:#e8f5e9,stroke:#2e7d32
+    style SSR fill:#fff3e0,stroke:#e65100
+    style CSR fill:#e3f2fd,stroke:#1565c0
 ```
 
 ### Client-Side Rendering (CSR)
 
 CSR - bu an'anaviy SPA (Single Page Application) yondashuvi. Server bo'sh HTML yuboradi, JavaScript browser'da HTML'ni yaratadi.
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    CSR Flow                                  │
-└─────────────────────────────────────────────────────────────┘
-
-1. Browser → Server: GET /products
-
-2. Server → Browser:
-   ┌──────────────────────────────────┐
-   │ <!DOCTYPE html>                  │
-   │ <html>                           │
-   │   <body>                         │
-   │     <div id="app"></div>         │  ← Bo'sh shell
-   │     <script src="app.js"/>       │
-   │   </body>                        │
-   │ </html>                          │
-   └──────────────────────────────────┘
-
-3. Browser: JavaScript yuklanadi (500KB+)
-
-4. Browser: Vue app mount qilinadi
-
-5. Browser → API: GET /api/products
-
-6. Browser: Data kelgach UI renderlanadi
-   ┌──────────────────────────────────┐
-   │ <div id="app">                   │
-   │   <h1>Products</h1>              │
-   │   <div class="product">...</div> │  ← Endi content bor
-   │   <div class="product">...</div> │
-   │ </div>                           │
-   └──────────────────────────────────┘
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant Server
+    participant API
+    
+    Browser->>Server: GET /products
+    Server-->>Browser: Bo'sh HTML + <script src="app.js">
+    Note over Browser: JavaScript yuklanadi (sekin)
+    Note over Browser: Vue ilovasi ishga tushadi
+    Browser->>API: GET /api/products
+    API-->>Browser: JSON ma'lumotlar
+    Note over Browser: UI chiziladi (Render)
 ```
 
 **Timeline:**
@@ -971,6 +968,14 @@ export default defineNuxtConfig({
   }
 })
 ```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Gibrid Yondashuv (Route Rules):** Butun loyihani bitta qoida bilan qotirib qo'ymang. Admin panel uchun har doim `ssr: false` (CSR), Landing page'lar va blog uchun `prerender: true` (SSG), tez o'zgaradigan E-commerce sahifalari uchun esa SSR yoki ISR (`swr`) ishlating.
+2. **Server/Client contextni biling:** Komponentingiz ichida `window` yoki `localStorage` chaqirgan bo'lsangiz va fayl SSR da ishlayotgan bo'lsa darhol XATO (500) olasiz. Bunga qarshi `onMounted` hook'idan foydalaning (u faqat Clientda ishlaydi).
+3. **Hydration Mismatch:** Serverda tayyorlangan HTML bilan mijozdagi HTML bir xil bo'lishi shart (Hydration). Ularda turli xil qiymatlar chiqaradigan xatolar (masalan, `Math.random()` yoki sanalar) ishlatishdan qoching.
+
+---
 
 ## Xulosa
 

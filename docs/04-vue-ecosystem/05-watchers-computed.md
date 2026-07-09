@@ -2,7 +2,24 @@
 
 ## Kirish
 
-Vue.js da reaktiv ma'lumotlar bilan ishlashning ikki asosiy usuli mavjud: **computed properties** (hisoblangan xususiyatlar) va **watchers** (kuzatuvchilar). Har birining o'z maqsadi va ishlatish holatlari bor.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturlashda ko'pincha bitta ma'lumotning o'zgarishi boshqalariga ham ta'sir qilishi kerak bo'ladi. Agar hisob-kitoblarni oddiy metodlar orqali qilsangiz, ular keraksiz marta qayta ishlayveradi (performance muammosi). `computed` va `watch` - bu qachon va qanday qilib o'zgarishlarga reaksiya bildirishni aniq boshqarishga imkon beradigan eng kuchli qurollardir.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Soliqchi va Jurnalist"**  
+> - **Computed (Soliqchi):** U faqat sizning sof daromadingiz (dependency) o'zgarsagina soliqlaringizni qayta hisoblab chiqadi. Agar ismingiz o'zgarsa, u soliqlarni qayta hisoblamaydi (keshlanadi). Hisoblash oxirida doim yangi qiymat (summa) qaytaradi.
+> - **Watch (Jurnalist):** Sizning har bir harakatingizni kuzatib turadi. Agar siz mashina sotib olsangiz, u salkam doston yozib yuboradi, API chaqiradi yoki boshqa "side-effect" larni bajaradi. U albatta qiymat qaytarishi shart emas.
+
+```mermaid
+graph LR
+    A[Data 1] --> C(Computed Property)
+    B[Data 2] --> C
+    C -->|Keshlanadi| D((Template))
+    
+    E[Data 3] -->|Kuzatiladi| W(Watcher)
+    W -.->|Side effect| F[API Call / LocalStorage]
+```
 
 ## Computed Properties
 
@@ -927,6 +944,14 @@ watchEffect((onCleanup) => {
 - WebSocket connections
 - Event listeners
 - Subscriptions
+
+---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Computed property'larni sof (pure) saqlang:** `computed` ichida API call qilish, original ma'lumotlarni o'zgartirish (mutate) aslo mumkin emas. U faqat mavjud datadan yangi data yasab berishi kerak xolos.
+2. **Imkon boricha Computed ishlating:** Ba'zan o'zgaruvchini kuzatib (`watch` qilib) unga bog'liq boshqa o'zgaruvchini yangilab qo'yamiz. Lekin buning o'rniga to'g'ridan-to'g'ri `computed` ishlatsa, kod qisqa va bug'larsiz bo'ladi.
+3. **`watch` dagi ob'ektlarga ehtiyot bo'ling:** `deep: true` yirik ob'ektlar bilan ishlaganda tizimni qotirib qo'yishi mumkin. Iloji boricha ob'ektning aynan kerakli xossasini o'zini kuzating: `watch(() => obj.name, ...)`.
 
 ---
 

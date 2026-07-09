@@ -2,11 +2,45 @@
 
 ## Kirish
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Agar sizda 1000 qatordan iborat `Options API` da yozilgan Vue 2 komponentingiz bo'lsa, uni o'qish naqadar azob ekanini bilasiz. Chunki bitta logikaga tegishli bo'lgan "State (data)", "Function (methods)" va "Computed" larni ko'rish uchun faylning boshidan oxirigacha scroll qilaverib charchaysiz. Vue 3 ning Composition API'si - xuddi shu mantiqlarni "joylar" bo'yicha emas, "vazifalar" bo'yicha bitta joyga guruhlash imkonini beradi. React Hooks ni biladiganlar uchun, bu deyarli o'sha narsa, faqat ancha ishonchli (Vue da reactivity dependency-arraylarsiz ishlaydi).
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Supermarketdagi Tartib"**  
+> **Options API:** Supermarket hamma narsani turiga qarab terib chiqqan: "Meva", "Sabzavot", "Go'sht". Agar siz "Moshkichiri" qilmoqchi bo'lsangiz, go'shtni 1-qatordan, guruchni 5-qatordan, sabzini 10-qatordan qidirib sarson bo'lasiz.
+> **Composition API:** Supermarketda "Moshkichiri", "Osh", "Shashlik" degan bo'limlar ochilgan. Moshkichiri uchun kerakli hamma narsa bitta bo'limda turibdi. Shuningdek, retseptni (composable) olib uyga ketsangiz ham bo'ladi!
+
 Composition API - Vue 3 da kiritilgan yangi yondashuv bo'lib, komponent mantiqini qayta ishlatish va tashkil qilishni osonlashtiradi. Bu Options API'ni almashtiradigan narsa emas, balki alternativ va ko'p hollarda afzalroq yondashuvdir.
 
 ## Nima Uchun Composition API?
 
 ### Options API Muammosi
+
+```mermaid
+graph TD
+    subgraph Options API
+        Data[data] --> D1[User State]
+        Data --> D2[Posts State]
+        Methods[methods] --> M1[fetchUser]
+        Methods --> M2[fetchPosts]
+        Computed[computed] --> C1[fullName]
+        Computed --> C2[publishedPosts]
+    end
+    
+    subgraph Composition API
+        UserFeature[useUser.js] --> D1
+        UserFeature --> M1
+        UserFeature --> C1
+        
+        PostFeature[usePosts.js] --> D2
+        PostFeature --> M2
+        PostFeature --> C2
+    end
+    
+    style UserFeature fill:#e3f2fd,stroke:#1565c0
+    style PostFeature fill:#e8f5e9,stroke:#2e7d32
+```
 
 ```javascript
 // Options API - mantiq tarqalgan
@@ -1100,6 +1134,12 @@ return {
   increment // mutator function
 }
 ```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **`ref` vs `reactive` nizo:** Asosan `ref` ishlatish tavsiya qilinadi (Vue hamjamaotining xulosasi shunga kelgan). Ob'ektlar uchun `reactive` ishlatish muammosi destructuring (`const { name } = state`) qilinganda reaktivlikni yo'qotib qo'yishidir.
+2. **`setup` ni unutmang:** `<script setup>` syntax-sugar (sintaktik shakar) Vue 3 da yozishning eng optimal yo'li. Bu yerda komponentlarni register qilish, `return` qilish kabi ortiqcha ishlar avtomatlashadi.
+3. **Mantiqni ajrating (Composables):** Komponent ichi faqat UI render qilish va kichik state uchun qolsin. Asosiy API zaproslar, murakkab hisob-kitoblar `src/composables` ichiga chiqib ketishi kerak.
 
 ---
 

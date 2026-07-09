@@ -1,13 +1,16 @@
 # LocalStorage Risks
 
-## Mundarija
-1. [Web Storage API](#web-storage-api)
-2. [LocalStorage Xavflari](#localstorage-xavflari)
-3. [Token Saqlash Strategiyalari](#token-saqlash-strategiyalari)
-4. [Zaif vs Xavfsiz Kod](#zaif-vs-xavfsiz-kod)
-5. [Real Attack Scenarios](#real-attack-scenarios)
-6. [Alternativ Yechimlar](#alternativ-yechimlar)
-7. [Interview Savollari](#interview-savollari)
+## Kirish
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturchilar uchun foydalanish juda oson bo'lgani uchun, ko'pincha JWT va boshqa muhim maxfiy ma'lumotlarni `localStorage` ga saqlashadi. Biroq, `localStorage` mutlaqo xavfsiz emas! Agar loyihangizda bitta bo'lsa ham uchinchi tomon kutubxonasi (NPM packages) yoki CDN skriptida XSS zaifligi bo'lsa, xaker bitta qator kod (`localStorage.getItem('token')`) yordamida barcha foydalanuvchilar tokenlarini o'g'irlashi mumkin. `localStorage` xavflarini bilish va uning o'rniga xavfsiz alternativalarni qo'llash — tizim xavfsizligini ta'minlashning asosi hisoblanadi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Poyabzal javoni (LocalStorage)"**  
+> Siz uyingizga kirdingiz va poyabzallarni tashqaridagi ochiq javonga (LocalStorage) qo'ydingiz.  
+> - **LocalStorage (Ochiq javon):** Bu javonga hamma yaqinlasha oladi, ko'chadan o'tgan istalgan odam (XSS - zararli JS) kelib poyabzalingizni (Token) o'g'irlab ketishi mumkin.  
+> - **HttpOnly Cookie (Seyf):** Mehmonxonaning ichidagi maxsus seyf. Undagi narsalarni faqat siz kodini kiritib server orqali boshqara olasiz, ko'chadagi o'g'ri unga umuman tegina olmaydi.
 
 ---
 
@@ -27,23 +30,17 @@ sessionStorage.setItem('key', 'value');
 // Tab yopilganda o'chadi
 ```
 
-### Storage Comparison
+### Storage Comparison (Xotiralarni taqqoslash)
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                        Storage Comparison                                │
-├─────────────────┬───────────────┬───────────────┬───────────────────────┤
-│                 │ localStorage  │ sessionStorage│ Cookie                │
-├─────────────────┼───────────────┼───────────────┼───────────────────────┤
-│ Capacity        │ ~5-10 MB      │ ~5-10 MB      │ ~4 KB                 │
-│ Expiration      │ Manual        │ Tab close     │ Max-Age/Expires       │
-│ Server access   │ No (JS only)  │ No (JS only)  │ Yes (automatic)       │
-│ XSS vulnerable  │ Yes           │ Yes           │ No (if HttpOnly)      │
-│ CSRF vulnerable │ No            │ No            │ Yes (without SameSite)│
-│ Scope           │ Origin        │ Tab + Origin  │ Path + Domain         │
-│ Data type       │ String only   │ String only   │ String only           │
-└─────────────────┴───────────────┴───────────────┴───────────────────────┘
-```
+| Xususiyati | localStorage | sessionStorage | Cookie (HttpOnly) |
+| --- | --- | --- | --- |
+| **Sig'imi (Capacity)** | ~5-10 MB | ~5-10 MB | ~4 KB |
+| **Muddati (Expiration)** | Qo'lda o'chirilguncha (Muddatsiz) | Tab/Oyna yopilganda o'chadi | Max-Age/Expires buyrug'iga ko'ra |
+| **Serverga yuborilishi** | Yo'q (Faqat JS orqali o'qiladi) | Yo'q (Faqat JS orqali o'qiladi) | Ha (Har bir HTTP so'rov bilan avtomatik) |
+| **XSS zaifligi** | **Ha** (JS orqali o'qish oson) | **Ha** (JS orqali o'qish oson) | **Yo'q** (HttpOnly bo'lsa JS o'qiy olmaydi) |
+| **CSRF zaifligi** | Yo'q | Yo'q | **Ha** (Lekin SameSite bilan himoyalash mumkin)|
+| **Qamrovi (Scope)** | Origin (Domen + Protokol) | Tab + Origin | Path + Domain |
+| **Ma'lumot turi** | Faqat String (Matn) | Faqat String (Matn) | Faqat String (Matn) |
 
 ### Basic Usage
 
@@ -998,3 +995,23 @@ window.addEventListener('beforeunload', (e) => {
 **User Education:**
 - "Logout" tugmasini bosishni so'rash
 - Private/Incognito mode'ni tavsiya qilish
+
+---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Maxfiy ma'lumotlarni LocalStorage'da saqlamang:** Autentifikatsiya tokenlari (JWT, Session ID), shaxsiy ma'lumotlar yoki to'lov kartalari ma'lumotlarini aslo `localStorage` da saqlamang. Buning o'rniga faqat `HttpOnly; Secure` cookielardan yoki `Memory storage` (yoki in-memory state management: Vuex/Pinia) dan foydalaning.
+2. **Tab'lararo aloqa zarur bo'lsa:** Agar ilovangizda tab'lararo ma'lumot uzatish kerak bo'lsa (masalan, foydalanuvchining login bo'lganligini bildirish), `localStorage` ga faqatgina trigger sifatida kichik, maxfiy bo'lmagan flag (masalan, `isLoggedIn: true`) saqlang. Asl JWT tokenni esa faqat in-memory saqlab, sub-tab ochilganda uni silent refresh (cookie orqali) bilan yuklab oling.
+3. **Avtomatik tozalash va Timeoutlarni o'rnating:** Foydalanuvchi ma'lum vaqt harakatsiz tursa (Idle timeout) yoki tizimdan chiqqanda (`logout`), har doim `localStorage.clear()` va `sessionStorage.clear()` yordamida barcha client-side ma'lumotlarni tozalashni unutmang.
+
+---
+
+## Xulosa
+
+LocalStorage xavfsizligi bo'yicha yakuniy xulosa:
+
+| Strategiya | Xavfsizlik Darajasi | Muammo | Yechim |
+| --- | --- | --- | --- |
+| **JWT ni LocalStorage'da saqlash** | ❌ **Juda Xavfli** | XSS orqali tokenni o'g'irlash oson | Tokenni faqat HttpOnly cookieda saqlash |
+| **Non-sensitive (Sozlamalar) saqlash** |  **Xavfsiz** | Muammo yo'q (masalan, dark-theme tanlovi) | Ruxsat etiladi |
+| **In-Memory Storage + Cookie Refresh** |  **Maksimal Xavfsiz** | Brauzer yangilanganda o'chib ketadi | Refresh Token orqali silent refresh qilish |

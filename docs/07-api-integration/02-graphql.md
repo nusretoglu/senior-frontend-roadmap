@@ -2,9 +2,36 @@
 
 ## Kirish
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> REST ajoyib, lekin u har doim bir xil ma'lumot qolipini qaytaradi. Masalan, sizga faqat foydalanuvchining ismi kerak bo'lsa ham, REST butun boshli foydalanuvchi profilini (yoshi, manzili, paroli) yuklab keladi (Over-fetching). Yoki foydalanuvchi va uning postlarini olish uchun 2 xil API ga zapros yuborish kerak bo'ladi (Under-fetching). GraphQL shu ikkita katta muammoni hal qiladi va frontend dasturchiga faqat o'ziga kerakli ma'lumotni so'rash imkoniyatini beradi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Set menyu vs Shved stoli (Buffet)"**  
+> **REST (Set menyu):** Restoranga borasiz va 1-raqamli menyuni buyurasiz. Sizga sho'rva, ikkinchi ovqat va salat olib kelishadi. Siz faqat salat yemoqchi bo'lsangiz ham, barini olasiz va pulini to'laysiz (Over-fetching).
+> **GraphQL (Shved stoli):** Likopchani olib, faqatgina o'zingiz yemoqchi bo'lgan narsadan ozgina solib olasiz. Xohlasangiz sho'rvani o'zi, xohlasangiz faqat shirinlik. Aynan o'zingiz so'ragan narsa keladi.
+
 GraphQL - Facebook tomonidan 2012-yilda ichki ishlatish uchun yaratilgan va 2015-yilda open-source qilingan query language va runtime. REST'dan farqli o'laroq, client o'zi qaysi data kerakligini aniq belgilaydi.
 
 ## REST vs GraphQL: Asosiy Farqlar
+
+```mermaid
+graph TD
+    subgraph REST API
+        R_Client[Client] -->|GET /users| R_Users[Users Endpoint]
+        R_Client -->|GET /posts| R_Posts[Posts Endpoint]
+        R_Users -.-> |Full User Data| R_Client
+        R_Posts -.-> |Full Posts Data| R_Client
+    end
+
+    subgraph GraphQL API
+        G_Client[Client] -->|query { users, posts }| G_Endpoint[Bitta /graphql Endpoint]
+        G_Endpoint -.-> |Faqat so'ralgan Data| G_Client
+    end
+    
+    style REST API fill:#ffebee,stroke:#c62828
+    style GraphQL API fill:#e8f5e9,stroke:#2e7d32
+```
 
 ### Over-fetching Muammosi
 
@@ -1173,6 +1200,15 @@ import { sha256 } from 'crypto-hash';
 
 const link = createPersistedQueryLink({ sha256 });
 ```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Faqat keraklisini so'rang**: Qulay bo'lishi uchun har doim `...UserFields` deb barcha narsani so'ravermang. Qaysi komponentga aynan qaysi qator (field) kerak bo'lsa o'shanigina query qiling.
+2. **Fragmentlardan foydalaning**: UI komponentlarga qarab ma'lumot so'rang. Har bir Vue komponenti o'ziga kerakli GraphQL fragmentini define qilishi va ota komponent bu fragmentlarni birlashtirib (compose qilib) query yuborishi afzal.
+3. **Optimistic UI yarating**: Mutatsiyalar yuborilayotgan paytda, server javobini kutmasdan UI ni birdan yangilab qo'ying (Apollo'ning `optimisticResponse` opsiyasi orqali).
+4. **Caching imkoniyatlaridan foydalaning**: GraphQL Apollo Client yoki Urql kabi kuchli kesh xotira tizimiga ega. Har bir ma'lumotning o'z identifikatori (masalan `User:123`) bor. Keshni ehtiyotkorlik bilan boshqaring.
+
+---
 
 ## Xulosa
 

@@ -2,8 +2,30 @@
 
 ## Kirish
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> REST API — bu frontend (UI) va backend (Ma'lumotlar bazasi) o'rtasidagi eng asosiy aloqa ko'prigi. Uni to'g'ri tushunmaslik va xato HTTP metodlardan foydalanish, keyinchalik xavfsizlik teshiklari va ma'lumotlar chalkashligiga olib keladi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Restoran"**  
+> Tasavvur qiling, siz restorandasiz (Client). Oshpaz (Server) oshxonada ishlaydi. Siz oshpaz bilan to'g'ridan-to'g'ri gaplasha olmaysiz. O'rtada ofitsiant (API) bor.
+> 1. Siz menyudan ovqat tanlab, ofitsiantga buyurtma berasiz (Request).
+> 2. Ofitsiant oshxonaga borib tayyorlatadi va sizga olib keladi (Response).
+> 3. Har bir buyurtma alohida: Ofitsiant avval nima yeganingizni eslab qolmaydi (Statelessness). Siz har safar to'liq ma'lumot berishingiz kerak ("1 ta choy bering").
+
 REST (Representational State Transfer) - Roy Fielding tomonidan 2000-yilda PhD dissertatsiyasida taqdim etilgan arxitektura uslubi. Bu HTTP protokoli ustiga qurilgan, stateless, client-server arxitektura bo'lib, zamonaviy web API'larning de-facto standarti hisoblanadi.
 
+```mermaid
+sequenceDiagram
+    participant C as Client (Frontend)
+    participant A as API (Backend)
+    participant DB as Database
+    
+    C->>A: HTTP Request (GET /users)
+    A->>DB: Ma'lumotlarni o'qish (SQL)
+    DB-->>A: Raw Data (Jadval)
+    A-->>C: HTTP Response (200 OK + JSON)
+```
 ## REST Principlari (Constraints)
 
 ### 1. Client-Server Architecture
@@ -843,6 +865,15 @@ Accept: application/vnd.myapi.v2+json
 
 // Server mos format yo'q - 406 Not Acceptable
 ```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **URL'da fe'llardan qoching**: API endpoitlari fe'llardan emas, otlardan (nouns) iborat bo'lishi kerak. Masalan: `POST /createUser` o'rniga `POST /users` ishlating.
+2. **Kolleksiyalarni ko'plikda ishlating**: Yagona ob'ektni ko'rsatsa ham API path ko'plikda bo'lsin (`/user/123` emas, `/users/123`).
+3. **To'g'ri HTTP metodlardan foydalaning**: Yangi ma'lumot yaratish uchun doim `POST`, mavjudini o'zgartirish uchun `PUT/PATCH`, o'qish uchun `GET`, o'chirish uchun `DELETE` ishlating.
+4. **Aniq Status Code qaytaring**: 200 (OK), 201 (Created), 400 (Bad Request), 404 (Not Found), 500 (Internal Server Error) kabi status kodlarini maqsadga muvofiq qaytaring. Hamma xatolarni 200 yoki 500 qilib yubormang.
+
+---
 
 ## Xulosa
 

@@ -2,26 +2,26 @@
 
 ## Kirish
 
-Provide/Inject Vue.js da dependency injection (DI) pattern'ini amalga oshirish usuli. Bu ota komponentdan chuqur joylashgan bola komponentlarga ma'lumot uzatish imkonini beradi - prop drilling (har bir darajada props uzatish) muammosini hal qiladi.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturlashda ota komponentdan bolaga ma'lumot uzatish oddiy ish (Props orqali). Ammo nabiraga yoki nevaraga o'tkazish kerak bo'lsa, har bir oraliq qatlamga ma'lumotni berib o'tish "Prop Drilling" (Prop teshilishi) muammosini keltirib chiqaradi. Bu oraliq qatlamlar aslida bu ma'lumotga mutlaqo qiziqmasligi mumkin! Provide/Inject orqali biz ota-bobodan to'g'ridan-to'g'ri nevaraga aloqa o'rnatamiz.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Quduq va Quvur"**  
+> Tasavvur qiling siz tog'ning tepasida (GrandParent) suvingiz bor. Pastdagi uchinchi uyga (Child) suv kerak. Uni 1-uyga, undan 2-uyga paqirda tashib kelish (Prop drilling) juda noqulay va be'mani. Buning o'rniga siz tog'dan to'g'ridan-to'g'ri o'sha 3-uyga suv quvuri (Provide/Inject) tortasiz. Oraliqdagi uylar bu suvdan bexabar qolaveradi.
 
 ## Asosiy Tushuncha
 
-```
-┌─────────────────────────────────────────────────────┐
-│  GrandParent (provide)                              │
-│  ┌───────────────────────────────────────────────┐  │
-│  │  Parent                                       │  │
-│  │  ┌─────────────────────────────────────────┐  │  │
-│  │  │  Child                                  │  │  │
-│  │  │  ┌───────────────────────────────────┐  │  │  │
-│  │  │  │  GrandChild (inject) ◄────────────┼──┼──┼──│
-│  │  │  └───────────────────────────────────┘  │  │  │
-│  │  └─────────────────────────────────────────┘  │  │
-│  └───────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────┘
-
-Props bilan: GrandParent → Parent → Child → GrandChild (4 ta uzatish)
-Provide/Inject: GrandParent ─────────────────► GrandChild (1 ta uzatish)
+```mermaid
+graph TD
+    A[GrandParent<br>provide: 'theme'] -->|Prop Drilling| B[Parent]
+    B -->|Prop Drilling| C[Child]
+    C -->|Prop Drilling| D[GrandChild]
+    
+    A -.->|To'g'ridan-to'g'ri<br>inject: 'theme'| D
+    
+    style A fill:#e1bee7,stroke:#8e24aa
+    style D fill:#c8e6c9,stroke:#388e3c
 ```
 
 ## Basic Usage
@@ -855,6 +855,14 @@ provide(LibBConfigKey, libBConfig) // Safe
 ```
 
 Symbol'lar unique va global namespace'ni ifloslantirmaydi.
+
+---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Reaktivlikni nazorat qiling:** `provide` orqali yuborilayotgan ma'lumotni nevaralar ham bilmasdan o'zgartirib qo'yishi mumkin (bu esa state pachoqlanishiga olib keladi). State buzilmasligi uchun uni `readonly()` bilan o'rab yuboring va o'zgartiradigan metodni ham yuboring.
+2. **Keng qo'llanilmang:** Provide/Inject'ni har qadamda ishlatish (Ayniqsa global ma'lumotlar uchun) dastur arxitekturasini tushunarsiz qiladi, chunki bu ma'lumot qayerdan kelganini qidirish qiyin. Agar hamma joyga ma'lumot uzatayotgan bo'lsangiz, `Pinia` (Global Store) ishlatgan ma'qul.
+3. **Symbol ishlating:** Har xil kutubxonalar bilan nomlashlar (masalan: `provide('user', ...)` ikkita joyda) to'qnash kelib qolmasligi uchun unikal (takrorlanmas) `Symbol()` klitlaridan foydalaning.
 
 ---
 

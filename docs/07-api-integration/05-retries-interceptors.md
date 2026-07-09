@@ -2,7 +2,30 @@
 
 ## Kirish
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturingiz qanchalik mukammal bo'lmasin, internet ulanishi va server barqarorligi sizning qo'lingizda emas. Xatolarni (masalan Wi-Fi uzilishi) "graceful" (chiroyli) tarzda hal qila olish, foydalanuvchiga xatolik qaytarish o'rniga bildirmasdan yana bir marta urinib ko'rish — Senior va Junior dasturchining eng katta farqlaridan biridir. Interceptor'lar esa ushbu operatsiyalarni takror-takror yozmaslikka va bitta markaziy nuqtadan boshqarishga yordam beradi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Pochtachi va Bojxona"**  
+> **Retry (Qayta urinish):** Pochtachi eshikni taqillatdi, hech kim ochmadi. U posilkani tashlab ketib qolmaydi, ertasi kuni yana keladi, keyin yana. Faqatgina 3-marta ham hech kim chiqmasa u qaytarib olib ketadi (Max Retries).
+> **Interceptor (Bojxona tekshiruvi):** Mamlakatdan chiqib ketayotgan barcha xatlar bojxonadan (Request Interceptor) o'tib, ularga "Tasdiqlangan" muhri bosiladi. Mamlakatga kirib kelayotgan barcha javoblar ham bojxonadan (Response Interceptor) o'tadi va ichida xavfli narsa yo'qligi tekshiriladi. Siz har bir xat uchun alohida bojxonachi yollamaysiz.
+
 Network request'lar har doim muvaffaqiyatli bo'lmaydi - server vaqtincha unavailable, connection timeout, yoki transient error bo'lishi mumkin. Retry logic va interceptors - robust network layer yaratishning asosiy qismlari.
+
+```mermaid
+graph LR
+    subgraph Client App
+        Req[Request] --> ReqI[Request Interceptor]
+        ResI[Response Interceptor] --> Res[Response]
+    end
+    
+    ReqI -->|To'g'rilangan So'rov| Server[Backend Server]
+    Server -.->|Javob yoki Xatolik| ResI
+    
+    style ReqI fill:#fff9c4,stroke:#fbc02d
+    style ResI fill:#c8e6c9,stroke:#388e3c
+```
 
 ## Retry Strategies
 
@@ -1277,6 +1300,15 @@ useEffect(() => {
   return () => controller.abort(); // cleanup on unmount
 }, []);
 ```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Jitter bilan Retry qiling**: Agar tizim ommaviy xatoga uchrasa va hamma foydalanuvchi bir vaqtda qayta so'rov yuborsa, server butunlay qulaydi (Thundering Herd muammosi). Shuning uchun kutish vaqtiga tasodifiy "jitter" (masalan 1s + random milisekundlar) qo'shing.
+2. **Faqat tarmoq yoki 5xx xatolarni Retry qiling**: Foydalanuvchi parolni xato kiritsa (401) yoki sahifa yo'q bo'lsa (404), qayta so'rov yuborishdan umuman foyda yo'q. Qayta urinishlar faqat 500, 502, 503 yoki Network Error holatlarida ishga tushishi kerak.
+3. **Idempotent so'rovlar**: POST so'rovlarni (yangi buyurtma, to'lov) ehtiyotkorlik bilan takrorlang. Bir xil to'lovni 2 marta yechib olmaslik uchun header'ga `Idempotency-Key` qo'shish tavsiya etiladi.
+4. **Tokenlarni Interceptor orqali yuboring**: Har bir so'rovga `Authorization: Bearer ...` deb yozish o'rniga uni bitta `Request Interceptor` da qo'shing.
+
+---
 
 ## Xulosa
 

@@ -16,28 +16,37 @@
 
 ## Kirish
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Ilovada State (holat)ni to'g'ri joyda saqlash — dastur arxitekturasining poydevori. Hamma narsani Global saqlash ilovani sekinlashtiradi va xotirani band qiladi. Hamma narsani Local saqlash esa ma'lumotlarni uzatishda qiyinchilik tug'diradi (prop drilling).
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Sirlar va Ommaviy e'lonlar"**  
+> **Local State:** Bu sizning shaxsiy siringiz. Uni faqat o'zingiz bilasiz va kerak bo'lsa, faqat yaqinlaringizga aytasiz (Props orqali).
+> **Global State:** Bu shahar markazidagi katta reklama ekrani. Uni shahardagi hamma (barcha komponentlar) ko'radi. Qayerda bo'lishingizdan qat'iy nazar (Pinia orqali) ma'lumotga ega bo'lasiz.
+
 State management'da eng muhim qaror - bu state'ni qayerda saqlash. Noto'g'ri qaror:
 - Keraksiz murakkablik
 - Performance muammolari
 - Debugging qiyinlashuvi
 - Code maintenance muammolari
 
+```mermaid
+graph LR
+    subgraph State Spectrum
+        direction LR
+        Local((Local)) <--> Global((Global))
+        
+        L1[ref / reactive] --> Local
+        L2[props / emit] --> Local
+        M1[provide / inject] --> Local
+        M2[composable with state] --> Global
+        G1[Pinia / Vuex] --> Global
+        
+        style Local fill:#f9f9f9,stroke:#333
+        style Global fill:#e1f5fe,stroke:#333
+    end
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                      STATE SPECTRUM                         │
-│                                                             │
-│  Local ◄──────────────────────────────────────────► Global  │
-│                                                             │
-│  ref()    props     provide/    composable    pinia/vuex   │
-│  reactive emit      inject      with state    store        │
-│                                                             │
-│  Scope:   Scope:    Scope:      Scope:        Scope:       │
-│  1 comp   parent-   subtree     multiple      entire app   │
-│           child                  comps                      │
-└─────────────────────────────────────────────────────────────┘
-```
-
----
 
 ## Local State Nima?
 
@@ -261,22 +270,16 @@ export const useCartStore = defineStore('cart', {
 
 ### Decision Tree
 
-```
-Ma'lumot kerakmi?
-    │
-    ├─► Faqat 1 komponentda? ──► LOCAL STATE (ref/reactive)
-    │
-    ├─► Parent-child o'rtasida? ──► PROPS/EMIT
-    │
-    ├─► Bir nechta sibling komponentda?
-    │       │
-    │       ├─► Yaqin komponentlar? ──► LIFT STATE UP
-    │       │
-    │       └─► Uzoq komponentlar? ──► PROVIDE/INJECT yoki STORE
-    │
-    ├─► Chuqur nested komponentlarda? ──► PROVIDE/INJECT
-    │
-    └─► Butun ilovada? ──► GLOBAL STORE (Pinia/Vuex)
+```mermaid
+flowchart TD
+    Start{Ma'lumot qayerda kerak?}
+    Start -->|Faqat 1 komponentda| L[LOCAL STATE <br> ref/reactive]
+    Start -->|Parent-child o'rtasida| P[PROPS / EMIT]
+    Start -->|Bir nechta sibling komponentda| Sib{Yaqinmi yoki Uzoq?}
+    Sib -->|Yaqin komponentlar| SL[LIFT STATE UP]
+    Sib -->|Uzoq komponentlar| PI[PROVIDE/INJECT yoki STORE]
+    Start -->|Chuqur nested komponentlarda| PI2[PROVIDE / INJECT]
+    Start -->|Butun ilovada| G[GLOBAL STORE <br> Pinia/Vuex]
 ```
 
 ### Local State Tanlang Qachon:
@@ -364,34 +367,24 @@ Ikkita sibling komponent state'ni almashishi kerak bo'lganda, state'ni umumiy pa
 
 ### Muammo
 
+```mermaid
+graph TD
+    Parent[Parent] --> CompA[ComponentA]
+    Parent --> CompB[ComponentB]
+    CompA -->|count = 5 ?| CompB
+    style CompA fill:#ffcccc,stroke:#333
 ```
-┌─────────────────────────────────────────────┐
-│                  Parent                      │
-│  ┌─────────────────┐  ┌─────────────────┐   │
-│  │  ComponentA     │  │  ComponentB     │   │
-│  │                 │  │                 │   │
-│  │  count = 5  ?───┼──┼─► count = ?     │   │
-│  │                 │  │                 │   │
-│  └─────────────────┘  └─────────────────┘   │
-└─────────────────────────────────────────────┘
+
 ComponentA'dan ComponentB'ga ma'lumot qanday o'tadi?
-```
 
 ### Yechim - State Lifting
 
-```
-┌─────────────────────────────────────────────┐
-│                  Parent                      │
-│              count = 5                       │
-│                  │                           │
-│        ┌─────────┴─────────┐                │
-│        ▼                   ▼                │
-│  ┌─────────────┐     ┌─────────────┐        │
-│  │ ComponentA  │     │ ComponentB  │        │
-│  │ :count="5"  │     │ :count="5"  │        │
-│  │ @update     │     │             │        │
-│  └─────────────┘     └─────────────┘        │
-└─────────────────────────────────────────────┘
+```mermaid
+graph TD
+    Parent[Parent<br>count = 5] -->|:count='5'| CompA[ComponentA]
+    Parent -->|:count='5'| CompB[ComponentB]
+    CompA -.->|@update| Parent
+    style Parent fill:#ccffcc,stroke:#333
 ```
 
 ### Kod Misoli
@@ -1510,19 +1503,20 @@ export const useCounterStore = defineStore('counter', {
 
 Ikki sibling komponent state almashishi kerak bo'lganda, state'ni umumiy parent'ga ko'tarish.
 
-```
-OLDIN:                          KEYIN:
-┌─────────────┐                 ┌─────────────┐
-│   Parent    │                 │   Parent    │
-│             │                 │  count = 5  │
-└─────────────┘                 │   ↓    ↑    │
-      │                         │   │    │    │
- ┌────┴────┐                    └───┼────┼────┘
- ↓         ↓                        ↓    ↓
-┌───┐    ┌───┐                  ┌───┐  ┌───┐
-│ A │    │ B │                  │ A │  │ B │
-│5 ?│    │? ?│                  │ 5 │  │ 5 │
-└───┘    └───┘                  └───┘  └───┘
+```mermaid
+graph TD
+    subgraph OLDIN
+    P1[Parent] --> A1[A <br> 5 ?]
+    P1 --> B1[B <br> ? ?]
+    A1 -.-> B1
+    end
+
+    subgraph KEYIN
+    P2[Parent <br> count = 5] -->|5| A2[A]
+    P2 -->|5| B2[B]
+    A2 -.->|update| P2
+    B2 -.->|update| P2
+    end
 ```
 
 ```vue
@@ -1610,6 +1604,15 @@ provide('updateUser', (updates) => {
 - Auth, user data
 - Cache, persistence
 - DevTools kerak
+
+---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **State lifting'ni ortiqcha ishlatmang**: Agar ma'lumotni 3-4 qavat tepaga ko'tarishingiz kerak bo'lsa, `provide/inject` yoki Store haqida o'ylang. Props drilling kodni o'qishni qiyinlashtiradi.
+2. **Kapsulatsiya (Encapsulation)**: Komponentning ichki state'ini iloji boricha local saqlang. Hamma narsani global store'ga qo'shish xotirani band qiladi va debugging'ni qiyinlashtiradi.
+3. **Provide/Inject da Readonly ishlatish**: Provider har doim `readonly` state yuborishi va state'ni o'zgartiradigan funksiyalarni alohida provide qilishi kerak. Shunda ma'lumotni kim qayerda o'zgartirgani aniq bo'ladi.
+4. **Composables**: Biznes logikani qayta ishlatishda eng kuchli qurol. Komponent ichida 100 qator lokal state va metodlar yozgandan ko'ra, buni alohida `.js/ts` fayldagi Composable ichiga oling.
 
 ---
 

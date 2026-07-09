@@ -1,13 +1,16 @@
 # CSRF (Cross-Site Request Forgery)
 
-## Mundarija
-1. [CSRF Nima?](#csrf-nima)
-2. [CSRF Mexanizmi](#csrf-mexanizmi)
-3. [Attack Patterns](#attack-patterns)
-4. [Zaif vs Xavfsiz Kod](#zaif-vs-xavfsiz-kod)
-5. [Real Attack Scenarios](#real-attack-scenarios)
-6. [Defense Strategies](#defense-strategies)
-7. [Interview Savollari](#interview-savollari)
+## Kirish
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Foydalanuvchi joriy brauzerida saytingizga login qilganda, brauzer uning session cookielarini xotirasida saqlab qoladi. Endi bu foydalanuvchi boshqa bir zararli saytga (masalan, kinolarni bepul ko'rish saytiga) kirsa va u yerdagi biror tugmani bossa, u sahifa maxfiy ravishda sizning serveringizga so'rov yuborishi mumkin (masalan, "Parolni o'zgartirish" yoki "Pul o'tkazish" so'rovi). Brauzer bu so'rovga foydalanuvchining cookielarini avtomat ravishda qo'shib yuboradi! Server esa cookieni ko'rib, so'rovni foydalanuvchining o'zi yubordi deb o'ylab, uni amalga oshiradi. Bu **CSRF (Saytlararo so'rovlarni soxtalashtirish)** deb ataladi va unga qarshi choralarni bilish juda muhimdir.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Sohibjamol va uning imzosi (Muhrlangan xat)"**  
+> Tasavvur qiling, sizning shaxsiy dumaloq muhr-imzongiz (Cookie) bor va bank har doim bu muhr tushirilgan har qanday to'lov topshiriqnomasini qabul qiladi.  
+> - **CSRF (Aldov):** Bir kun xizmatingizda yurgan yaramas odam (Attacker) sizga chiroyli rasm ko'rsatdi. Rasmning orqasiga esa "Attacker hisobiga $1000 pul o'tkazilsin" degan matn yozilgan edi va siz bilmasdan rasm ustiga muhr bosdingiz. U odam bu xatni bankka olib bordi, bank muhrni ko'rib pulni o'tkazib yubordi. Siz esa aldandingiz!
+> - **CSRF Token (Maxfiy so'z):** Bank endi faqat muhrga qarab ish bitirmaydi. Har safar pul o'tkazmoqchi bo'lsangiz, bank sizga bir martalik maxfiy kod (CSRF Token) beradi. Xat yuborilganda ham muhr (Cookie), ham o'sha bir martalik maxfiy kod (Token) birgalikda taqdim etilishi shart. O'g'ri esa bu maxfiy kodni bilmaydi!
 
 ---
 
@@ -15,23 +18,16 @@
 
 CSRF (Cross-Site Request Forgery) - bu hujumchi victim brauzerini ishlatib, victim nomidan boshqa saytga so'rov yuboradigan hujum turi.
 
-### CSRF vs XSS
+### CSRF vs XSS Taqqoslovi
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        CSRF vs XSS                                   │
-├─────────────────────────────────┬───────────────────────────────────┤
-│             CSRF                │              XSS                  │
-├─────────────────────────────────┼───────────────────────────────────┤
-│ Request forgery                 │ Script injection                  │
-│ Exploits user's session         │ Exploits user's browser           │
-│ Limited to predefined actions   │ Full JavaScript control           │
-│ Server trusts user's browser    │ Browser trusts server's content   │
-│ One-way (fire and forget)       │ Two-way (read/write)              │
-│ Can't read response             │ Can read anything                 │
-│ State-changing attacks          │ Data theft + state-changing       │
-└─────────────────────────────────┴───────────────────────────────────┘
-```
+| Kriteriya | CSRF | XSS |
+| --- | --- | --- |
+| **Hujum maqsadi** | So'rovni soxtalashtirish (Request forgery) | Zararli skript yuborish (Script injection) |
+| **Nishon** | Foydalanuvchi sessiyasidan foydalanadi | Foydalanuvchi brauzerini nishonga oladi |
+| **Imkoniyatlari** | Faqat oldindan belgilangan so'rovlarni qiladi | Istalgan JavaScript kodini ishga tushiradi |
+| **Ishonch (Trust)** | Server foydalanuvchi brauzeriga ishonadi | Brauzer serverdan kelgan kontentga ishonadi |
+| **Aloqa turi** | Bir tomonlama ("Ot va unut" so'rovlari) | Ikki tomonlama (o'qish va yozish imkoniyati) |
+| **Response (Javob)** | Hujumchi server javobini ko'ra olmaydi | Hujumchi hamma narsani o'qiy oladi |
 
 ### Key Concepts
 
@@ -52,51 +48,24 @@ CSRF Attack:
 
 ## CSRF Mexanizmi
 
-### Attack Flow
+### CSRF Hujumining Ketma-ketligi (Attack Flow)
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                           CSRF Attack Flow                               │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│  1. Victim bank.com'ga login qilgan (session cookie bor)                │
-│                                                                          │
-│  ┌──────────────┐                                                        │
-│  │   Victim     │  ─────▶  bank.com (authenticated)                     │
-│  │   Browser    │  ◀─────  Set-Cookie: session=abc123                   │
-│  └──────────────┘                                                        │
-│                                                                          │
-│  2. Victim attacker.com sahifasini ochadi                               │
-│                                                                          │
-│  ┌──────────────┐         ┌──────────────┐                              │
-│  │   Victim     │ ───────▶│ attacker.com │                              │
-│  │   Browser    │ ◀───────│   (HTML)     │                              │
-│  └──────────────┘         └──────────────┘                              │
-│         │                         │                                      │
-│         │   <form action="bank.com/transfer" method="POST">             │
-│         │     <input name="to" value="attacker">                        │
-│         │     <input name="amount" value="10000">                       │
-│         │   </form>                                                      │
-│         │   <script>form.submit()</script>                              │
-│         │                                                                │
-│  3. Browser avtomatik bank.com'ga request yuboradi                      │
-│                                                                          │
-│  ┌──────────────┐                    ┌──────────────┐                   │
-│  │   Victim     │ ──────────────────▶│   bank.com   │                   │
-│  │   Browser    │                    │              │                   │
-│  └──────────────┘                    └──────────────┘                   │
-│         │                                    │                           │
-│         │  POST /transfer                    │                           │
-│         │  Cookie: session=abc123 (auto!)    │                           │
-│         │  Body: to=attacker&amount=10000    │                           │
-│         │                                    │                           │
-│  4. Server cookie'ni ko'rib request'ni bajaradi                         │
-│                                                                          │
-│         │                                    │                           │
-│         │  ✅ Transfer successful            │                           │
-│         │  $10,000 → attacker account        │                           │
-│                                                                          │
-└─────────────────────────────────────────────────────────────────────────┘
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Victim as Foydalanuvchi (Victim)
+    participant Bank as Xavfsiz Sayt (bank.com)
+    participant Attacker as Hujumchi Sayti (evil.com)
+
+    Victim->>Bank: Kirish (Login)
+    Bank-->>Victim: Javob + Session Cookie (session=abc123)
+    Note over Victim: Foydalanuvchi boshqa tabda zararli saytga kiradi
+    Victim->>Attacker: evil.com ni ochadi
+    Attacker-->>Victim: Javob (Zararli avto-submit HTML/Form)
+    Note over Victim: evil.com sahifasi yuklangach maxfiy form POST jo'natadi
+    Victim->>Bank: POST bank.com/transfer (Cookie avtomatik qo'shiladi!)
+    Bank->>Bank: Cookieni tekshiradi (session=abc123)
+    Bank-->>Victim: Pul muvaffaqiyatli o'tkazildi (Attacker foydasiga!)
 ```
 
 ### Why It Works
@@ -912,4 +881,24 @@ fetch('/api', {
 
 **Afzalligi:**
 - Stateless (session kerak emas)
-- Distributed systems uchun yaxshi
+- Distributed systems (tarqoq tizimlar) uchun yaxshi
+
+---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **SameSite cookie atributlaridan foydalaning:** Cookie orqali autentifikatsiyani amalga oshirayotganda SameSite atributini `Lax` yoki `Strict` deb belgilash ko'plab CSRF xavflarini butunlay bartaraf etadi.
+2. **Kliyent va Server orasida CSRF Token qo'shing:** Agar siz SameSite dan to'liq foydalana olmasangiz (eski brauzerlar tufayli) yoki qo'shimcha xavfsizlik zarur bo'lsa, har bir o'zgarish qiluvchi so'rovda (`POST`, `PUT`, `DELETE`) server tomonidan berilgan bir martalik **CSRF Token** ni headers (masalan, `X-CSRF-Token`) orqali yuborishni va uni serverda tekshirishni yo'lga qo'ying.
+3. **Safe va Unsafe metodlarni ajrating:** GET, HEAD, OPTIONS kabi metodlar serverda holatni o'zgartirmasligi (safe) shart. Hech qachon `GET` so'rovi orqali ma'lumotni o'chirish yoki tahrirlash kabi ishlarni bajarmang.
+
+---
+
+## Xulosa
+
+CSRF xavfsizligi bo'yicha yakuniy xulosa:
+
+| Himoya Usuli | Qanday ishlaydi | Afzalligi | Kamchiligi |
+| --- | --- | --- | --- |
+| **SameSite Cookie** | Brauzer boshqa saytlardan kelgan so'rovlarga cookie qo'shmaydi | Nol konfiguratsiya (brauzer bajaradi) | Eski brauzerlarda ishlamasligi mumkin |
+| **CSRF Token** | Har bir request bilan bir martalik maxfiy token yuboriladi | Juda xavfsiz va ishonchli | Serverda token holatini saqlash kerak (stateful) |
+| **Double Submit Cookie**| Token ham cookie, ham headerda yuborilib solishtiriladi | Stateless (serverda xotira talab qilmaydi) | Subdomenlar buzilsa, cookie yozib yuborilishi mumkin |

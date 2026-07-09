@@ -2,15 +2,21 @@
 
 ## Kirish
 
-Render functions - Vue komponentlarini template o'rniga JavaScript funksiyalari bilan yozish usuli. Bu ko'proq nazorat va moslashuvchanlik beradi, lekin murakkab.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturchilar asosan `<template>` yozishni yaxshi ko'rishadi. Lekin ba'zan shunday holatlar bo'ladiki, `v-if` va `v-for` ni ming marta yozib chiqishga to'g'ri keladi (masalan dinamik head taglar, custom markdown render yoki UI kutubxonalar yaratishda). Shunday vaqtda to'g'ridan-to'g'ri JavaScript ishlatib DOM tugunlarini (Node) render qilish - ancha tez va moslashuvchan usul hisoblanadi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Rassom va Mashina"**  
+> Tasavvur qiling, sizga 10 xil mashina rasmi kerak. `<template>` da ishlash — bu tayyor rangli qoliplar orqali mashina chizishdek gap (qulay va tushunarli). Lekin Render functions — bu qo'lga mo'yqalam olib uni erkin shaklda o'zingiz chizib chiqishga o'xshaydi. Oson emas, lekin erkinlik chegarasiz.
 
 ## Virtual DOM Tushunchasi
 
-```
-Template/Render Function  →  VNode Tree  →  Real DOM
-       ↓                        ↓              ↓
-  Deklarativ            Virtual DOM       Browser DOM
-   yoki h()              JavaScript         Elements
+```mermaid
+graph LR
+    A[Template / JSX] -->|Compile| B(Render Function)
+    B -->|Bajariladi| C(Virtual DOM Tree)
+    C -->|Patch/Mount| D[Haqiqiy Browser DOM]
 ```
 
 ### VNode (Virtual Node)
@@ -927,6 +933,14 @@ Badge.props = {
 - Simple presentational components
 - Performance sensitive (kamroq overhead)
 - Utility components (icons, badges)
+
+---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Faoliyatni murakkablashtirmang:** Agar siz qila oladigan ishni oddiy `<template>` bilan qilish iloji bo'lsa, qiling! Render funksiyalar kod o'qilishini qiyinlashtiradi.
+2. **JSX haqida o'ylab ko'ring:** Agar loyihangizda Render Function ko'p bo'lsa, uni qo'lda `h('div', ...)` tarzida yozmasdan, Vue JSX/TSX ni yoqing. Reac'tdagiga o'xshab o'qilishi osonroq kod yozasiz.
+3. **Statik analizdan mahrum bo'lish:** Vue compiler `<template>` da ko'p optimizatsiyalar qiladi (Statik tugunlarni olib qo'yish kabi). Render funksiya orqali bu optimizatsiyalardan tushib qolishingiz mumkinligini unutmang.
 
 ---
 

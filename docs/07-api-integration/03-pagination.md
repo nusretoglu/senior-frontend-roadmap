@@ -2,9 +2,29 @@
 
 ## Kirish
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Minglab yoki millionlab ma'lumotlarni birdaniga yuklash frontend'ni ham, backend'ni ham "o'ldirishi" aniq. Shuning uchun ma'lumotlarni qismlarga bo'lib (masalan har bir sahifada 20 tadan) yuklash arxitekturasini bilish frontend dasturchi uchun zarur. Notog'ri tanlangan pagination strategiyasi foydalanuvchi tajribasini (UX) buzadi yoki ma'lumotlar duplikatsiyasiga olib keladi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Kitob o'qish"**  
+> Tasavvur qiling siz ming sahifalik kitobni butunlay bir kunda bitta varaqda o'qiy olmaysiz. Sahifalarga bo'lib o'qiysiz. 
+> **Offset (An'anaviy):** Men aynan 55-sahifani ochaman deb birdan o'sha sahifani ochish. Lekin kimdir kitobning boshiga yangi varaq qo'shsa, siz kutgan matn 56-sahifaga ko'chib qoladi.
+> **Cursor (Zamonaviy):** Men "Qizil xatcho'p" (cursor) qo'ygan joyimdan keyingi sahifani o'qiyman. Kimdir kitob boshiga nima qo'shishidan qat'i nazar, siz xatcho'pdan keyingisini xatosiz o'qiysiz.
+
 Pagination - katta data to'plamlarini kichik, boshqariladigan bo'laklarga bo'lish. Millionlab yozuvlarni bir vaqtda yuklash imkonsiz, shuning uchun to'g'ri pagination strategiyasi critical ahamiyatga ega.
 
 ## Pagination Turlari
+
+```mermaid
+graph TD
+    Pagination[Pagination Turlari] --> Offset[Offset-based]
+    Pagination --> Cursor[Cursor-based]
+    Pagination --> Page[Page-based]
+    
+    Offset -.-> |Oddiy, lekin ma'lumotlar qo'shilganda siljiydi| UX1(An'anaviy jadvallar)
+    Cursor -.-> |Aniq ishlaydi, infinite scroll uchun qulay| UX2(Facebook / Twitter feed)
+```
 
 ### 1. Offset-based (Traditional)
 
@@ -1089,6 +1109,14 @@ function Feed() {
   );
 }
 ```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Jadvallar (Tables) uchun Offset/Page-based**: Foydalanuvchi aynan qaysi sahifaga o'tishni tanlashi kerak bo'lgan boshqaruv panellari (admin panels) uchun eng maqbul usul.
+2. **Ijtimoiy tarmoqlar (Feeds) uchun Cursor-based**: Doimiy tarzda yangilanib turuvchi ro'yxatlar uchun (masalan Twitter lentalari) cursor ishlating. Aks holda foydalanuvchi sahifani o'zgartirganda ayni bir xabar ikki marta ko'rinib qolishi mumkin.
+3. **Infinite Scroll (Cheksiz skroll) ni to'g'ri ishlating**: Cheksiz skroll ostiga hech qachon Footer qismini qo'ymang (chunki foydalanuvchi unga yetib bora olmaydi). Uni o'rniga virtual scrolling ishlating (masalan `vue-virtual-scroller`).
+
+---
 
 ## Xulosa
 

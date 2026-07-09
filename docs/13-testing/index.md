@@ -1,5 +1,15 @@
 # Testing
 
+## Kirish
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturlash - bu doimiy o'zgarish (Refactoring) jarayoni. Bir joyni o'zgartirsangiz, boshqa yerdagi "kimningdir" kodi sinishi ehtimoli katta. Agar siz loyihaga test yozmasangiz, har qanday kichik o'zgarish qilishdan oldin "Qo'rqoq"qa aylanasiz. Dasturingiz xatosiz ekanini qo'lda tekshirib chiqishga vaqtingiz ham yetmaydi. Testlar - bu sizning dasturchi sifatidagi ishonch va obro'yingizdir!
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Aviakompaniya"**  
+> Agar siz samolyot biletlari sotadigan sayt qilsangiz va kodni o'zgartirib bitta joyda "qatoriga kelgan ikkita bir xil raqamni bitta deb tushunadigan" xatolikka yo'l qo'ysangiz (masalan 100 o'rniga 10 deb hisoblasa), aviakompaniya millionlab dollar zarar ko'rishi mumkin. Testlar — bu har safar siz kod qo'shganingizda u samolyotni pastga qulatib yubormasligini avtomatik kafolatlovchi maxsus komissiya (botlar) dir.
+
 Bu bo'lim JavaScript/TypeScript loyihalarini test qilish bo'yicha chuqur bilimlarni o'z ichiga oladi. Unit testlardan E2E testlargacha, zamonaviy testing toollar va patternlarni qamrab olamiz.
 
 ## Bo'lim Tarkibi
@@ -24,19 +34,12 @@ Bu bo'lim JavaScript/TypeScript loyihalarini test qilish bo'yicha chuqur bilimla
 
 ### Testing Pyramid
 
-```
-         /\
-        /  \        E2E Tests (10%)
-       /    \       - User flows
-      /------\      - Critical paths
-     /        \
-    /  Integ   \    Integration Tests (20%)
-   /    Tests   \   - API contracts
-  /--------------\  - Component integration
- /                \
-/   Unit Tests     \ Unit Tests (70%)
-/                    \ - Business logic
----------------------- - Pure functions
+```mermaid
+pyramid
+    title Testlash Piramidasi (Testing Pyramid)
+    "E2E Testlar (10%) - Sekin, qimmat, user UI ni tekshiradi"
+    "Integratsiya Testlari (20%) - Componentlar o'zaro ishlashi, API/DB"
+    "Unit Testlar (70%) - Juda tez, Business logikalar, sof funksiyalar"
 ```
 
 ### Test Coverage Strategiyasi
@@ -318,6 +321,14 @@ src/
    - Vaqti-vaqti bilan fail bo'ladigan test
    - Sabablari: timing issues, shared state, external dependencies
    - Yechim: isolation, proper waits, deterministic data
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **"100% Coverage" afsonasi**: Barcha fayllarni qamrab olish (100% coverage) shart emas. Business-critical joylarga (to'lov, savat, ro'yxatdan o'tish) urg'u bering. UI dagi matn rangi uchun test yozish vaqtni o'ldirishdir.
+2. **Kodni buzishdan oldin yozing (TDD)**: Testlarni kod yoqmasdan oldin yozish (Test Driven Development) sizga interfeys haqida aniqroq o'ylash imkonini beradi.
+3. **Piramida qoidasini asrang**: O'ylagan har bir kodingizni avval Unit test bilan yoping. E2E testlarni faqat eng katta, umumlashgan foydalanuvchi "sayohati" (masalan "mahsulot topish va sotib olish") uchungina ishlating.
+
+---
 
 ## Foydali Resurslar
 

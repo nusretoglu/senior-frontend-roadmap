@@ -1,5 +1,17 @@
 # E2E Testing (End-to-End)
 
+## Kirish
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturchilar ko'pincha "Mening kompyuterimda ishlagandi-ku!" deb aytishadi. Lekin foydalanuvchi tizimga kirib "Sotib olish" tugmasini bosa olmasa, dasturning kodlari qanchalik zo'r yozilgani hech kimni qiziqtirmaydi. E2E (End-to-End) testlar barcha narsani foydalanuvchi ko'zi bilan (haqiqiy brauzerni ochib, haqiqiy tugmalarni bosib) tekshiradi. Bu eng qimmat va sekin test bo'lsa ham, eng ishonchli usuldir.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Sotib olingan Avtomobilni Test-Drayv Qilish"**  
+> **Unit Test:** Zavodda motor ishlashini tekshirish.  
+> **Integration Test:** Motor va karobka bir-biriga mos tushishini tekshirish.  
+> **E2E Test:** Xaridor bo'lib mashinaga o'tirish, o't oldirish, ko'chaga chiqish va haqiqiy trassada 100 km/s tezlikda haydab ko'rish. Agar mashina joyidan jilmasa, motorning zo'r ishlashi befoyda.
+
 E2E testing - bu foydalanuvchi nuqtai nazaridan butun applicationni test qilish. Real browser'da, real user flow'larni simulyatsiya qilib, butun tizim to'g'ri ishlashini tekshiradi.
 
 ## E2E Test Nima?
@@ -8,18 +20,12 @@ E2E (End-to-End) test - bu foydalanuvchi qanday qilib applicationdan foydalanish
 
 ### Testing Pyramid'da E2E
 
-```
-         /\
-        /  \        E2E Tests (10-20%)
-       / E2E\       - User flows
-      /------\      - Critical paths
-     /        \     - Smoke tests
-    /  Integ   \
-   /    Tests   \   Integration (20-30%)
-  /--------------\
- /                \
-/   Unit Tests     \ Unit Tests (60-70%)
---------------------
+```mermaid
+pyramid
+    title Testlash Piramidasi (Testing Pyramid)
+    "E2E Testlar (10%) - Sekin, Lekin Foydalanuvchiga Eng Yaqin"
+    "Integratsiya Testlari (30%) - O'rtacha Tezlik, Tizimlar Aloqasi"
+    "Unit Testlar (60%) - Juda Tez, Kichik Qismlarni Tekshiradi"
 ```
 
 ### E2E Test Xususiyatlari
@@ -995,6 +1001,14 @@ E2E yozmaslik kerak:
 3. **Fixtures** - reusable test data
 4. **Cleanup** - after hooks da
 5. **Unique data** - timestamps/random strings
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Testlarni mustaqil qiling**: Har bir test toza holatdan (clean state) boshlanishi kerak. Bitta test yaratgan userni boshqa test ishlatmasin, chunki birinchi test qulasa, ikkinchisi ham asossiz qulaydi.
+2. **Setup'ni API orqali qiling**: "Settings" sahifasini test qilish uchun har safar avval UI orqali login qilib o'tirmang. Loginni to'g'ridan-to'g'ri orqa fonda API orqali amalga oshirib, tayyor Cookie bilan darhol "Settings" sahifasiga kiring. Bu testlarni ancha tezlashtiradi.
+3. **Piramida qoidasini unutmang**: Har bir mayda funksiyani Cypress yoki Playwright'da test qilmang. Ularni E2E ga qaraganda 100 marta tezroq ishlaydigan Unit Testlarda tekshiring. E2E da faqat eng muhim ssenariylarni (To'lov, Login, Xarid) tekshiring.
+
+---
 
 ## Xulosa
 

@@ -4,37 +4,41 @@ Lazy loading - bu resurslarni faqat kerak bo'lganda yuklash texnikasi. Bu initia
 
 ## Nazariya
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Tasavvur qiling loyihangiz 5MB js koddan iborat (Katta e-commerce). Agar foydalanuvchi saytga birinchi bor kirsayu siz bu 5MB lik kodni hammasini yuklashga urinsangiz saytingiz 10 soniyada ochiladi (Bounce rate > 90%). Foydalanuvchi "Biz haqimizda" sahifasini hech qachon ochmasligi mumkin, nima uchun o'sha sahifaning kodini boshidan yuklaysiz? **Lazy Loading** aynan shunga qarshi: *Narsa faqat so'ralgandagina yuklanishi kerak.*
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Restoranda Menyuni O'qish"**  
+> - **Eager Loading (Yomon):** Siz restoranga kirdingiz. Ofitsiant kelib menyudagi hamma 100 ta ovqatni hammasini pishirib stolingizga olib keldi, toki siz tanlab olinguningizcha stolda joy qolmadi. Odam qochib ketadi!
+> - **Lazy Loading (Yaxshi):** Siz restoranga kirdingiz. Ofitsiant menyuni (HTML/CSS) beradi. Siz "Shashlik" desa, keyingina u oshxonaga borib, faqat shashlik pishirib olib keladi (Dynamic Import). Eng zo'ri ham shu emasmi?
+
 ### Lazy Loading Turlari
 
-```
 1. Component Lazy Loading - Vue/React komponentlar
 2. Route Lazy Loading - Sahifalar
 3. Image Lazy Loading - Rasmlar
 4. Module Lazy Loading - ES modules
 5. Data Lazy Loading - API ma'lumotlari
-```
 
 ### Qanday Ishlaydi?
 
-```
-Initial Load:
-┌─────────────────────────────────┐
-│ Critical Resources Only         │
-│ - HTML                          │
-│ - Critical CSS                  │
-│ - Main JS (minimal)             │
-└─────────────────────────────────┘
-
-On Demand:
-┌─────────────────────────────────┐
-│ User triggers action            │
-│        ↓                        │
-│ Dynamic import()                │
-│        ↓                        │
-│ Resource loaded                 │
-│        ↓                        │
-│ Rendered to user                │
-└─────────────────────────────────┘
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant Network
+    participant Server
+    
+    Note over Browser,Server: Initial Load (Eager)
+    Browser->>Server: GET /
+    Server-->>Browser: Critical JS, CSS, HTML yuboradi
+    Note over Browser: Asosiy ekran chiziladi
+    
+    Note over Browser,Server: On Demand (Lazy Load)
+    Browser->>Browser: User "Batafsil" tugmasini bosdi
+    Browser->>Server: GET /chunk-about.js (Dynamic Import)
+    Server-->>Browser: O'sha komponentning JavaScript'i
+    Browser->>Browser: Komponent endi render qilinadi
 ```
 
 ## Component Lazy Loading
@@ -861,6 +865,14 @@ async function setup() {
   </Suspense>
 </template>
 ```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Above-the-fold EAGER, Below-the-fold LAZY:** Ekranning srazu ko'rinadigan qismini aslo lazy load qilmang (Banner, Header). Pastdagi, faqat scroll qilganda chiqadigan qismlarni (Footer, Modal, Chatbox) lazy load qiling.
+2. **Qo'pol Loading UI:** Lazy loading yomon tomoni shundaki user tugma bosganda UI ozgina qotib keyin chiqadi. O'sha paytda Skeleton, Spinner kabi fallback larni (Suspense orqali) ko'rsatishni unutmang.
+3. **Route level is a must:** Vue Router'da istisnosiz hamma Route'lar lazy-loaded bo'lishi shart! (import emas, `() => import(...)`)
+
+---
 
 ## Xulosa
 

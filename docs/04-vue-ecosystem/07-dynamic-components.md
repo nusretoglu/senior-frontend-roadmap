@@ -2,7 +2,22 @@
 
 ## Kirish
 
-Dynamic components Vue.js da komponentlarni runtime'da almashtirish imkonini beradi. Bu tab interfaces, wizard forms, va conditional rendering uchun juda foydali.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturlashda ko'pincha bitta joyning o'zida har xil qismlarni ko'rsatishga to'g'ri keladi (masalan, Tablar, Dialoglar, Forma bosqichlari). Bularning hammasini bitta joyga yozib, `v-if` bilan 10 xil komponentni yashirib-ko'rsatish kodni xunuk va o'qib bo'lmas darajaga olib keladi. **Dynamic Components** (Dinamik Komponentlar) orqali bittagina joy ajratib qo'yib, o'sha joyga "istalgan" komponentni joylashtirish imkoniyati paydo bo'ladi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Televizor ekrani"**  
+> Dynamic Component (`<component :is="...">`) bu huddi televizorning ekrani. U o'z-o'zidan hech narsa ko'rsatmaydi. Lekin pult orqali kanalni (componentni) o'zgartirsangiz, ekran o'zida har xil ko'rsatuvlarni (Home, Profile, Settings) namoyish eta boshlaydi.
+
+```mermaid
+graph TD
+    A((User Click)) -->|Kanalni o'zgartirish| B(State: currentComponent)
+    B --> C{`<component :is="...">`}
+    C -->|Home| D[TabHome]
+    C -->|Profile| E[TabProfile]
+    C -->|Settings| F[TabSettings]
+```
 
 ## Asosiy Syntax
 
@@ -877,6 +892,14 @@ const dynamicEvents = {
 }
 </script>
 ```
+
+---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **`shallowRef` ishlating:** Komponent ob'ektini data (yoki `ref`) qilib saqlasangiz, Vue butun komponentni reactive qilishga urinib, katta performance xarajatiga tushadi. Shuning uchun Vue tarkibiy qismini faqat bitta qatlamli proxy - `shallowRef` orqali ishlating.
+2. **Keshlashtirish (KeepAlive):** Tablar yoki shakllar orasida o'tganingizda, ma'lumotlar yo'qolmasligi uchun doim `<KeepAlive>` dan foydalaning. Bu o'chgan komponentni o'ldirmaydi, balki muzlatib qo'yadi.
+3. **Lazy-loading (Kechiktirib yuklash):** Barcha dinamik komponentlarni bitta joyda import qilish bundle'ingizni katta qilib yuboradi. `defineAsyncComponent` bilan ularni "qachon kerak bo'lsa shundagina yuklaydigan" qilib qo'ying.
 
 ---
 

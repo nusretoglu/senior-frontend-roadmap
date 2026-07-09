@@ -2,37 +2,35 @@
 
 ## Kirish
 
-Presence system - bu foydalanuvchilarning online/offline statusini va faolligini real vaqtda kuzatish tizimi. Slack, Discord, WhatsApp kabi ilovalarda "Online", "Away", "Typing..." ko'rsatish uchun ishlatiladi.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Foydalanuvchilarning tarmoqda faolligini kuzatish (Online/Offline statusi) har qanday collaborative (birgalikda ishlaydigan) yoki ijtimoiy ilovalarda (masalan, Telegram, Slack, Google Docs) juda muhim. Agar foydalanuvchining interneti uzilsa-yu, uni boshqalarga 10 daqiqa davomida "Online" deb ko'rsatib tursangiz, boshqa foydalanuvchilar javob kutaverib charchashadi va ilova sifatsiz ko'rinadi. **Presence System** orqali foydalanuvchining faolligini millisekundlarda aniqlab, uning statusini real-vaqtda boshqalarga ko'rsatish mumkin.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Ofisdagi Ishchi (Online, Idle, Away)"**  
+> Tasavvur qiling, ofisdagi bitta ishchining statusini kuzatyapsiz.  
+> - **Online (Ish stolida faol):** Ishchi stolda o'tiribdi, kompyuterda nimadir yozmoqda (Kliyent voqealari: click, mousemove, keydown).
+> - **Idle (Harakatsiz):** Ishchi stolda o'tiribdi, lekin ko'zini yumib dam olyapti (5 daqiqa davomida hech qanday klaviaturada yoki sichqonchada faollik yo'q). Status avtomatik "Idle" ga o'tadi.
+> - **Away (Ketgan):** Ishchi tushlik qilishga yoki majlisga ketgan (30 daqiqadan ko'proq faollik yo'q).
+> - **Offline (Binoda yo'q):** U binodan chiqib ketdi (WebSocket ulanishi uzildi).
+
+---
 
 ## Presence States
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                         PRESENCE STATES                                  │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│   ● Online          ○ Idle/Away         ◐ Do Not Disturb    ○ Offline  │
-│   ────────          ──────────          ───────────────     ───────    │
-│   Active now        Inactive for        User-set status     Disconnected│
-│                     X minutes                                            │
-│                                                                          │
-│   ┌─────────────────────────────────────────────────────────────────┐   │
-│   │                    State Transitions                             │   │
-│   │                                                                  │   │
-│   │   ┌────────┐    inactivity    ┌────────┐                        │   │
-│   │   │ Online │ ───────────────► │  Idle  │                        │   │
-│   │   └────┬───┘    (5 min)       └────┬───┘                        │   │
-│   │        │                           │                             │   │
-│   │   disconnect              extended inactivity                    │   │
-│   │        │                      (30 min)                           │   │
-│   │        ▼                           │                             │   │
-│   │   ┌─────────┐                      ▼                             │   │
-│   │   │ Offline │ ◄────────────── ┌────────┐                        │   │
-│   │   └─────────┘                 │  Away  │                        │   │
-│   │                               └────────┘                         │   │
-│   └─────────────────────────────────────────────────────────────────┘   │
-│                                                                          │
-└─────────────────────────────────────────────────────────────────────────┘
+### State Transitions (Holat O'tishlari)
+
+```mermaid
+stateDiagram-v2
+    [*] --> Online
+    Online --> Idle : Harakatsizlik (5 min)
+    Online --> Offline : Ulanish uzildi
+    Idle --> Away : Uzoq harakatsizlik (30 min)
+    Idle --> Online : Sichqoncha/Klaviaturada harakat
+    Away --> Online : Istalgan harakat
+    Idle --> Offline : Ulanish uzildi
+    Away --> Offline : Ulanish uzildi
+    Offline --> Online : Qayta ulanish (connect)
 ```
 
 ## Presence Architecture
@@ -1281,17 +1279,23 @@ Connection counting approach:
 userConnections.get(userId).size > 0 ? 'online' : 'offline'
 ```
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Ko'p qurilmalarni (Multiple Tabs/Devices) to'g'ri hisoblang:** Foydalanuvchi bir vaqtning o'zida ham telefonda, ham kompyuterda (yoki brauzerda 3 ta tabda) saytingizni ochishi mumkin. Agar u bitta tabni yopsa, uni darhol "Offline" qilib qo'ymang. Serverda foydalanuvchining umumiy ulanishlar sonini hisoblang (Active connection count). Faqatgina barcha ulanishlar soni `0` ga teng bo'lgandagina uni "Offline" deb e'lon qiling.
+2. **Typing Indicatorni (Yozmoqda...) throttle qiling:** Foydalanuvchi xabar yozayotganda, har bir harf bosilganda serverga "yozmoqda" degan xabar yuboravermang. `Throttle` (masalan har 3 soniyada bir marta jo'natish) va harf yozishdan to'xtaganidan keyin 3 soniyadan so'ng avtomatik o'chadigan `Debounce` taymerini qo'llang.
+3. **Redis SET/GET o'rniga Hash/ZSET ishlating:** Millionlab foydalanuvchilarning statuslarini tezkor o'qish va yozish uchun Redis bazasidan foydalaning. Ularning online vaqtlarini (timestamp) Redis Sorted Set (ZSET) da saqlash orqali ma'lum vaqt heartbeat bermagan foydalanuvchilarni bitta so'rovda ("offline" deb) tozalash (cleanup background job) juda qulay va tez ishlaydi.
+
+---
+
 ## Xulosa
 
-Professional presence system quyidagilarni talab qiladi:
+Presence Systems bo'yicha yakuniy xulosa:
 
-1. **Heartbeat mechanism** - connection liveness
-2. **Activity tracking** - idle/away detection
-3. **Distributed storage** - Redis for scaling
-4. **Subscription management** - efficient updates
-5. **Typing indicators** - debounced, timeout-based
-6. **Multi-connection handling** - same user, multiple tabs
-
-Production'da presence system user experience uchun kritik komponent hisoblanadi.
+| Holat | Qachon o'tadi? | UI Ko'rinishi | Kliyent faolligi |
+| --- | --- | --- | --- |
+| **Online** | Ulanish o'rnatilganda va faol bo'lganda | Yashil nuqta (Active) | Klaviatura / sichqoncha harakati bor |
+| **Idle** | 5 daqiqa davomida harakatsiz bo'lsa | Sariq nuqta (Idle) | Sahifa ochiq, lekin harakat yo'q |
+| **Away** | 30 daqiqadan ko'p harakatsiz bo'lsa | Kulrang nuqta (Away) | Kompyuter tark etilgan |
+| **Offline** | WebSocket/SSE uzilganda (0 active connection) | Kulrang nuqta / "Offline" | Ulanish butunlay uzilgan |
 
 Keyingi bo'lim: [Chat Implementation](./06-chat-implementation.md)

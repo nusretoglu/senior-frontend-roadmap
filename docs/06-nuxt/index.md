@@ -16,17 +16,24 @@ Bu bo'lim Nuxt.js framework'ini chuqur o'rganishga bag'ishlangan. SSR, SSG, CSR 
 
 ## Nima Uchun Nuxt.js?
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Oddiy Vue.js bitta sahifali dastur (Single Page Application - SPA) yaratadi, ya'ni brauzer saytga kirganda oldin bo'sh oq ekran (HTML) yuklab olinadi, keyin esa JavaScript orqali butun sahifa chizib chiqiladi. Bu qidiruv tizimlari (Google SEO) va dastlabki yuklanish tezligi uchun yomon. **Nuxt.js** ushbu muammoni Server-Side Rendering (SSR) va Static Site Generation (SSG) yordamida hal qiladi. Ya'ni, sahifa HTML si serverda tayyorlanib, foydalanuvchiga tayyor holda yuboriladi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "IKEA Mebellari vs Tayyor Mebellar"**  
+> - **Vue.js (SPA):** IKEA dan mebel sotib oldingiz. Uyga qutini olib kelasiz (HTML), u ichida bo'laklar va yig'ish qo'llanmasi (JavaScript) bor. Uni o'zingiz yig'ib chiqishingiz kerak (Sahifa sekin chiziladi).
+> - **Nuxt.js (SSR):** Do'konga tayyor yig'ilgan mebel buyurtma qildingiz. Uyingizga shundoq tayyor holda keladi (Tez va darhol foydalanishga tayyor HTML).
+
 ### Vue.js vs Nuxt.js
 
-```
-Vue.js (SPA)                    Nuxt.js (Universal)
-─────────────────               ─────────────────────
-- Client-side rendering         - SSR/SSG/CSR/ISR
-- Manual routing setup          - File-based routing
-- Manual meta tags              - useHead/useSeoMeta
-- Manual code splitting         - Automatic code splitting
-- No server logic               - Server routes/API
-```
+| Xususiyat | Vue.js (SPA) | Nuxt.js (Universal) |
+| --- | --- | --- |
+| **Rendering** | Client-side rendering (Faqat Brauzerda) | SSR / SSG / CSR / ISR |
+| **Routing** | Qo'lda sozlanadigan Router | Papkalarga asoslangan (File-based) |
+| **SEO Meta Teglar** | Qo'lda qo'shiladi | `useHead` / `useSeoMeta` orqali SEO do'stona |
+| **Code Splitting** | Qo'lda optimizatsiya qilinadi | Avtomatik optimizatsiya |
+| **Backend API** | Server mantiqlari yo'q (Faqat Frontend) | Server routelar / API mavjud |
 
 ### Nuxt.js Asosiy Afzalliklari
 
@@ -38,53 +45,33 @@ Vue.js (SPA)                    Nuxt.js (Universal)
 
 ## Nuxt 3 Arxitekturasi
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        Nuxt Application                      │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐       │
-│  │   Pages      │  │  Components  │  │   Layouts    │       │
-│  │  (Routes)    │  │  (Auto-imp)  │  │  (Wrappers)  │       │
-│  └──────────────┘  └──────────────┘  └──────────────┘       │
-│                                                              │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐       │
-│  │  Composables │  │   Plugins    │  │  Middleware  │       │
-│  │  (Shared)    │  │  (Extend)    │  │  (Guards)    │       │
-│  └──────────────┘  └──────────────┘  └──────────────┘       │
-│                                                              │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐       │
-│  │   Modules    │  │   Server     │  │    Utils     │       │
-│  │  (Features)  │  │   (API)      │  │  (Helpers)   │       │
-│  └──────────────┘  └──────────────┘  └──────────────┘       │
-│                                                              │
-├─────────────────────────────────────────────────────────────┤
-│                        Nitro Server                          │
-├─────────────────────────────────────────────────────────────┤
-│                        H3 HTTP Server                        │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph Dastur [Nuxt Application]
+        A(Pages<br>Routes) --- B(Components<br>Auto-imp)
+        B --- C(Layouts<br>Wrappers)
+        D(Composables<br>Shared) --- E(Plugins<br>Extend)
+        E --- F(Middleware<br>Guards)
+        G(Modules<br>Features) --- H(Server<br>API)
+        H --- I(Utils<br>Helpers)
+    end
+    Dastur --> Nitro[Nitro Server]
+    Nitro --> H3[H3 HTTP Server]
+
+    style Dastur fill:#e8f5e9,stroke:#4caf50
+    style Nitro fill:#fff3e0,stroke:#ff9800
+    style H3 fill:#e3f2fd,stroke:#2196f3
 ```
 
 ## Rendering Strategiyalari Overview
 
-```
-                    Build Time          Runtime
-                    ─────────────       ─────────────
-SSG (Static)        HTML generated      No server needed
-                    at build            (CDN serve)
-
-SSR (Server)        -                   HTML generated
-                                        per request
-
-CSR (Client)        Empty HTML          JS renders
-                    + JS bundle         in browser
-
-ISR (Incremental)   Initial HTML        Revalidate
-                    at build            after interval
-
-SWR (Stale-While)   Cached HTML         Serve stale,
-                                        refresh background
-```
+| Strategiya | Qurish (Build) Vaqtidagi Jarayon | Ishlash (Runtime) Vaqtidagi Jarayon |
+| --- | --- | --- |
+| **SSG (Static)** | Barcha sahifalar HTML ga aylantiriladi | Server kerak emas (CDN orqali uzatiladi) |
+| **SSR (Server)** | - | Har bir so'rov uchun HTML serverda generatsiya qilinadi |
+| **CSR (Client)** | Bo'sh HTML va JS fayllar | JavaScript brauzerda sahifani shakllantiradi |
+| **ISR (Incremental)**| Boshlang'ich HTML generatsiya qilinadi | Belgilangan vaqtdan so'ng (interval) orqa fonda yangilanadi |
+| **SWR (Stale-While)**| Keshlangan eski HTML beriladi | Sahifa darhol beriladi va orqa fonda yangilab qo'yiladi |
 
 ## Nuxt 3 Folder Structure
 
@@ -224,5 +211,13 @@ clearError()    // Clear error
 - [Nuxt Examples](https://nuxt.com/docs/examples/essentials/hello-world)
 - [UnJS Ecosystem](https://unjs.io/)
 - [Nitro Documentation](https://nitro.unjs.io/)
+
+---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Auto-importlarga ishonish:** Nuxt da komponentlar, composables va plaginlarni har bir faylda `import` qilish shart emas. Nuxt buni o'zi amalga oshiradi. Bunga tezroq ko'nikish kodni toza va ixcham qiladi.
+2. **"To'g'ri Papka" qoidasi:** Har qanday mantiqni to'g'ri joyga joylashtiring. Kichik qismlar - `components/`, global logika - `composables/`, 3-tomon plaginlari - `plugins/`, backend - `server/`.
+3. **SSR va CSR ni farqlash:** Brauzer API laridan (`window`, `localStorage`) faqat SSR jarayoni yakunlangandan so'ng (`onMounted` da) foydalaning, yoki `<ClientOnly>` komponentidan foydalanib xatolarni oldini oling.
 
 **Eslatma:** Har bir mavzuni nazariy o'rganishdan tashqari, real loyihada qo'llash muhim. Kod misollarini local environment'da ishlatib ko'ring.

@@ -21,7 +21,28 @@
 
 ## Strict Mode Nima?
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> TypeScript'ni "strict mode" (qat'iy rejim) siz ishlatish xuddi mashinani xavfsizlik kamarini taqmasdan haydashga o'xshaydi. Ko'pchilik loyihaga TS ni qo'shib qo'yib, o'zicha "Bizda tip xavfsizligi bor" deb maqtanadi. Aslida esa "strict: false" da TypeScript ko'plab `null`, `undefined` va `any` degan bombadek xatolarga ko'z yumadi. Qat'iy rejim esa TypeScript'dan uning 100% quvvatini olish imkonini beradi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Aeroport Xavfsizlik Xizmati"**  
+> **Strict: false (Oddiy Tekshiruv):** Xodim yo'lovchilarga shunchaki uzoqdan qarab o'tkazib yuboradi. Agar ochiqchasiga qurol ko'tarib yurganini ko'rmasa, sumkani tekshirmaydi.
+> **Strict: true (Qat'iy Tekshiruv):** Har bir sumka rentgendan o'tadi, har bir odam metallodektor bilan tekshiriladi. "Noma'lum" (any) yukli odamlar darhol to'xtatiladi. Boshida bu zerikarli va qattiqqo'l tuyuladi, lekin reys (Dastur) qulashidan saqlaydi.
+
 TypeScript'da strict mode - bu **maksimal tip xavfsizligini ta'minlaydigan** sozlamalar to'plami. U ko'plab potensial xatolarni compile-time'da ushlaydi.
+
+```mermaid
+graph TD
+    S[strict: true] --> S1[strictNullChecks<br/>null/undefined xavfsizligi]
+    S --> S2[noImplicitAny<br/>any qoldirmaslik]
+    S --> S3[strictBindCallApply<br/>Function call xavfsizligi]
+    S --> S4[strictPropertyInitialization<br/>Class fields xavfsizligi]
+    
+    style S fill:#e3f2fd,stroke:#1565c0
+    style S1 fill:#fff3e0,stroke:#e65100
+    style S2 fill:#e8f5e9,stroke:#2e7d32
+```
 
 ### Strict Mode'siz vs Strict Mode Bilan
 
@@ -1413,6 +1434,12 @@ if (value !== undefined) {
   console.log(value.toFixed()); // OK
 }
 ```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Yangi loyihalarda HAR DOIM yoqing**: Yangi proyekt boshlayotgan bo'lsangiz `tsconfig.json` da darhol `"strict": true` yoqilganligiga ishonch hosil qiling. Buni loyiha o'rtasida yoqish minglab xatolarni keltirib chiqarishi va jamoani tushkunlikka tushirishi mumkin.
+2. **Eski loyihani ko'chirish (Migration)**: Katta JS loyihani TS ga o'tkazayotganda boshida "strict" ni o'chiring. Lekin tiplarni to'g'rilab bo'lgach, sekin-asta har bir maxsus qoidani bittadan yoqib chiqing (masalan, avval `noImplicitAny: true`, kod to'g'rilangach keyin `strictNullChecks: true`).
+3. **`!` bilan aldamang**: Qat'iy rejimda bazan siz `user.name` string ekaniga amin bo'lsangiz ham TS xato berishi mumkin (chunki u unday emas deb o'ylaydi). Bunday vaziyatlarda non-null assertion (`user!.name`) ishlatish ko'p hollarda dangasalikdir. Yaxshisi to'g'ri `if(user)` tekshiruvini yozing.
 
 ---
 

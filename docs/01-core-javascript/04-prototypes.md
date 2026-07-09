@@ -2,6 +2,16 @@
 
 ## Nazariya
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> JavaScript qolgan tillar (Java, C++) kabi "Class" (sinf) arxitekturasiga ega emas. Garchi ES6 da `class` so'zi qo'shilgan bo'lsa-da, bu shunchaki "sintaktik shakar" (syntax sugar) hisoblanadi. Tag zaminida JS **Prototype-based** (Prototipga asoslangan) tildir. Prototip zanjirini tushunmasangiz, nega `Array.prototype.push` ishlashi, yoki qanday qilib bir ob'ekt boshqasidan o'zlashtirishi (inheritance) siz uchun butunlay qorong'ulik bo'lib qoladi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Merosxo'rlik va Buvilar"**  
+> Tasavvur qiling sizda ("child object") avtomobil yasash bilimi yo'q, lekin otangiz ("prototype") bu ishni zo'r biladi. 
+> Kimdir sizdan: "Mashina qanday yasaladi?" deb so'rasa, siz o'zingizda javob bo'lmagani uchun otangizga yuzlanasiz. Agar otangiz ham bilmasa, u o'z otasiga (sizning bobongizga, ya'ni keyingi "prototype" ga) yuzlanadi.  
+> JavaScript da ob'ektdan qandaydir metodni (masalan `obj.toString()`) chaqirganingizda, JS uni avval o'sha ob'ektdan qidiradi. Topolmasa, uning ota-onasidan (`__proto__`), keyin bobosidan, to uzoq ajdod (`Object.prototype`) ga yetib borguniga qadar (yoki javob yo'qligi "null" bo'lguncha) yuqoriga qarab ketaveradi. Bu **Prototype Chain (Prototip zanjiri)** deyiladi.
+
 ### Prototype Nima?
 
 JavaScript'da har bir ob'ekt maxfiy `[[Prototype]]` xususiyatiga ega. Bu xususiyat boshqa ob'ektga yoki `null`ga ishora qiladi. Ob'ektdan xususiyat o'qilganda, agar u ob'ektda topilmasa, JavaScript avtomatik ravishda prototype chain bo'ylab qidiradi.
@@ -26,10 +36,16 @@ rabbit.walk();             // "Animal walks" (prototype'dan meros)
 
 ### Prototype Chain
 
-```
-rabbit → animal → Object.prototype → null
-   ↓        ↓            ↓
- jumps    eats     toString, hasOwnProperty, ...
+```mermaid
+graph BT
+    Rabbit[rabbit<br/>jumps: true] -->|__proto__| Animal[animal<br/>eats: true]
+    Animal -->|__proto__| ObjProto[Object.prototype<br/>toString(), hasOwnProperty()]
+    ObjProto -->|__proto__| NullObj[null]
+
+    style Rabbit fill:#e3f2fd,stroke:#1565c0
+    style Animal fill:#c8e6c9,stroke:#388e3c
+    style ObjProto fill:#fff9c4,stroke:#fbc02d
+    style NullObj fill:#f5f5f5,stroke:#9e9e9e
 ```
 
 ```javascript
@@ -936,3 +952,9 @@ objFixed.a = 1;
 // Yoki
 const objFixed2 = Object.assign(Object.create(proto), { a: 1 });
 ```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **`__proto__` emas, `Object.getPrototypeOf()` va `Object.create()` ishlating:** `__proto__` eskirgan sintaksis, rasman tavsiya qilinmaydi.
+2. **Built-in obyektlarni (Array, Object) hech qachon pollyfill'dan tashqari o'zgartirmang (No Prototype Pollution!):** Birovning kutubxonasini buzib qo'yishingiz mumkin.
+3. **Imkon qadar ES6 `class` sintaksisidan foydalaning:** U baribir tagida prototype ishlatsa-da, sintaksisi toza, tushunarli va intervyularda (yoki boshqa til mutaxassislari loyihaga kelsa) muammosiz hazm bo'ladi.

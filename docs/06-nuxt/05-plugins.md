@@ -1,6 +1,14 @@
 # Plugins
 
-Nuxt plugins - Vue app'ga global functionality qo'shish uchun ishlatiladi. Third-party librarylar, global componentlar, directives va provide/inject patternlar uchun plugin tuziladi.
+## Kirish
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Nuxt.js loyihalarida butun dastur bo'ylab (Global darajada) kerak bo'ladigan kutubxonalar, komponentlar yoki sozlamalar bo'lishi mumkin. Masalan, tahliliy vosita (Google Analytics), yagona API mijozi (Axios/Fetch), yoki til tarjimoni (i18n). Bularni har bir sahifaga alohida-alohida ulab chiqish noqulay va xato qilish ehtimoli baland. **Plugins** (Plaginlar) orqali biz ularni dastur eng boshida bir martagina ulaymiz va butun dastur bo'ylab bemalol foydalanamiz.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Yangi avtomobilga qo'shimcha uskunalar o'rnatish"**  
+> Nuxt dasturingizni zavoddan endi chiqqan yangi avtomobil deb faraz qiling. U yurishga tayyor, lekin sizga GPS navigatori, avtomagnitola yoki o'rindiq isitgich kerak. Siz bu qo'shimchalarni **Plaginlar (Plugins)** orqali o'rnatasiz. Ular avtomobil harakatlanishni boshlashidan (App mounted) oldin ulanadi.
 
 ## Nazariya
 
@@ -8,83 +16,35 @@ Nuxt plugins - Vue app'ga global functionality qo'shish uchun ishlatiladi. Third
 
 Plugin - Nuxt app yaratilganda ishga tushadigan kod. Vue app instance'ga functionality qo'shish yoki global state/service'lar taqdim etish uchun ishlatiladi.
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Plugin Lifecycle                          │
-└─────────────────────────────────────────────────────────────┘
-
-1. Nuxt app created
-         │
-         ▼
-┌─────────────────────┐
-│  Plugins executed   │  ← plugins/ papkasidagi fayllar
-│  (order: numbered)  │     01.auth.ts → 02.api.ts → ...
-└─────────────────────┘
-         │
-         ▼
-┌─────────────────────┐
-│  App mounted        │
-│  (Vue instance)     │
-└─────────────────────┘
-         │
-         ▼
-┌─────────────────────┐
-│  Routes resolved    │
-│  (middleware runs)  │
-└─────────────────────┘
-         │
-         ▼
-┌─────────────────────┐
-│  Page rendered      │
-└─────────────────────┘
+```mermaid
+graph TD
+    A([1. Nuxt App Yaratildi]) --> B[2. Plaginlar Ishga tushadi<br>plugins/01.auth.ts -> 02.api.ts]
+    B --> C[3. App O'rnatildi<br>Vue mounted]
+    C --> D[4. Marshrutlar (Routes) Aniqlanadi<br>Middleware runs]
+    D --> E(((5. Sahifa Ko'rsatiladi)))
+    
+    style A fill:#e3f2fd,stroke:#1976d2
+    style B fill:#ffe0b2,stroke:#f57c00
+    style E fill:#c8e6c9,stroke:#388e3c
 ```
 
 ### Plugin Turlari
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Plugin Types                              │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│  1. UNIVERSAL PLUGINS                                       │
-│     └── plugins/api.ts                                      │
-│     └── Server va client'da ishlaydi                        │
-│                                                              │
-│  2. CLIENT-ONLY PLUGINS                                     │
-│     └── plugins/analytics.client.ts                         │
-│     └── Faqat browser'da ishlaydi                           │
-│                                                              │
-│  3. SERVER-ONLY PLUGINS                                     │
-│     └── plugins/serverInit.server.ts                        │
-│     └── Faqat server'da ishlaydi                            │
-│                                                              │
-│  4. ORDERED PLUGINS                                         │
-│     └── plugins/01.auth.ts                                  │
-│     └── plugins/02.api.ts                                   │
-│     └── Raqam bo'yicha ketma-ket ishlaydi                   │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
-```
+| Turi | Fayl Nomi Namunasi | Tushuntirish |
+| --- | --- | --- |
+| **Universal Plugins** | `plugins/api.ts` | Ham serverda, ham mijoz (brauzer) da ishlaydi. Odatiy tanlov. |
+| **Client-Only Plugins** | `plugins/analytics.client.ts` | `.client.ts` qo'shimchasi bilan faqat brauzerda ishlaydi (M: Google Analytics, Browser API lar). |
+| **Server-Only Plugins** | `plugins/serverInit.server.ts` | `.server.ts` qo'shimchasi bilan faqat serverda ishlaydi. |
+| **Tartiblangan Plugins** | `plugins/01.auth.ts` | Agar plaginlar bir-biriga bog'liq bo'lsa (Auth API dan oldin ishlashi kerak), raqam bilan boshlanadi. |
 
 ### Plugin vs Composable vs Module
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Comparison                                │
-├─────────────┬─────────────────┬─────────────────────────────┤
-│   Plugin    │   Composable    │         Module              │
-├─────────────┼─────────────────┼─────────────────────────────┤
-│ App-level   │ Component-level │ Build-time                  │
-│ Once        │ Reusable        │ Config/extend               │
-│ Global      │ Local scope     │ Multiple apps               │
-│ Side effects│ Pure functions  │ Hooks/transforms            │
-├─────────────┼─────────────────┼─────────────────────────────┤
-│ Use for:    │ Use for:        │ Use for:                    │
-│ - 3rd party │ - Shared logic  │ - Nuxt config               │
-│ - Provide   │ - State         │ - Auto-imports              │
-│ - Directives│ - Utilities     │ - Build plugins             │
-└─────────────┴─────────────────┴─────────────────────────────┘
-```
+| Xususiyat | Plugin | Composable | Module |
+| --- | --- | --- | --- |
+| **Darajasi** | App-level (Butun Ilova) | Component-level (Lokal) | Build-time (Qurish vaqtida) |
+| **Maqsadi** | Side effects, 3rd party libs | Qayta ishlatiluvchi mantiq | Konfiguratsiya / Kengaytirish |
+| **Qamrovi (Scope)**| Global | Lokal (O'zgaruvchan) | Ko'p ilovalar uchun |
+| **Qo'llanilishi** | `provide`, Directives, Axios | State boshqaruvi, Utilities | Nuxt config, Auto-imports |
 
 ## Kod Misollari
 
@@ -1228,6 +1188,16 @@ describe('API Plugin', () => {
   })
 })
 ```
+
+---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Client / Server ga e'tibor bering:** Agar plagin ichida brauzer xossalaridan (`window`, `document`) foydalanmoqchi bo'lsangiz, fayl nomini albatta `.client.ts` deb yozing yoki ichkarida `import.meta.client` bilan tekshiring. Bo'lmasa server xatosi (500) yuzaga keladi.
+2. **Kechiktirib yuklash (Defer):** Dasturning eng asosiy ishlashiga daxldor bo'lmagan plaginlarni (masalan tahliliy skriptlarni) iloji boricha kechiktirib (timeout yoki scroll bo'lganda) ishga tushiring. Bu saytning First Contentful Paint (FCP) ko'rsatkichini yaxshilaydi.
+3. **Plaginlar Composable emas:** Komponent darajasidagi (lokal) ishlarni yoki qayta-qayta ishlatiluvchi mantiqni plagin emas, Composable (`composables/`) shaklida ishlating. Plagin asosan 3-tomon integratsiyalari va global sozlamalar (Vue.use() kabi) uchun mos keladi.
+
+---
 
 ## Xulosa
 

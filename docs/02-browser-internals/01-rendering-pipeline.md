@@ -2,20 +2,36 @@
 
 ## Kirish
 
-Brauzer HTML, CSS va JavaScript'ni qanday qilib ekrandagi piksellarga aylantiradi? Bu jarayon **Rendering Pipeline** (yoki Pixel Pipeline) deb ataladi. Har bir qadam optimal ishlashi 60fps (16.67ms per frame) animatsiyalar uchun muhim.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturchilar yozgan HTML, CSS va JS kodlarini brauzer qanday qilib ekranda biz ko'rib turgan chiroyli ranglar va shakllarga aylantirishi (Rendering) haqida o'ylashmaydi. Agar siz bu jarayonni (Rendering Pipeline) bilmasangiz, tasodifan juda sekin ishlaydigan animatsiyalar yozib qo'yasiz yoki sahifa yuklanganda elementlarning sakrashiga (Layout Shifts) sababchi bo'lasiz. Ushbu quvurning ishlash mexanizmini tushunish — 60 FPS (soniyada 60 kadr) tezlikdagi silliq animatsiyalar yaratishning kalitidir.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Uy qurish loyihasi (Pixel Pipeline)"**  
+> HTML, CSS va JS kodlarini piksellarga aylantirish — uy qurish jarayoniga o'xshaydi:
+> - **DOM va CSSOM (Xomashyo va chizmalar):** HTML — g'ishtlar va xomashyolar (DOM). CSS — ranglar va dizayn chizmalari (CSSOM).
+> - **Render Tree (Reja):** Qaysi g'isht qayerga qo'yilishi va qaysi rangga bo'yalishini ko'rsatuvchi yakuniy qurilish rejasi (ko'rinmaydigan elementlar, masalan `display: none` bo'lganlar, bu rejadan chiqarib tashlanadi).
+> - **Layout (O'lchash va joylashtirish):** Har bir g'ishtning aniq o'lchami va koordinatasini (enini, bo'yini, joylashuvini) o'lchash.
+> - **Paint (Bo'yash):** Devorlarni rangga bo'yash, matnlarni chizish.
+> - **Composite (Qatlamlarni yig'ish):** Alohida qatlamlarni (masalan, shisha oynalar, eshiklar) bir-birining ustiga to'g'ri joylashtirib uyni yakunlash.
+
+---
 
 ---
 
 ## Rendering Pipeline Bosqichlari
 
+```mermaid
+flowchart LR
+    HTML[1. HTML Parse] --> DOM[2. DOM Tree]
+    CSS[1. CSS Parse] --> CSSOM[2. CSSOM Tree]
+    DOM --> RT[3. Render Tree]
+    CSSOM --> RT
+    RT --> Layout[4. Layout <br/> O'lcham & Joylashuv]
+    Layout --> Paint[5. Paint <br/> Matn & Ranglar]
+    Paint --> Comp[6. Composite <br/> Qatlamlarni yig'ish]
 ```
-┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌───────────┐
-│  HTML    │──▶│   DOM    │──▶│  Render  │──▶│  Layout  │──▶│  Paint   │──▶│ Composite │
-│  Parse   │   │  + CSSOM │   │   Tree   │   │          │   │          │   │           │
-└──────────┘   └──────────┘   └──────────┘   └──────────┘   └──────────┘   └───────────┘
-     │              │              │              │              │               │
-   ~1-5ms        ~1-2ms         ~1ms          ~1-10ms       ~1-10ms          ~1-2ms
-```
+*Bosqichlarning har biri millisekundlar yoki mikrosoniyalar ichida optimal bajarilishi shart.*
 
 ---
 
@@ -683,14 +699,22 @@ element.animate([
 
 ---
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Animatsiyalar uchun faqat Transform va Opacity ishlating:** Har qanday siljish (top, left, margin) yoki kattalashish (width, height) animatsiyalari butun pipeline'ni (Layout, Paint, Composite) qayta ishga tushiradi. `transform` (scale, translate) va `opacity` esa faqatgina **Composite** bosqichini chaqiradi va GPU (video karta) yordamida juda silliq ishlaydi.
+2. **will-change atributini ehtiyotkorlik bilan ishlating:** `will-change` brauzerga "bu element yaqinda o'zgaradi, unga GPU layer yarat" deb aytadi. Biroq, har bir elementga `will-change` berish video xotirani (VRAM) to'ldirib, saytni yanada sekinlashtirib yuboradi. Faqatgina rostdan ham muammo bo'layotgan og'ir animatsiyali elementlarga bering va u tugagach CSS'dan o'chiring.
+3. **DOM elementlari sonini kamaytiring:** DOM daraxti qanchalik katta bo'lsa, Layout va Paint bosqichlari shunchalik og'ir va uzoq davom etadi. Sahifadagi umumiy elementlar soni 1500 tadan oshib ketmasligini nazorat qilib boring.
+
+---
+
 ## Xulosa
 
-| Bosqich | Trigger | Cost | Optimization |
-|---------|---------|------|--------------|
-| Parse | HTML/CSS o'zgarish | Medium | Minify, cache |
-| Style | Class/style o'zgarish | Low-Medium | BEM, scoped CSS |
-| Layout | Geometry o'zgarish | HIGH | transform, contain |
-| Paint | Visual o'zgarish | Medium-High | opacity, GPU layers |
-| Composite | Layer o'zgarish | LOW | transform, opacity |
+Rendering Pipeline bosqichlari va optimallashtirish xulosasi:
 
-**Qoida:** Animatsiyada faqat `transform` va `opacity` ishlating = 60fps.
+| Bosqich (Pipeline) | Nima sabab bo'ladi? | Tizim yuki (Cost) | Optimallashtirish |
+| --- | --- | --- | --- |
+| **Parse (O'qish)** | HTML/CSS yuklanganda | O'rtacha | CSS/HTML ni qisqartirish, minifitsiya qilish |
+| **Style (Uslub)** | Class/Style o'zgarishi | Kam | CSS selectorlarini oddiyroq qilish |
+| **Layout (Joylashuv)**| Geometriya (`width`, `height`, `left`) o'zgarishi | 🔴 **Juda Yuqori** | O'lchamlarni o'zgartirmaslik, `transform` ishlatish |
+| **Paint (Chizish)** | Ranglar, soyalar, matn o'zgarishi | O'rtacha-Yuqori | Og'ir shadow (`box-shadow`) va gradientlarni kamaytirish |
+| **Composite (Yig'ish)**| Qatlamlar joylashuvi (`transform`, `opacity`) |  **Juda Kam** | Animatsiyalarni faqat GPU qatlamida qilish |

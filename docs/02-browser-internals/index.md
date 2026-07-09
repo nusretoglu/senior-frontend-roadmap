@@ -1,6 +1,19 @@
 # Browser Internals - Brauzer Ichki Ishlash Mexanizmlari
 
-> **Maqsad:** Brauzerning ichki arxitekturasi, rendering pipeline, va performance optimizatsiyalarini chuqur tushunish.
+## Kirish
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Agar siz brauzerning ichki tuzilishini, uning qanday ishlashini bilmasangiz, yozgan kodingiz "qora quti" (black box) ichida ishlayotgandek bo'ladi. Har bir frontend dasturchisi brauzer arxitekturasini, xotirani qanday boshqarishini, qatlamlarni qanday tuzishini va JavaScript event loop bilan qanday ishlashini bilishi shart. Ushbu bo'lim sizga brauzerning qopqog'i ostiga qarash va uni senior darajasida tushunish imkonini beradi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Teatr truppasi (Browser Process Architecture)"**  
+> Brauzerning ishlashi — butun boshli teatr truppasiga o'xshaydi:
+> - **Browser Process (Direktor):** Barcha jarayonlarni boshqaradi, tablarni ochib-yopadi va sahifalar xavfsizligini ta'minlaydi.
+> - **Renderer Process (Aktyorlar va Rejissyor):** Har bir sahifa uchun alohida truppa ishlaydi. Ular HTML va CSS ssenariylarini o'qib, sahnada chiroyli o'yin ko'rsatishadi (DOM, Layout, Paint).
+> - **GPU Process (Chiroq va Effekt Ustasi):** Sahna chiroqlari va murakkab visual effektlarni boshqaradi. Aktyorlar unga faqat ko'rsatma beradi, GPU esa buni bir zumda sahnaga chiqaradi.
+
+---
 
 ## Mundarija
 
@@ -11,6 +24,22 @@
 | 03 | [DOM Lifecycle](./03-dom-lifecycle.md) | DOMContentLoaded, load, beforeunload, MutationObserver |
 | 04 | [Critical Rendering Path](./04-critical-rendering-path.md) | Render-blocking resources, CRP optimization |
 | 05 | [GPU Acceleration](./05-gpu-acceleration.md) | Compositor layers, will-change, transform tricks |
+
+### Brauzer Arxitekturasi (Multi-process Architecture)
+
+```mermaid
+graph TD
+    Browser[Browser Process <br/> Tabs, Navigation, UI] --> Renderer1[Renderer Process <br/> Tab 1: HTML, CSS, DOM, JS]
+    Browser --> Renderer2[Renderer Process <br/> Tab 2: HTML, CSS, DOM, JS]
+    Browser --> GPU[GPU Process <br/> Compositing, Rendering]
+    Browser --> Network[Network Process <br/> HTTP Requests, Cache]
+    
+    style Browser fill:#e3f2fd,stroke:#1565c0
+    style Renderer1 fill:#ffebee,stroke:#c62828
+    style Renderer2 fill:#ffebee,stroke:#c62828
+    style GPU fill:#e8f5e9,stroke:#2e7d32
+```
+*Har bir tab alohida xotira maydonida (sandbox) xavfsiz ishlashi uchun brauzer multi-process arxitekturasidan foydalanadi.*
 
 ---
 
@@ -205,19 +234,22 @@ console.log(performance.getEntriesByType('measure'));
 
 ---
 
-## Keyingi Qadamlar
+## Eng Yaxshi Amaliyotlar (Best Practices)
 
-1. **01-rendering-pipeline.md** - Rendering jarayonini batafsil o'rganish
-2. **02-reflow-repaint.md** - Layout thrashing ni tushunish
-3. **03-dom-lifecycle.md** - DOM events va timing
-4. **04-critical-rendering-path.md** - Initial load optimization
-5. **05-gpu-acceleration.md** - 60fps animatsiyalar
+1. **DOM daraxtini minimal saqlang:** Brauzer rendering pipeline (Layout/Paint) tezligi to'g'ridan-to'g'ri DOM elementlari soniga bog'liq. Saytingizda ortiqcha `<div>` lardan qoching va ro'yxatlar juda uzun bo'lib ketsa, virtual scrolling texnikasidan foydalaning.
+2. **Animatsiyalar uchun GPU qatlamini ishlating:** Har bir harakat (Layout properties) CPU da emas, balki GPU da `transform` va `opacity` orqali silliq (60fps) bajarilishini ta'minlang.
+3. **Optimallashtirilgan Script yuklash:** Javascript fayllarni inline yoki oddiy yuklamasdan, doimo asinxron va parsing bloklamaydigan `defer` yoki `async` atributlari orqali yuklang.
 
 ---
 
-## Foydali Resurslar
+## Xulosa
 
-- [Chrome DevTools Documentation](https://developer.chrome.com/docs/devtools/)
-- [Web.dev Performance](https://web.dev/performance/)
-- [Browser Rendering Pipeline - Google](https://developers.google.com/web/fundamentals/performance/rendering)
-- [CSS Triggers](https://csstriggers.com/) - Qaysi CSS property qanday trigger qiladi
+Browser Internals bo'limi bo'yicha yakuniy xulosa:
+
+| Bosqich / Muammo | Nima sodir bo'ladi? | Qanday hal qilinadi (Yechim)? |
+| --- | --- | --- |
+| **Initial Load (FCP / LCP)** | Sahifa yuklanishining kechikishi (Oq ekran) | Critical CSS inline qilish, JS fayllarni defer yuklash, fontlarni preload qilish |
+| **Layout Thrashing** | Kodda ketma-ket read/write amallarini bajarish | Read va Write amallarini guruhlash, `requestAnimationFrame` ishlatish |
+| **Animation Jank (Qotish)** | Animatsiyada o'lchamlarni (top, left) o'zgartirish | Animatsiyalarni faqat `transform` va `opacity` yordamida GPU-ga o'tkazish |
+
+**Eslatma:** Har doim veb-saytingizni past darajadagi mobil qurilmalar va zaif tarmoq sharoitlarida ham (Chrome DevTools Performance & Network Throttling orqali) test qilib ko'ring. Saytning chinakam sifati eng yomon tarmoq sharoitida qanday ishlashi bilan o'lchanadi.

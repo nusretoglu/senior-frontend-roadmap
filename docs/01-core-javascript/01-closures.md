@@ -2,9 +2,41 @@
 
 ## Nazariya
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturlash tillarida odatda funksiya o'z ishini tugatgach, uning ichidagi barcha o'zgaruvchilar xotiradan o'chirib yuboriladi (Garbage Collection). Lekin JavaScript'da Closure (Yopilish) xususiyati tufayli funksiyalar "o'zining eski uyini va undagi narsalarni" hech qachon unutmaydi. React'dagi `useState`, lodash'dagi `debounce`, API'larda xavfsizlik (Data Privacy) — bularning barchasi aynan Closure ustiga qurilgan. Uni tushunmaslik "stale closure" (eski qotib qolgan qiymat) kabi soatlab vaqtni oladigan bug'larga olib keladi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Sohil bo'yidagi Choyxona va Surati"**  
+> Tasavvur qiling siz yoshligingizda bir qishloqda yashagansiz. U qishloqda bitta chiroyli "Choyxona" bor edi. Siz o'sha paytda u yerda suratga (funksiya) tushdingiz. Yillar o'tib qishloqdan katta shaharga ko'chib keldingiz. 
+> Endi qishloqqa qaytib bormasangiz ham, qo'lingizdagi o'sha suratga qarab, fondagi "Choyxona"ni qayerda bo'lishingizdan qat'iy nazar eslay olasiz va ko'ra olasiz. 
+> JavaScript funksiyalari ham shunday — ular qayerda yaratilgan bo'lsa (qishloq/outer function), o'sha yerdagi o'zgaruvchilarni (choyxona/variables) sumkasiga solib oladi va uni boshqa joyga (boshqa scope) olib ketsangiz ham eslab qolaveradi.
+
 ### Closure Nima?
 
 Closure — bu funksiya o'zining leksik muhitini (lexical environment) "eslab qoladigan" mexanizm. Boshqacha aytganda, funksiya yaratilgan joyidagi o'zgaruvchilarga keyinchalik ham murojaat qila oladi.
+
+```mermaid
+graph TD
+    subgraph Global [Global Scope]
+        G[const a = 10]
+        
+        subgraph Outer [Outer Function Scope]
+            O[const b = 20]
+            
+            subgraph Inner [Inner Function Scope]
+                I[return a + b]
+            end
+        end
+    end
+
+    I -->|Lexical Link orqali topadi| O
+    O -->|Lexical Link orqali topadi| G
+
+    style Global fill:#f5f5f5,stroke:#9e9e9e
+    style Outer fill:#e3f2fd,stroke:#1565c0
+    style Inner fill:#e8f5e9,stroke:#2e7d32
+```
 
 ```javascript
 function outer() {
@@ -701,3 +733,9 @@ async function fetchAllUsersSafe(ids) {
   return results;
 }
 ```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Xotirani tozalash (Memory Management):** Katta obyektlarni (DOM elementlari, massivlar) closure ichida keragidan ortiq ushlab turmang. Ularning ishi tugagach `null` ga tenglashtiring, aks holda *Memory Leak* (Xotira sizib chiqishi) yuz beradi.
+2. **Global o'zgaruvchilar o'rniga Closure:** Agar sizga funksiya chaqirilish sonini sanovchi yoki holatni saqlovchi o'zgaruvchi kerak bo'lsa, uni `window` (global) ga yozmang. Tashqi funksiya ochib, closure ichida saqlang (Xavfsizlik).
+3. **Loop'lar va Closure:** `for` tsikli ichida closure ishlatishda doim `let` ishlating. `var` ishlatsangiz, barcha iteratsiyalar eng oxirgi qiymatni ko'rib qoladi.

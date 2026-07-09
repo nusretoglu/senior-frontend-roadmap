@@ -1,50 +1,49 @@
 # Vite vs Webpack
 
-Modern frontend development uchun build toollar performance va developer experience'ning asosiy qismini tashkil qiladi. Bu bo'limda Vite va Webpack'ni chuqur solishtiramiz.
+## Kirish
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturchi har safar bitta kodni o'zgartirganda natijani ko'rish uchun 10-20 soniya kutishi asabni buzadi va unumdorlikni tushiradi. Oldinlari Webpack barcha fayllarni bitta qilib yig'gandan keyingina (Bundle) brauzerga berardi. Zamonaviy Vite esa kodni hech qanaqa yig'masdan (No-bundle), shunchaki ES Modul sifatida brauzerning o'ziga berib yuboradi. Natijada loyiha qanchalik katta bo'lmasin, kod yozilganda natija soniyaning mingdan bir ulushida (HMR) yangilanadi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Restoranda ovqat tayyorlash"**  
+> - **Webpack (Eski usul):** Siz 5 xil ovqat buyurdingiz. Oshpaz 5 ta ovqatning hammasini to'liq pishirib, katta laganga solib hammasini birdaniga stolingizga olib keladi. Bitta ovqat retseptini o'zgartirsangiz, hammasini boshqatdan pishiradi. (Barchasini bundle qilish).
+> - **Vite (Yangi usul):** Siz menyuni ko'rib turibsiz. Siz qaysi ovqatni so'rasangiz, oshpaz faqat o'shani pishirib olib keladi (On-demand). Siz boshqasini xohlasangiz, tezda o'shani o'zini tayyorlaydi. Hamma narsani boshidan pishirib o'tirmaydi.
 
 ## Nazariya
 
 ### Build Tools Evolyutsiyasi
 
-```
-2012: Grunt (task runner)
-2014: Gulp (streaming)
-2014: Webpack 1 (bundler)
-2019: Webpack 5 (optimized)
-2020: Vite (ESM-based)
-2021: Turbopack (Rust)
+| Yil | Asbob (Tool) | Asosiy funksiyasi |
+| --- | --- | --- |
+| **2012** | Grunt | Vazifalarni bajaruvchi (Task runner) |
+| **2014** | Gulp | Oqim bilan ishlovchi (Streaming) |
+| **2014** | Webpack 1 | Fayllarni yig'uvchi (Bundler) |
+| **2019** | Webpack 5 | Optimallashtirilgan Bundler |
+| **2020** | **Vite** | ES Module ga asoslangan (No-bundle dev) |
+| **2021** | Turbopack | Rust tilida yozilgan Webpack vorisi |
+
+### Asosiy Farqlar (Qanday ishlaydi?)
+
+```mermaid
+graph TD
+    subgraph Webpack_Usuli [Webpack: Barchasini Yig'ish]
+        W1[Kod fayllari] --> W2[Barchasini o'qish, tahlil qilish, yig'ish]
+        W2 --> W3[1-2 ta Katta Bundle]
+        W3 --> W4[Brauzerga berish]
+    end
+    
+    subgraph Vite_Usuli [Vite: So'rovga qarab berish]
+        V1[Kod fayllari] -->|Brauzer so'raganda| V2[Native ESM orqali berish]
+        V2 --> V3[Brauzer (On-demand)]
+    end
+    
+    style Webpack_Usuli fill:#ffebee,stroke:#c62828
+    style Vite_Usuli fill:#e8f5e9,stroke:#2e7d32
 ```
 
-### Asosiy Farqlar
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    WEBPACK                                  │
-│                                                             │
-│  Source Files                                               │
-│       ↓                                                     │
-│  Bundle ALL (scan, parse, transform, concatenate)           │
-│       ↓                                                     │
-│  Single/Split Bundles → Browser                             │
-│                                                             │
-│  Dev: 30s-2min cold start (large project)                   │
-│  HMR: 1-5s                                                  │
-└─────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────┐
-│                    VITE                                     │
-│                                                             │
-│  Source Files                                               │
-│       ↓                                                     │
-│  Dev: Native ESM (no bundle!)                               │
-│  Browser requests → Vite transforms on-demand               │
-│                                                             │
-│  Prod: Rollup bundle (optimized)                            │
-│                                                             │
-│  Dev: <1s cold start                                        │
-│  HMR: <50ms                                                 │
-└─────────────────────────────────────────────────────────────┘
-```
+**Natijada:** Webpack da dev server ishga tushishi 1-2 daqiqa olsa, Vite da bu 1 soniyadan ham kam vaqt oladi. HMR (Hot Module Replacement) Vite da bir zumda ishlaydi.
 
 ## Vite
 
@@ -984,22 +983,30 @@ module.exports = {
 };
 ```
 
+---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Yangi loyihalar uchun VITE dan foydalaning:** Bugungi kunda (2024+) Vue 3 yoki React uchun yangi loyiha boshlayotgan bo'lsangiz, ikkilanmasdan Vite ni tanlang. Uning tezligi komandangizning vaqtini 10 barobarga tejaydi.
+2. **Eski Webpack loyihalarni migratsiya qilmang (agar zarurat bo'lmasa):** Webpack da 3 yildan beri ishlab kelayotgan, minglab plaginlar ulangan juda katta (Legacy) loyihangiz bo'lsa, uni Vite ga ko'chirish katta azob bo'lishi mumkin. Bunday hollarda yaxshisi Webpack ni o'zini optimallashtiring.
+3. **Module Federation (Micro-frontend) uchun Webpack/Rspack:** Garchand Vite qulay bo'lsa ham, murakkab micro-frontend arxitekturasida hamon Webpack 5 ning Module Federation ekotizimi barqarorroq. Ammo hozirda Rust da yozilgan Rspack ham yaxshi muqobil bo'lmoqda.
+
 ## Xulosa
 
-Build tool tanlash:
+Build tool tanlash bo'yicha yakuniy taqqoslash:
 
 | Kriteriya | Vite | Webpack |
 |-----------|------|---------|
-| Dev Speed | Excellent | Good |
-| HMR | Instant | Fast |
-| Build Speed | Fast | Good |
-| Ecosystem | Growing | Mature |
-| Config | Simple | Complex |
-| Legacy Support | Limited | Full |
-| Learning Curve | Easy | Steep |
+| **Dasturchi tezligi (Dev Speed)** | Ajoyib (Soniyadan kam) | Yaxshi (Sekinroq) |
+| **Kodni yangilash (HMR)** | Lahzada (Instant) | Tez, ammo loyiha kattalashsa qotadi |
+| **Production Build** | Tez (Rollup) | Yaxshi |
+| **Ekotizim** | O'sib bormoqda | Eng yetuk va katta |
+| **Sozlamalar (Config)** | Oddiy, qisqa | Murakkab, uzun |
+| **Legacy Brauzerlar** | Cheklangan | To'liq qo'llab-quvvatlaydi |
+| **O'rganish qiyinligi** | Oson | Qiyin |
 
-**Tavsiya:**
-- Yangi loyihalar: **Vite**
-- Legacy maintenance: **Webpack**
-- Micro-frontends: **Webpack (Module Federation)**
-- SSR frameworks: **Framework-specific (Nuxt, Next)**
+**Qachon qaysi birini tanlash kerak?**
+- Yangi Vue/React loyihalar (SPA): **Vite**
+- Legacy (eski) loyihalar maintenance qismi: **Webpack**
+- Micro-frontends arxitekturasi: **Webpack (yoki Rspack)**
+- SSR frameworklar: **Ularning o'zining ichidagi tool (masalan, Nuxt Nitro, Next.js Turbopack)**

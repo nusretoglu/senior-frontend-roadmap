@@ -2,11 +2,35 @@
 
 ## Kirish
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturlashning Oltin Qoidasi - **DRY (Don't Repeat Yourself)**. Agar bitta funksionallik (masalan modal oynani ochish yopish) loyihaning 10 xil joyida kerak bo'lsa, siz uni 10 marta yozmaysiz. Vue 2 da bu muammo "Mixins" orqali hal qilingan edi, lekin u kodni chalkashlashtirardi (Nima qayerdan kelayotgani noma'lum edi). Composables — bu sizning mantiq (logic) ni qutiga solib, istalgan joyda toza import qilib ishlata olishingiz uchun eng mukammal yechimdir.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Pazanda va Retsept"**  
+> Agar siz har safar osh qilmoqchi bo'lsangiz, avval guruch yetishtirishni, sabzi ekishni o'rganmaysiz. Siz shunchaki tayyor "Osh Retsepti" ni olasiz.  
+> Composable ham xuddi shunday "Retsept". Bir dasturchi `usePagination()` degan retseptni yozib qo'yadi. Endi loyihadagi 15 ta jadvalni (table) sahifalash uchun hech kim kodni boshidan yozmaydi, shunchaki `const { page, nextPage } = usePagination()` qilib retseptni ishlatib ketaveradi.
+
 Composables - Vue 3 Composition API yordamida yaratilgan qayta ishlatiluvchi mantiq funksiyalari. Ular Options API'dagi mixins muammolarini hal qiladi va kod organizatsiyasini yaxshilaydi.
 
 ## Asosiy Tushuncha
 
 ### Composable Nima?
+
+```mermaid
+graph LR
+    subgraph Composable [useFetch.js]
+        State[Reaktiv Holat<br/>data, error, loading]
+        Logic[Mantiq<br/>fetch(), abort()]
+        Life[Lifecycle<br/>onMounted]
+    end
+    
+    Comp1[Komponent 1] -->|import useFetch| Composable
+    Comp2[Komponent 2] -->|import useFetch| Composable
+    Comp3[Komponent 3] -->|import useFetch| Composable
+    
+    style Composable fill:#e3f2fd,stroke:#1565c0
+```
 
 ```javascript
 // composables/useMouse.js
@@ -1084,6 +1108,12 @@ Composable xususiyatlari:
 - Reactive state (`ref`, `reactive`)
 - Lifecycle hooks (`onMounted`, etc.)
 - Vue context (`inject`, `provide`)
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **"use" bilan boshlang:** Har doim fayl va funksiya nomini `use` so'zi bilan boshlang (`useMouse`, `useFetch`). Bu React Hooks'dan qolgan global standartdir.
+2. **VueUse kutubxonasi:** O'zingiz `useWindowScroll` yoki `useLocalStorage` yozishga shoshilmang. Vue hamjamiyatida 200+ tayyor composables yig'ilgan eng zo'r **VueUse** kutubxonasi bor. Avval shuni tekshiring!
+3. **Parametrlarda moslashuvchanlik:** Composable argument sifatida ham oddiy qiymat, ham `ref` qabul qila olishi kerak. Buning uchun argumentni ichkarida `toValue()` orqali o'qib oling.
 
 ---
 

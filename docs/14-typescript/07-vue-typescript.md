@@ -15,6 +15,17 @@
 11. [Interview Savollari](#interview-savollari)
 12. [Common Mistakes](#common-mistakes)
 
+## Kirish
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Vue 2 da TypeScript bilan ishlash judayam azob edi (Class-based components, Decoratorlar). Vue 3 (Composition API va `<script setup>`) esa boshidan TypeScript bilan a'lo darajada ishlashga moslab yozilgan. Vue dasturchisi sifatida bugungi kunda TS bilmaslik katta kompaniyalarga ishga kirishingizda juda jiddiy to'siq bo'ladi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Restoran Oshxonasi"**  
+> **Vue 2 (TS siz):** Oshpazga istalgan narsani (string, number, array) "Buyurtma" (Prop) qilib berib yuborish mumkin edi, ovqat pishmagunicha u yaroqsiz mahsulot ekanini bilmasdi.
+> **Vue 3 (TS bilan):** Oshpazning oldida qattiq nazoratchi (TS) turadi. Siz menyuda faqat "2 ta butun tuxum" (number tipidagi, qat'iy Prop) kiritishingiz mumkin, agar "2 litr tuxum" desangiz, nazoratchi buyurtmani oshxonaga o'tkazmaydi (Compile xato beradi).
+
 ---
 
 ## Setup va Configuration
@@ -1889,6 +1900,12 @@ function handleInput(e: Event): void {
   <input @input="handleInput" />
 </template>
 ```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Interfeyslarni ajrating (Types fayllari)**: Katta loyihalarda barcha tiplarni har bir `.vue` fayli ichida yozavermang. Ularni alohida `types/user.ts` kabi fayllarga ajratib, kerakli joyda import qiling (`import type { User } from '@/types/user'`).
+2. **`Ref` emas, Type Argument `ref<T>` ishlating**: O'zgaruvchini tipini yozganda `const count: Ref<number> = ref(0)` yozish uzoq. Vue type inference dan foydalaning va shunchaki `const count = ref<number>(0)` ishlating.
+3. **Reactive o'rniga Ref ishlatishga intiling**: TS bilan ishlaganda `reactive` ning tiplari va reaktivligi buzilib qolish ehtimoli (masalan, destructuring qilinganda) ko'p. `ref` esa `value` xossasi orqali har doim xavfsiz o'qiladi va tipini yaxshi saqlaydi.
 
 ---
 

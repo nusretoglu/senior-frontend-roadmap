@@ -2,32 +2,27 @@
 
 ## Kirish
 
-Polling - bu client'ning server'dan ma'lumotlarni muntazam so'rab turishi. WebSocket yoki SSE mavjud bo'lmagan yoki mos kelmaydigan holatlarda fallback sifatida ishlatiladi. To'g'ri implement qilingan polling samarali va ishonchli bo'lishi mumkin.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturchilar real-time (jonli) ma'lumotlar bilan ishlaganda ko'pincha darhol WebSocket yoki SSE ga yugurishadi. Biroq, ba'zida server infratuzilmasi bunga mos kelmaydi (masalan, serverless/AWS Lambda serverlarida doimiy ochiq connection ushlab turish qimmat va cheklangan). Shunday paytda an'anaviy, ammo aqlli tarzda yozilgan **Polling (Muntazam So'rov yuborish)** eng yaxshi yechimga aylanadi. Polling turlarini va ularni qanday to'g'ri boshqarishni bilish — loyiha sharoitiga qarab eng to'g'ri texnologik qarorni qabul qilish imkonini beradi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Sayohatdagi Bola va Ota (Short vs Long Polling)"**  
+> Tasavvur qiling, mashinada sayohatga ketyapsiz va orqada bola (Kliyent) o'tiribdi.  
+> - **Short Polling:** Bola har 5 daqiqada "Yetib keldikmi?" deb so'raydi (Request). Ota (Server) darhol "Yo'q" deb javob beradi (Response). Bola 5 daqiqa kutadi va yana so'raydi. Bu otaning asabini buzadi (Server yuki juda yuqori).
+> - **Long Polling:** Bola so'raydi: "Yetib keldikmi?". Ota darhol javob bermaydi. U jim ketadi (Request held on). Qachonki rostdan ham manzilga yetib kelgandagina (Data ready) ota "Ha, yetib keldik!" deb javob beradi. Bola javobni olib, yana yangi so'rov beradi.
+
+---
 
 ## Polling Turlari
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                         POLLING SPECTRUM                                 │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│  Short Polling          Long Polling           Adaptive Polling         │
-│  ─────────────          ────────────           ────────────────         │
-│                                                                          │
-│  Client: Request        Client: Request        Client: Request          │
-│  Server: Immediate      Server: Wait for       Server: Based on         │
-│          response               data                   activity         │
-│                                                                          │
-│  Fixed interval         Hold until data        Dynamic interval         │
-│  High overhead          Lower overhead         Optimized overhead       │
-│  Simple                 More complex           Most complex             │
-│                                                                          │
-│  ──────────────────────────────────────────────────────────────────────►│
-│  High latency                                              Low latency   │
-│  High resource usage                              Low resource usage     │
-│                                                                          │
-└─────────────────────────────────────────────────────────────────────────┘
-```
+### Polling Spektri (Turlari)
+
+| Turi | Ishlash prinsipi | Afzalligi | Kamchiligi |
+| --- | --- | --- | --- |
+| **Short Polling** | Belgilangan qat'iy intervalda so'rov berish | Oddiy, oson yoziladi | Serverga yuklama va tarmoq trafigi yuqori |
+| **Long Polling** | Server ma'lumot tayyor bo'lguncha ulanishni ushlab turadi | Latency (kechikish) kamroq, so'rovlar kamayadi | Server resurslarini band qiladi (Connection timeoutlar) |
+| **Adaptive Polling**| Foydalanuvchi faolligiga qarab interval o'zgaradi | Maksimal resurs tejamkorligi | Kod arxitekturasi murakkab |
 
 ## Short Polling
 
@@ -35,22 +30,19 @@ Polling - bu client'ning server'dan ma'lumotlarni muntazam so'rab turishi. WebSo
 
 Client belgilangan interval bilan server'ga so'rov yuboradi:
 
-```
-Client                              Server
-  │                                    │
-  │────── GET /api/data ──────────────►│
-  │◄───── Response (empty) ────────────│
-  │                                    │
-  │ wait(5000ms)                       │
-  │                                    │
-  │────── GET /api/data ──────────────►│
-  │◄───── Response (empty) ────────────│
-  │                                    │
-  │ wait(5000ms)                       │
-  │                                    │
-  │────── GET /api/data ──────────────►│
-  │◄───── Response {data} ─────────────│
-  │                                    │
+```mermaid
+sequenceDiagram
+    participant Client as Kliyent
+    participant Server as Server
+    
+    Client->>Server: 1. GET /api/data (So'rov)
+    Server-->>Client: 2. Response (Hozircha bo'sh)
+    Note over Client: 5 soniya kutadi (Fixed interval)
+    Client->>Server: 3. GET /api/data (Yangi So'rov)
+    Server-->>Client: 4. Response (Hozircha bo'sh)
+    Note over Client: 5 soniya kutadi
+    Client->>Server: 5. GET /api/data
+    Server-->>Client: 6. Response {data: "Yangi yangiliklar!"}
 ```
 
 ### Implementation
@@ -1230,16 +1222,22 @@ document.addEventListener('visibilitychange', () => {
 });
 ```
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Visibility API dan majburiy foydalaning:** Foydalanuvchi sahifangizni yopib, boshqa tabda ishlayotgan bo'lsa (yoki kompyuterni tark etgan bo'lsa), pollingni butunlay to'xtating (yoki intervalni 1 daqiqa qilib qo'ying). Buning uchun brauzerning `document.visibilityState` hodisasini kuzatib boring. Bu bekorchi server so'rovlarini 80% gacha kamaytiradi.
+2. **Interval o'rniga setTimeout ishlating:** Hech qachon polling uchun `setInterval` ishlatmang. Sababi, agar tarmoq sekinlashib so'rov 10 soniya javob bermasa, `setInterval` baribir har 3 soniyada yangi so'rov yuboraveradi va natijada so'rovlar navbatga (race conditions) to'planib qoladi. Har doim avvalgi so'rov javobi (`resolve` yoki `reject`) kelgandan keyingina yangi `setTimeout` chaqiring (Recursive setTimeout).
+3. **Race Conditionlarni bekor qiling:** Yangi so'rov yuborishdan oldin, agar oldingi so'rov hali yakunlanmagan bo'lsa, `AbortController` yordamida uni bekor qilib yuboring.
+
+---
+
 ## Xulosa
 
-Polling - oddiy va universal yechim bo'lsa ham, to'g'ri implement qilish muhim:
+Polling Strategies bo'yicha yakuniy xulosa:
 
-1. **Interval optimization:** Adaptive/exponential backoff
-2. **Error handling:** Retry logic bilan
-3. **Resource efficiency:** Visibility-aware, cleanup
-4. **Race condition:** AbortController, sequential execution
-5. **Fallback:** WebSocket/SSE ishlamasa
-
-Production'da polling'ni WebSocket/SSE bilan fallback sifatida ishlatish eng yaxshi amaliyot.
+| Strategiya | Qachon ishlatiladi? | Tarmoq yuki | Murakkabligi |
+| --- | --- | --- | --- |
+| **Short Polling** | Fallback yoki oddiy, juda kam yangilanadigan datalar uchun | 🔴 Juda yuqori |  Juda oson |
+| **Long Polling** | WebSocket/SSE qo'llab-quvvatlamaydigan serverless loyihalarda |  O'rtacha |  O'rtacha |
+| **Adaptive Polling**| Foydalanuvchi faolligiga qarab dynamic o'zgaruvchi panellarda | 🟢 Kam |  Murakkab |
 
 Keyingi bo'lim: [Reconnect Strategies](./04-reconnect-strategies.md)

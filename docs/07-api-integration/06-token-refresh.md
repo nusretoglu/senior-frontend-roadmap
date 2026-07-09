@@ -2,9 +2,36 @@
 
 ## Kirish
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Xavfsizlik qoidalariga ko'ra, "Access Token" (ruxsatnoma) juda qisqa muddatli bo'lishi kerak. Ammo har safar u muddati o'tganda foydalanuvchidan qayta login qilishni so'rash UX ni butunlay buzadi. Shuning uchun orqa fonda sezdirmasdan "Refresh Token" orqali yangi ruxsatnoma olib kelish mexanizmini to'g'ri qurish kerak bo'ladi. Agar sizda race condition'lar (bir vaqtda 5 ta request API ga borib hammasi birdan refresh so'rashi) hal etilmagan bo'lsa, backend bloklanib qoladi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Mehmonxona Kaliti"**  
+> Tasavvur qiling siz mehmonxonadasiz.
+> **Access Token:** Bu sizga xonaga kirish uchun berilgan va atigi 1 soat ishlashga dasturlangan karta. Yo'qotib qo'ysangiz ham o'g'ri faqatgina 1 soat ichidagina kira oladi.
+> **Refresh Token:** Bu sizning shaxsni tasdiqlovchi pasportingiz (HttpOnly cookie). Karta vaqti tugasa, resepshnga (Server) borib pasportni ko'rsatasiz va ular sizga yana 1 soatlik yangi karta berishadi. Bu ishni siz o'zingiz sezmagan holda qilishni "Silent Refresh" deyiladi.
+
 Zamonaviy web ilovalar JWT (JSON Web Token) yoki shunga o'xshash token-based authentication ishlatadi. Access token'lar qisqa muddatli (15 daqiqa - 1 soat), refresh token'lar esa uzoq muddatli (7-30 kun). Token refresh - foydalanuvchi tajribasini buzmasdan authentication'ni davom ettirish mexanizmi.
 
-## Token Types va Lifecycle
+```mermaid
+sequenceDiagram
+    participant UI as Foydalanuvchi UI
+    participant I as API Interceptor
+    participant S as Server
+    
+    UI->>I: Request (Access Token bilan)
+    I->>S: Request yuborish
+    S-->>I: 401 Unauthorized (Token eskirgan)
+    
+    Note over I: Barcha keyingi requestlarni<br/>kutish rejimiga o'tkazish
+    I->>S: Yangi Token so'rash (Refresh Token bilan)
+    S-->>I: Yangi Access Token qaytardi
+    Note over I: Kutib turgan requestlarni<br/>yangi token bilan davom ettirish
+    I->>S: Original Request (Yangi Token bilan)
+    S-->>I: 200 OK (Muvaffaqiyatli)
+    I-->>UI: Natijani qaytarish
+```
 
 ### Access Token vs Refresh Token
 
@@ -1134,6 +1161,15 @@ channel.onmessage = (event) => {
 // - User hech qachon 401 ko'rmaydi
 // - Smoother UX
 ```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Memory'da saqlash xavfsizroq**: Xavfsizlik jihatidan eng to'g'ri arxitektura: Access Token'ni frontend xotirasida (variable/state sifatida), Refresh Token'ni esa brauzerning `HttpOnly, Secure` cookielarida saqlash. `localStorage` - XSS hujumlariga juda ham zaif.
+2. **Race condition oldini olish**: Qachonki bitta API xatoga uchrab refresh'ga ketsa, aynan shu daqiqada kutilayotgan boshqa 10 ta API ham aynan shu narsani qilmasligi kerak. Token refresh jarayoni faqat bitta bo'lishi va qolgan API lar o'sha bitta jarayon yakunini kutib turishlari (Promise queue) shart.
+3. **Proactive refresh'ni sinab ko'ring**: 401 (Unauthorized) xatosini kutishdan ko'ra, Token'ni o'qib uning vaqti tugashiga 1-2 daqiqa qolganda setInterval yordamida orqa fonda yangilab qo'yish (Proactive refresh) dastur ishlash tezligini ancha yaxshilaydi.
+4. **Tablar o'rtasida muvofiqlik**: Foydalanuvchi bitta tab'da login yoki logout qilsa, ochiq turgan qolgan tab'larda ham ayni shu operatsiyani yuzaga keltirish uchun `BroadcastChannel` dan foydalaning.
+
+---
 
 ## Xulosa
 

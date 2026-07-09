@@ -1,6 +1,19 @@
 # Realtime Systems
 
-Bu bo'lim real vaqtda ishlash texnologiyalarini chuqur o'rganishga bag'ishlangan. WebSocket, Server-Sent Events, polling strategiyalari va production-ready realtime tizimlar yaratish bo'yicha senior darajadagi bilimlarni o'z ichiga oladi.
+## Kirish
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Bugungi kunda foydalanuvchilar veb-saytda sahifani yangilamasdan (refresh qilmasdan) turib ma'lumotlar jonli ravishda yangilanib turishini kutiladi. Chatlardagi xabarlar, taksi buyurtmasidagi mashina harakati, birjadagi aksiyalar narxi — barchasi soniyaning milliy ulushlarida uzatiladi. **Realtime Systems (Real-vaqt tizimlari)** bo'limida siz ushbu jonli aloqani ta'minlovchi barcha usullar va ularning qachon qaysi birini tanlash bo'yicha senior darajadagi qaror qabul qilish ko'nikmasiga ega bo'lasiz.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Axborot yetkazish usullari"**  
+> - **Polling (Muntazam so'rash):** Har 5 soniyada borib do'stingizdan "Yangi xat bormi?" deb so'rash.
+> - **SSE (Stream):** Radio eshitish (Server faqat gapiradi, siz faqat eshitasiz).
+> - **WebSocket (Doimiy aloqa):** Telefon qo'ng'irog'i (Ikkala tomon ham xohlagan vaqtda darhol gaplasha oladi).
+> - **WebRTC (Peer-to-peer):** Ikki kishining yuzma-yuz o'tirib gaplashishi (Server aralashmasdan to'g'ridan-to'g'ri aloqa).
+
+---
 
 ## Bo'lim Tarkibi
 
@@ -16,23 +29,20 @@ Bu bo'lim real vaqtda ishlash texnologiyalarini chuqur o'rganishga bag'ishlangan
 
 ## Realtime Texnologiyalar Taqqoslash
 
+### Realtime Texnologiyalar Spektri
+
+```mermaid
+graph LR
+    A[Polling <br/> HTTP Request/Response] --> B[SSE <br/> Server-to-Client Stream]
+    B --> C[WebSocket <br/> Bi-directional Full-Duplex]
+    C --> D[WebRTC <br/> Peer-to-Peer Media/Data]
+    
+    style A fill:#ffebee,stroke:#c62828
+    style B fill:#fff3e0,stroke:#e65100
+    style C fill:#e8f5e9,stroke:#2e7d32
+    style D fill:#f3e5f5,stroke:#7b1fa2
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                    REALTIME COMMUNICATION SPECTRUM                       │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│  Polling          SSE              WebSocket         WebRTC             │
-│  ───────          ───              ─────────         ──────             │
-│  Request/         Server →         Bi-directional    Peer-to-peer       │
-│  Response         Client           Full-duplex       Media streams      │
-│                                                                          │
-│  ◄────────────────────────────────────────────────────────────────────► │
-│  Simple                                                        Complex   │
-│  High latency                                              Low latency   │
-│  HTTP overhead                                           Minimal overhead│
-│                                                                          │
-└─────────────────────────────────────────────────────────────────────────┘
-```
+*Tepadan pastga qarab murakkablik ortadi, lekin kechikish (latency) va tarmoq yuki kamayadi.*
 
 ## Qachon Qaysi Texnologiyani Ishlatish?
 
@@ -262,4 +272,22 @@ Har bir faylda interview savollari mavjud. Asosiy mavzular:
 | GitHub | SSE | Action logs streaming |
 | Figma | WebSocket | Collaborative design |
 
-**Eslatma:** Kod misollarini browser console va Node.js'da ishlatib ko'ring. Production scenariolarda network conditions simulatsiya qiling (Chrome DevTools > Network > Throttling).
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **To'g'ri texnologiyani tanlang (Qaror Daraxti):** Agar sizga faqat serverdan keladigan data kerak bo'lsa, og'ir WebSocket yozib yurmang (SSE ishlating). Ikki tomonlama ma'lumot almashish (masalan chat) kerak bo'lsagina WebSocket ishlating.
+2. **Qayta ulanishlarni (Reconnection) aslo unutmang:** Internet har daqiqada uzilishi mumkin. Production loyihada doimo Exponential Backoff + Jitter strategiyasidan foydalanib reconnection mantiqini yozing.
+3. **Resurslarni tozalash (Cleanup):** Komponent o'chirilganda (destroy/unmount) barcha ochiq WebSocket ulanishlarini yoki EventSource tinglovchilarini tozalashni (`close()`) unutmang. Aks holda xotirada joy qolmaydi (Memory leaks).
+
+---
+
+## Xulosa
+
+Real-time tizimlar bo'yicha yakuniy taqqoslash:
+
+| Texnologiya | Ma'lumot yo'nalishi | Tarmoq yuki | Murakkabligi | Ishlatish sohasi |
+| --- | --- | --- | --- | --- |
+| **Polling** | Kliyent -> Server | 🔴 Juda yuqori |  Oson | Legacy tizimlar, sekin yangilanuvchi ma'lumotlar |
+| **SSE** | Server -> Kliyent | 🟢 Kam |  Oson | ChatGPT streaming, News feeds, Dashboard logs |
+| **WebSocket**| Kliyent <-> Server | 🟢 Juda kam | 🟡 O'rtacha | Chatlar, multiplayer o'yinlar, real-time collaboration |
+
+**Eslatma:** Kod misollarini brauzer konsoli va Node.js'da ishlatib ko'ring. Real loyihalarda har xil tarmoq sharoitlarini sinab ko'rish uchun Chrome DevTools > Network > Throttling sozlamalaridan foydalaning.

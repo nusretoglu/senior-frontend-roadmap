@@ -14,7 +14,27 @@
 
 ## TypeScript Nima?
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> JavaScript juda erkin til. Unda xato qilsangiz ham ishlab ketaveradi, to qachonki xaridor saytga kirib tugmani bosib saytni qulatib qo'ymagunicha. Katta jamoalarda kimdir yozgan funksiyaga yana kimdir nima ma'lumot jo'natishni bilmay soatlab vaqt yo'qotadi. TypeScript shunchaki "Tiplar qatlami" ni taqdim etadi va kodingiz noto'g'ri ishlashi mumkin bo'lgan holatlarni siz kod yozayotganingizdayoq tagiga qizil chizib ko'rsatadi. Bugungi kunda Front-End bo'yicha har qanday jiddiy loyiha faqat TypeScript da yozilmoqda.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Yo'l harakati qoidalari"**  
+> **JavaScript (Qoidasiz yo'l):** Har kim xohlagan tomonga yuradi, tezlik chegarasi yo'q. Erkinlik bor, lekin avariya bo'lish ehtimoli (Runtime Error) juda yuqori.
+> **TypeScript (Qoidali yo'l):** Chiziqlar, svetoforlar, va tezlikni o'lchovchi radarlar bor. Qoidalarga amal qilishingiz shart (Compile xatosi). Boshida qiyin va cheklovchi tuyulishi mumkin, lekin hamma mashinalar (Funksiyalar, Komponentlar) bir-biri bilan ishonchli va xavfsiz harakatlanadi.
+
 TypeScript - bu Microsoft tomonidan yaratilgan **statik tipli** JavaScript superset'i. U JavaScript'ga tip annotatsiyalari, interfeyslar, generics va boshqa kuchli xususiyatlarni qo'shadi.
+
+```mermaid
+graph LR
+    TS[TypeScript Kodi<br/>.ts / .vue] -->|Compile Time<br/>Tip tekshiruvi| C[TypeScript Compiler<br/>tsc]
+    C -->|Tip yozuvlarini o'chiradi| JS[Sof JavaScript<br/>.js]
+    JS -->|Runtime| B[Brauzer / Node.js]
+    
+    style TS fill:#e3f2fd,stroke:#1565c0
+    style C fill:#fff3e0,stroke:#e65100
+    style JS fill:#fff9c4,stroke:#fbc02d
+```
 
 ### Asosiy Afzalliklar
 
@@ -342,7 +362,7 @@ if (result.success) {
 
 ---
 
-## TypeScript Best Practices
+## TypeScript Eng Yaxshi Amaliyotlar (Best Practices)
 
 ### 1. Strict Mode Yoqing
 

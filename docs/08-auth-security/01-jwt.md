@@ -12,52 +12,51 @@
 
 ---
 
-## JWT Nima?
+## Kirish
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> HTTP protokoli tabiatan o'ziga xos xotirasiz (stateless) dir. Siz login qilganingizdan keyin "Mening sahifam" ga o'tsangiz, server sizni kimligingizni bilmaydi. Ilgari buning uchun Session ishlatilardi, lekin mikroservislar ko'paygani sari serverning o'zida har bir odamni saqlab turish (Session) qiyinlashib ketdi. Bunga yechim sifatida JWT keldi — server sizni tanib olishi uchun o'ziga narsalarni emas, shunchaki qo'lingizga muhrlangan bilet (Token) tutqazib yuboradi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Klubga kirish (Session vs JWT)"**  
+> - **Session (Klubdagi Ro'yxat):** Siz klubga bordingiz, qorovul passportingizni tekshirdi (Login) va ismingizni "Ichkaridagi mehmonlar ro'yxati" ga yozib qo'ydi. Siz har safar barga borsangiz ofitsiant borib qorovulning ro'yxatida bormisiz yo'qmi tekshirib kelishi kerak bo'ladi (Server Database). Odam ko'paysa ro'yxat katta bo'lib ketadi va tekshirish sekinlashadi.
+> - **JWT (VIP Braslet):** Siz klubga bordingiz, qorovul passportni ko'rib sizning qo'lingizga yechilmaydigan, gologrammali "VIP Braslet" (JWT) taqib qo'ydi. Endi istalgan bar yoki xonaga kirsangiz, ular shunchaki brasletga qarab sizni VIP ekaningizni bilishadi (Verify). Hech kim bazaga borib ro'yxat qidirmaydi (Stateless). Ammo, kimdir brasletingizni kesib olib o'ziga taqsa... muammo mana shunda!
+
+### JWT Nima?
 
 JWT (JSON Web Token) - bu kompakt, URL-safe token formati bo'lib, ikki tomon o'rtasida ma'lumotlarni xavfsiz uzatish uchun ishlatiladi.
 
 ### JWT Qachon Ishlatiladi?
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        JWT Use Cases                         │
-├─────────────────────────────────────────────────────────────┤
-│  1. Authentication    - Foydalanuvchi identifikatsiyasi     │
-│  2. Authorization     - API endpoint'larga ruxsat           │
-│  3. Information       - Tomon o'rtasida data exchange       │
-│     Exchange                                                 │
-│  4. Single Sign-On    - Bir marta login, ko'p servis        │
-│     (SSO)                                                    │
-└─────────────────────────────────────────────────────────────┘
-```
+1. Authentication - Foydalanuvchi identifikatsiyasi
+2. Authorization - API endpoint'larga ruxsat
+3. Information Exchange - Tomon o'rtasida data exchange
+4. Single Sign-On (SSO) - Bir marta login, ko'p servis
 
 ### Session vs JWT
 
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Server
+    participant SessionStore as Database (Session)
+    
+    Note over Client,SessionStore: Session-Based (Eski usul)
+    Client->>Server: 1. Login (Email/Pass)
+    Server->>SessionStore: 2. Session yaratish va saqlash
+    Server-->>Client: 3. Session ID (Cookie orqali) qaytarish
+    Client->>Server: 4. API so'rov + Cookie(SessionID)
+    Server->>SessionStore: 5. Session mavjudligini tekshirish
+    Server-->>Client: 6. Javob
+    
+    Note over Client,SessionStore: JWT-Based (Zamonaviy)
+    Client->>Server: 1. Login (Email/Pass)
+    Server-->>Client: 2. Signed JWT qaytarish (Hech narsa saqlanmaydi!)
+    Client->>Server: 3. API so'rov + Header(Bearer JWT)
+    Server->>Server: 4. JWT muhrini(Signature) tasdiqlash
+    Server-->>Client: 5. Javob
 ```
-Session-based:
-┌─────────┐         ┌─────────┐         ┌─────────┐
-│ Client  │ ──1──▶  │ Server  │ ──2──▶  │ Session │
-│         │ ◀──3──  │         │ ◀──4──  │  Store  │
-└─────────┘         └─────────┘         └─────────┘
-
-1. Login request
-2. Create session, store in DB/Redis
-3. Return session ID (cookie)
-4. Validate session on each request
-
-JWT-based:
-┌─────────┐         ┌─────────┐
-│ Client  │ ──1──▶  │ Server  │
-│         │ ◀──2──  │         │
-│         │ ──3──▶  │         │  (No session store needed)
-└─────────┘         └─────────┘
-
-1. Login request
-2. Return signed JWT
-3. Send JWT with each request (self-contained)
-```
-
----
 
 ## JWT Struktura
 
@@ -899,3 +898,18 @@ jwt.verify(token, publicKey, {
    - Access token expire bo'lganda - login kerak
 
 **Best practice:** Qisqa access token + refresh token rotation + server-side refresh token storage.
+
+---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Payload ni sir saqlamang:** JWT bu shifr (encryption) qilingan ma'lumot emas, balki shunchaki Base64 da olingan tekst. Barcha (Hatto hujumchi ham) uning ichini o'qiy oladi. Shuning uchun token ichiga parol, kredit karta kabi ma'lumotlarni ASLO yozmang.
+2. **Access/Refresh Token ajrating:** Access token 15-30 daqiqa yashaydigan (short-lived) qilib ishlating va xavfsiz bo'lishi uchun faqat memory'da ushlang. Uni yangilab beruvchi Refresh Token ni uzoq vaqt yashaydigan (long-lived) qilib, brauzerdagi HTTPOnly Secure Cookie da saqlang.
+3. **Secret Key (Maxfiy so'z):** Serverda tokenlarni tasdiqlovchi "Secret Key" uzun va xavfsiz (masalan, UUID yoki 256-bitli string) bo'lishi kerak. Github ga uni qo'shib yuborishdan judayam ehtiyot bo'ling.
+4. **Chiqish (Logout):** Backend da logout ni qilish JWT da imkonsiz, shuning uchun Frontend tomonidan JWT ni o'chirib yuborish eng zo'r yechimdir.
+
+---
+
+## Xulosa
+
+JWT - zamonaviy web ilovalar, ayniqsa microservices arxitekturasi uchun ajoyib yechim. Ammo uni xavfsiz saqlash va Refresh Token mexanizmi bilan ishlash muhim. XSS hujumlariga qarshi local storage ishlatishdan qoching!

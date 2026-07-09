@@ -12,6 +12,18 @@
 
 ---
 
+## Kirish
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Agar bitta saytdan (masalan `my-shop.com`) o'tirib boshqa bir saytning serveriga (masalan `bank-api.com`) to'g'ridan-to'g'ri so'rov yuborish hammaga ruxsat etilganida, internetdagi barcha pullar o'g'irlab ketilgan bo'lardi. CORS va SOP aynan shu narsani bloklash va himoya qilish uchun o'ylab topilgan brauzer qoidalari. Buning ishlashini tushunmaslik front-end dasturchilar eng ko'p duch keladigan "CORS Error" muammolariga olib keladi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Qo'shni davlatga vizasiz kirish"**  
+> Tasavvur qiling, har bir Origin (Domen) bu alohida bir Davlat. 
+> - **SOP (Same-Origin Policy):** Bu davlatning chegarasi. Siz o'z davlatingizda bemalol yura olasiz, lekin boshqa davlatga (boshqa domen API-ga) shunchaki o'tib keta olmaysiz. Chegarachilar (Brauzer) sizni o'tkazmaydi.
+> - **CORS (Cross-Origin Resource Sharing):** Bu sizning VIZAngiz. Boshqa davlat (API Server) o'ziga xos viza qoidalarini (CORS Headers) joriy qilishi mumkin: "Faqat A davlatdan (Origin) kelgan mehmonlarni kiritaman". Agar vizangiz bo'lsa (Server Origin'izni tasdiqlasa), Brauzer sizni u davlatga o'tkazadi.
+
 ## Same-Origin Policy
 
 ### Origin Nima?
@@ -247,45 +259,20 @@ fetch('https://api.com/data', {
 ```
 
 ### Preflight Flow
-
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                       Preflight Flow                                    │
-├────────────────────────────────────────────────────────────────────────┤
-│                                                                         │
-│  Browser                                              Server            │
-│     │                                                    │              │
-│     │  1. OPTIONS /api/data (Preflight)                  │              │
-│     │  ─────────────────────────────────────────────────▶│              │
-│     │  Origin: https://app.com                           │              │
-│     │  Access-Control-Request-Method: PUT                │              │
-│     │  Access-Control-Request-Headers: Content-Type      │              │
-│     │                                                    │              │
-│     │  2. Preflight Response                             │              │
-│     │  ◀─────────────────────────────────────────────────│              │
-│     │  Access-Control-Allow-Origin: https://app.com      │              │
-│     │  Access-Control-Allow-Methods: GET, PUT, DELETE    │              │
-│     │  Access-Control-Allow-Headers: Content-Type        │              │
-│     │  Access-Control-Max-Age: 86400                     │              │
-│     │                                                    │              │
-│     │  3. Browser validates preflight response           │              │
-│     │     ✅ Origin allowed                              │              │
-│     │     ✅ Method allowed                              │              │
-│     │     ✅ Headers allowed                             │              │
-│     │                                                    │              │
-│     │  4. Actual Request                                 │              │
-│     │  ─────────────────────────────────────────────────▶│              │
-│     │  PUT /api/data                                     │              │
-│     │  Origin: https://app.com                           │              │
-│     │  Content-Type: application/json                    │              │
-│     │  {"key": "value"}                                  │              │
-│     │                                                    │              │
-│     │  5. Actual Response                                │              │
-│     │  ◀─────────────────────────────────────────────────│              │
-│     │  Access-Control-Allow-Origin: https://app.com      │              │
-│     │  {"result": "success"}                             │              │
-│     │                                                    │              │
-└────────────────────────────────────────────────────────────────────────┘
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant Server
+    
+    Note over Browser,Server: Preflight (OPTIONS) So'rovi
+    Browser->>Server: 1. OPTIONS /api/data<br/>Origin: https://app.com<br/>Method: PUT
+    Server-->>Browser: 2. 200 OK<br/>Access-Control-Allow-Origin: https://app.com<br/>Access-Control-Allow-Methods: PUT
+    
+    Note over Browser: 3. Browser tekshiradi: Ruxsat berildimi? ✅
+    
+    Note over Browser,Server: Asosiy (Actual) So'rov
+    Browser->>Server: 4. PUT /api/data
+    Server-->>Browser: 5. 200 OK<br/>Access-Control-Allow-Origin: https://app.com<br/>Data
 ```
 
 ---
@@ -953,3 +940,18 @@ fetch('https://vulnerable-api.com/user/data', {
 - Log blocked CORS requests
 - Alert on unusual origin patterns
 - Audit allowed origins periodically
+
+---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **`*` ishlata ko'rmang (Wildcard):** Serverda `Access-Control-Allow-Origin: *` qo'yish (hamma domenga ruxsat berish) eng katta xavfsizlik xatolaridan biridir, ayniqsa agar tizim credentials (cookie/token) ishlatsa. Haqiqiy originni aniq sanab o'ting (whitelist).
+2. **Preflight Keshlang:** OPTIONS so'rovlari tarmog'ni juda sekinlashtiradi. Uni har safar qayta-qayta yubormasligi uchun server tarafda `Access-Control-Max-Age` header ni uzoqroq vaqtga (masalan 24 soat) sozlab qo'ying.
+3. **Regex xatolari:** Backendda Origin'ni tekshirish uchun Regex yozayotganda, oxirini va boshini qat'iy belgilang (`^https:\/\/my-site\.com$`). Aks holda qaroqchi `https://my-site.com.attacker.com` kabi origin bilan tizimga kirib olishi mumkin.
+4. **Faqatgina Brauzerlar:** Esdan chiqarmangki, CORS faqat Brauzerlar uchun yozilgan xavfsizlik cheklovidir. Postman, Curl yoki boshqa backend serverlar CORS ga mutlaqo bepisandlik bilan qaraydi va u yerda error chiqmaydi.
+
+---
+
+## Xulosa
+
+CORS shunchaki ishlab chiquvchilarni qiynash uchun o'ylab topilmagan. U aslida foydalanuvchilar xavfsizligi va shaxsiy ma'lumotlar o'g'irlanmasligi uchun SOP ning qo'shimcha "viza" tizimidir. Uni to'g'ri ishlata bilish nafaqat frontend, balki backend uchun ham hayotiy ahamiyatga egadir.

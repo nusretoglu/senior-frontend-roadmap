@@ -19,6 +19,17 @@
 
 ## Type Narrowing Nima?
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturlashda ko'pincha sizga noma'lum tipdagi ma'lumotlar keladi (masalan, API'dan, Event'dan yoki ixtiyoriy funktsiya argumentidan). Dastur xavfsiz ishlashi uchun TypeScript sizdan "Iltimos, avval bu ma'lumot rostdan ham o'sha tipdami, tekshirib olgin" deb so'raydi. Type Narrowing (Tipni Toraytirish) — kengroq va mavhum tipni (masalan `string | number`), tekshiruvlar yordamida aniq bir tipga (`string` yoki `number`) aylantirib, undan xavfsiz foydalanish usulidir.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Bojxona tekshiruvi"**  
+> Bojxona darvozasiga kelgan har qanday odam "Yo'lovchi" degan katta (Union) tipga kiradi. Uning qo'lida pasporti va deklaratsiyasi bor. 
+> 1. Xodim so'raydi: "Pasportingizda O'zbekiston fuqarosi deyilganmi?" (Bu `typeof` yoki `in` kabi Type Guard).
+> 2. Agar "Ha" desa, xodim u bilan Mahalliy fuqaro (Aniq Tip) kabi muomala qiladi va viza haqida so'ramaydi (Narrowing).
+> 3. Agar "Yo'q" desa, avtomatik u Xorijlik ekani aniqlanadi va undan Viza talab qilinadi.
+
 Type narrowing - bu TypeScript'ning **tipni aniqroq qilish** jarayoni. Union type'dan aniq tipga o'tish.
 
 ### Muammo
@@ -1540,6 +1551,14 @@ function process2(value: string | number | boolean): void {
   }
 }
 ```
+
+---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Custom Type Guard'lardan foydalaning (`is`)**: Agar bitta tekshiruv kodini (`typeof x === 'object' && x !== null && 'id' in x`) har joyda yozaversangiz, kod xunuklashadi. Uni `function isUser(x: any): x is User` kabi alohida funksiyaga o'rang.
+2. **Discriminated Unions eng zo'ri**: React yoki Vue da turli UI holatlarini (loading, success, error) boshqarishda ularni bitta obyekt qilib yozmang. Alohida interfeyslar qilib, barchasiga umumiy `type: 'loading' | 'success'` kabi "qorovul maydon" (discriminant) qo'shing.
+3. **`in` operatorida ehtiyot bo'ling**: Obyekt ichida qandaydir maydon (property) borligini tekshirish uchun `if(user.email)` emas, `if('email' in user)` dan foydalaning. Chunki birinchisi `email: ''` (bo'sh string) yoki `0` bo'lsa falsy bo'lib ishlamay qoladi.
 
 ---
 

@@ -17,7 +17,30 @@
 
 ## Conditional Types
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturingiz qanchalik murakkablashgani sari, tiplar ham bir-biriga bog'liq bo'la boshlaydi. "Agar A tip kelsa B qaytsin, C kelsa D qaytsin" degan dinamik mantiqni yozish zarurati tug'iladi. Advanced Patterns (Conditional Types, Mapped Types, Template Literals) sizga faqatgina kod darajasida emas, balki **tip darajasida (Type-Level)** dasturlash imkonini beradi. Ular kutubxona (Library) yozuvchilar uchun eng asosiy quroldir.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Aqlli Zavod"**  
+> Oddiy zavod har doim bitta ishni qiladi: metall kirsa quvur yasaydi. 
+> "Aqlli Zavod" (Advanced Patterns) esa:
+> - Agar metall kirsa -> Quvur yasa (Conditional Type).
+> - Har bir kirgan materialni yaltiratib chiqar (Mapped Type).
+> - Kirgan material ustiga "Super" degan yozuv qo'shib chiqar (Template Literal Type).
+
 Conditional types - bu **tiplar uchun if-else** logikasi.
+
+```mermaid
+graph LR
+    Input[Kiruvchi Tip 'T'] --> Condition{T extends string?}
+    Condition -->|Ha| TrueBranch[true qaytaradi]
+    Condition -->|Yo'q| FalseBranch[false qaytaradi]
+    
+    style Condition fill:#ffe0b2,stroke:#f57c00
+    style TrueBranch fill:#c8e6c9,stroke:#388e3c
+    style FalseBranch fill:#ffcdd2,stroke:#d32f2f
+```
 
 ### Asosiy Sintaksis
 
@@ -1385,6 +1408,12 @@ type Mapped2 = {
   [K in Keys]: string;
 };
 ```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **"Too Clever" (Haddan tashqari aqlli) kod yozmang**: Advanced tiplar bilan shug'ullanganda, qator-qator `infer` va shartli tiplar yozib yuborish oson. Ammo 1 oy o'tgach, bu tip nima ish qilishini hatto o'zingiz ham tushunmay qolasiz. Jamoa bilan ishlayotganda soddalik qoidasini unutmang.
+2. **Kutubxona vs Biznes Logika**: Murakkab tiplarni faqat umumiy kutubxonalar (UI-kit, API helperlar) da ishlating. Kundalik biznes logika uchun bunday murakkablik ortiqcha hisoblanadi.
+3. **Commentlar muhim**: Har bir murakkab shartli yoki rekursiv tip nima ish qilishini tushuntirib, bitta TSDoc (`/** ... */`) yozib keting. Test uchun misollar (`type Test = ... // kutilgan natija`) yozib qo'yish juda foydali.
 
 ---
 

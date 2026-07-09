@@ -11,39 +11,27 @@
 
 ---
 
-## XSS Nima?
+## Nazariya
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> XSS web ilovalardagi eng keng tarqalgan va e'tiborsiz qoldiriladigan zaifliklardan biridir. Dasturchilar ko'pincha foydalanuvchidan kelgan ma'lumotni to'g'ridan-to'g'ri HTML ga yozib yuborishadi (masalan, foydalanuvchi ismi, izoh). Agar u foydalanuvchi "ism" o'rniga JavaScript kod yozgan bo'lsa-chi? Sizning sahifangiz u kodni ishga tushiradi va u kod orqali hujumchi adminning cookie-parollarini o'ziga jo'natib olishi mumkin. 
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Taqdimotchi va Yomon Niyatli Tomoshabin"**  
+> Tasavvur qiling, siz mikrofonda qog'ozga yozilgan savollarni sahnadan o'qib beryapsiz (Brauzer HTML ni render qilyapti).
+> Qoidalarga ko'ra hamma qog'ozga faqat o'z savolini (Oddiy text) yozishi kerak. Lekin yovuz niyatli bitta tomoshabin qog'ozga shunday deb yozdi: *"Meni ismim X. Hozir qog'ozni o'qiyotgan boshlovchi yuziga bitta shapaloq ursin va hamma pulini shu kishiga bersin!"* (JavaScript kod). 
+> Agar siz (Brauzer) ko'r-ko'rona yozilgan narsani ichida nima borligini tekshirmasdan (Sanitize qilmasdan) qilib yuborsangiz — hujum ish berdi.
+
+### XSS Nima?
 
 XSS (Cross-Site Scripting) - bu hujumchi o'z malicious JavaScript kodini boshqa foydalanuvchilar brauzerida ishlatadigan zaiflikdir.
 
-### XSS Impact
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        XSS Attack Impact                         │
-├─────────────────────────────────────────────────────────────────┤
-│ 🔐 Session Hijacking     - Cookie/token o'g'irlash              │
-│ 👤 Account Takeover      - Parol o'zgartirish, email change     │
-│ 🎣 Phishing              - Fake login form ko'rsatish           │
-│ 🦠 Malware Distribution  - Drive-by downloads                   │
-│ 📊 Data Theft            - Form data, keylogging                │
-│ 🔄 Worm Propagation      - Self-replicating attacks             │
-│ 💳 Financial Fraud       - Unauthorized transactions            │
-│ 🖥️  Defacement            - Sahifa kontentini o'zgartirish       │
-└─────────────────────────────────────────────────────────────────┘
-```
-
 ### XSS vs CSRF
 
-```
-XSS:  Hujumchi kodi victim brauzerida ISHGA TUSHADI
-      → Session o'g'irlash, keylogging, full control
-
-CSRF: Hujumchi victim nomidan REQUEST yuboradi
-      → Faqat oldindan belgilangan action'lar
-
-XSS >> CSRF (impact jihatdan)
-XSS + CSRF himoyalarni bypass qilishi mumkin
-```
+- **XSS:** Hujumchi kodi victim brauzerida **ISHGA TUSHADI** (Session o'g'irlash, keylogging)
+- **CSRF:** Hujumchi victim nomidan **REQUEST** yuboradi (Parol almashtirish)
+- XSS zarari CSRF dan ancha kuchliroq bo'lishi mumkin. XSS himoyalarni (CSRF tokenlarni) bemalol o'qib oladi.
 
 ---
 
@@ -51,31 +39,18 @@ XSS + CSRF himoyalarni bypass qilishi mumkin
 
 ### 1. Stored XSS (Persistent)
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                       Stored XSS Flow                            │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  Attacker                    Server                    Victim    │
-│     │                          │                          │     │
-│     │  1. Submit malicious     │                          │     │
-│     │     comment with <script>│                          │     │
-│     │ ────────────────────────▶│                          │     │
-│     │                          │                          │     │
-│     │                          │  2. Store in database    │     │
-│     │                          │                          │     │
-│     │                          │  3. Page request         │     │
-│     │                          │◀─────────────────────────│     │
-│     │                          │                          │     │
-│     │                          │  4. Return page with     │     │
-│     │                          │     malicious script     │     │
-│     │                          │─────────────────────────▶│     │
-│     │                          │                          │     │
-│     │                          │         5. Script        │     │
-│     │◀─────────────────────────│─────────────────────────▶│     │
-│     │      Session/data stolen │          executes        │     │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+sequenceDiagram
+    participant Attacker
+    participant Server
+    participant Victim
+    
+    Attacker->>Server: 1. Izohga `<script>` yozib jo'natadi
+    Note over Server: 2. Server buni DB ga saqlaydi
+    Victim->>Server: 3. Sahifani ko'rish uchun so'rov
+    Server-->>Victim: 4. Malicious kod aralashgan HTML qaytadi
+    Note over Victim: 5. Brauzer HTML ni render qiladi<br/>va Script avtomatik ishga tushadi!
+    Victim->>Attacker: 6. Victim cookie'si Attackerga ketadi
 ```
 
 ```javascript
@@ -1024,8 +999,15 @@ import serialize from 'serialize-javascript';
 }} />
 ```
 
-**Best practices:**
-- `dangerouslySetInnerHTML` minimal ishlatish
-- User input URL'larni validate qilish
-- CSP implement qilish
-- Regular dependency updates
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Ehtiyot bo'ling: v-html:** VueJS foydalanuvchilari uchun `v-html` (yoki React da `dangerouslySetInnerHTML`) funksiyasi aynan XSS uchun ochiq eshikdir. Foydalanuvchi kiritgan ma'lumotni hech qachon v-html qilib chiqarmang!
+2. **DOMPurify ishlating:** Agar haqiqatan ham HTML (Masalan WYSIWYG editordan olingan matn) chiqarish kerak bo'lsa, uni chiqarishdan oldin **har doim** DOMPurify kutubxonasi orqali tozalang (Sanitize).
+3. **HTTPOnly Cookie:** Auth tokenlarini localStorage ga emas, `HttpOnly` cookie ga saqlang. Shunda XSS sodir bo'lgan taqdirda ham, hacker sizning tokeningizni (session) o'qiy olmaydi.
+4. **Content Security Policy (CSP):** Loyihangizda CSP headerni qo'llang (`script-src 'self'`). Bu orqali siz brauzerga "Faqat mening o'z domenimdan kelgan scriptlarni ishlatsangiz, qolgan begona domenlardan kelgan scriptlarni blokla!" deysiz.
+
+---
+
+## Xulosa
+
+XSS juda eski, lekin hamon xavfli bo'lgan attack turi. Zamonaviy frameworklar (Vue, React) by-default ko'p himoyalarni o'z ichiga oladi (masalan `{ { text } }` orqali matnlar escape qilinadi). Lekin v-html ishlatilganda baribir hushyor bo'lish kerak. Himoyani to'liq ta'minlash uchun Sanitization va CSP kabi qo'shimcha choralardan foydalaning.

@@ -1,8 +1,38 @@
 # Integration Testing
 
-Integration testing - bu bir nechta komponentlarning birgalikda to'g'ri ishlashini tekshirish. Unit testlardan farqli o'laroq, bu yerda real yoki yarim-real dependency'lar ishlatiladi.
+## Kirish
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Unit testlar tizimning alohida qismlari (funksiyalar) qanday ishlashini kafolatlasa-da, bu qismlar bir-biriga ulanganda ham to'g'ri ishlashini kafolatlamaydi. Ko'pincha 100% unit test coverage'ga ega ilovalar aynan integratsiya nuqtalarida (baza bilan ulanish, tarmoq so'rovlari) sinadi. Shuning uchun "Integration Test" (Integratsiya testi) eng muhim xavfsizlik yostig'idir.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Avtomobil qismlarini yig'ish"**  
+> **Unit Test:** Zavodda mashinaning g'ildiraklarini alohida aylantirib ko'rishdi - a'lo darajada. Rulni alohida burab ko'rishdi - muammosiz.  
+> **Integration Test:** Endi g'ildirakni o'qqa kiydirib, rulni ulashdi. Rulni o'ngga burganda g'ildirak ham o'ngga burilyaptimi? Shuni tekshirish — integratsiya testidir. Agar rul chapga, g'ildirak o'ngga burilsa, alohida qismlar soz bo'lsa ham butun tizim xato hisoblanadi.
+
+Integration testing - bu bir nechta komponentlarning birgalikda to'g'ri ishlashini tekshirish. Unit testlardan farqli o'laroq, bu yerda real yoki partial dependency'lar (Mock qilinmagan modullar) ishlatiladi.
 
 ## Integration Test Nima?
+
+```mermaid
+graph TD
+    subgraph Unit Tests
+        U1[Tugma component]
+        U2[API funksiya]
+        U3[Forma validation]
+    end
+
+    subgraph Integration Test
+        I[Foydalanuvchi Ro'yxatdan o'tish jarayoni]
+        I --> U1
+        I --> U3
+        I --> U2
+    end
+    
+    style Unit Tests fill:#f5f5f5,stroke:#9e9e9e
+    style Integration Test fill:#e3f2fd,stroke:#1565c0
+```
 
 Integration test ikki yoki undan ortiq unit'larning o'zaro aloqasini test qiladi. Bu testlar tashqi tizimlar (database, API, file system) bilan integratsiyani ham qamrab oladi.
 
@@ -1267,6 +1297,14 @@ await waitFor(() => {
   return status === 'ready'
 }, { timeout: 5000, interval: 100 })
 ```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **"Arrange, Act, Assert" (AAA) pattern**: Testni aniq uch qismga bo'ling: Ma'lumotlarni tayyorlang (Arrange), harakat qiling (Act) va natijani tekshiring (Assert).
+2. **Haqiqiy DOM'dan foydalaning**: Frontend integratsiya testlarida `jsdom` yoki shunga o'xshash kutubxonalardan foydalanib, foydalanuvchilar aslida brauzerda ko'radigan narsalarni test qiling. Component metodlarini emas, tugmalarni bosib tekshiring (masalan: `fireEvent.click(button)`).
+3. **Flaky testlardan ehtiyot bo'ling**: Integratsiya testlari odatda sekinroq bo'ladi va timeout'larga tushishi mumkin. Kutishlarda (waits) belgilangan vaqtdan ko'ra "element paydo bo'lguncha kutish" (waitFor) funksiyalaridan foydalaning.
+
+---
 
 ## Xulosa
 

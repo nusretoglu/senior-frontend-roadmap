@@ -2,75 +2,42 @@
 
 ## Kirish
 
-Real-time chat - bu realtime tizimlarning eng keng tarqalgan use case'laridan biri. Professional chat tizimi message delivery, read receipts, typing indicators, offline queueing va optimistic UI'ni o'z ichiga oladi.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Chat tizimlari dastlab oddiy bo'lib ko'rinadi (so'rov yuborilsa, uni boshqaga uzatish). Ammo uning real-world (ishlab chiqarish) talablari juda murakkab: agar internet yomon bo'lsa, xabarning yuborilayotganini ko'rsatish (Optimistic UI), xabar serverga yetib borganini va o'qilganini belgilash (Single/Double Check), va oflayn rejimda yuborilgan xabarlarni qayta tiklash (Offline Queue). Bu bilimlarni chuqur egallash sizga Telegram kabi millionlab foydalanuvchiga ega tezkor chat tizimlarini yaratish imkonini beradi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Pochta orqali xat yuborish (Xabar Lifecycle)"**  
+> - **Composing (Yozilmoqda...):** Siz xat yozishni boshladingiz (Typing indicator).
+> - **Sending (Yuborilmoqda... - Optimistic UI):** Xatni pochtachiga topshirdingiz (Kliyentda soat belgisi).
+> - **Sent (Yuborildi - 1 check):** Xat pochta bo'limiga (Serverga) yetib bordi va ro'yxatdan o'tdi (1 ta kulrang galchka).
+> - **Delivered (Yetkazildi - 2 checks):** Pochtachi xatni do'stingizning pochta qutisiga tashlab ketdi (2 ta kulrang galchka).
+> - **Read (O'qildi - Seen/Blue checks):** Do'stingiz xatni ochib o'qidi (2 ta ko'k galchka).
+
+---
 
 ## Chat Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                         CHAT ARCHITECTURE                                │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│  ┌────────────┐        ┌──────────────┐        ┌────────────┐           │
-│  │  Client A  │◄──────►│   WebSocket  │◄──────►│  Client B  │           │
-│  └────────────┘        │    Server    │        └────────────┘           │
-│                        └──────┬───────┘                                  │
-│                               │                                          │
-│                               ▼                                          │
-│                        ┌──────────────┐                                  │
-│                        │    Redis     │                                  │
-│                        │   Pub/Sub    │                                  │
-│                        └──────┬───────┘                                  │
-│                               │                                          │
-│              ┌────────────────┼────────────────┐                        │
-│              │                │                │                         │
-│              ▼                ▼                ▼                         │
-│       ┌──────────┐     ┌──────────┐     ┌──────────┐                   │
-│       │PostgreSQL│     │   S3     │     │   Push   │                   │
-│       │ Messages │     │  Files   │     │ Service  │                   │
-│       └──────────┘     └──────────┘     └──────────┘                   │
-│                                                                          │
-└─────────────────────────────────────────────────────────────────────────┘
+### Chat Arxitekturasi (Chat Architecture)
+
+```mermaid
+graph TD
+    ClientA[Client A] <-->|WebSocket| WS[WebSocket Server]
+    ClientB[Client B] <-->|WebSocket| WS
+    WS <--> Redis[Redis Pub/Sub <br/> Router]
+    WS --> DB[(PostgreSQL <br/> Messages DB)]
+    WS --> S3[S3 File Storage <br/> Images/Media]
+    WS --> Push[Push Notification <br/> Service]
 ```
 
-## Message Lifecycle
+### Xabar Hayot Sikli (Message Lifecycle)
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                      MESSAGE LIFECYCLE                                   │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│   Sender                  Server                 Receiver                │
-│                                                                          │
-│   ┌─────────────┐                                                       │
-│   │  Composing  │                                                       │
-│   └──────┬──────┘                                                       │
-│          │ send()                                                       │
-│          ▼                                                               │
-│   ┌─────────────┐                                                       │
-│   │   Sending   │ ───────► receive ───────┐                             │
-│   │  (pending)  │                         │                             │
-│   └──────┬──────┘                         │                             │
-│          │ ack                            ▼                             │
-│          ▼                         ┌─────────────┐                      │
-│   ┌─────────────┐                  │   Store     │                      │
-│   │    Sent     │ ◄─────────────── │             │                      │
-│   │  (1 check)  │                  └──────┬──────┘                      │
-│   └──────┬──────┘                         │ deliver                     │
-│          │ delivered                      ▼                             │
-│          ▼                         ┌─────────────┐                      │
-│   ┌─────────────┐                  │  Delivered  │                      │
-│   │  Delivered  │                  │  (inbox)    │                      │
-│   │ (2 checks)  │                  └──────┬──────┘                      │
-│   └──────┬──────┘                         │ read                        │
-│          │ read                           ▼                             │
-│          ▼                         ┌─────────────┐                      │
-│   ┌─────────────┐                  │    Read     │                      │
-│   │    Read     │                  │             │                      │
-│   │ (blue/seen) │                  └─────────────┘                      │
-│   └─────────────┘                                                       │
-│                                                                          │
-└─────────────────────────────────────────────────────────────────────────┘
+```mermaid
+stateDiagram-v2
+    Composing --> Sending : send() (Optimistic UI)
+    Sending --> Sent : server ack (1 Check)
+    Sent --> Delivered : receiver get (2 Checks)
+    Delivered --> Read : receiver read (2 Blue Checks)
 ```
 
 ## Core Chat Implementation
@@ -1529,17 +1496,22 @@ function handleMessage(msg) {
 }
 ```
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Optimistic UI dan foydalaning:** Foydalanuvchi xabar yuborganda, uni serverga jo'natish bilan bir vaqtda darhol ekranda "Sending..." (yuborilmoqda) holati bilan ko'rsating. Serverdan javob (acknowledgment) kelgach, holatni "Sent" ga o'zgartiring. Bu chat ilovasining ulanish sekin bo'lganda ham juda tez va silliq ishlashini ta'minlaydi.
+2. **Kliyent tomonda Idempotentlik (Deduplication):** Har bir xabar uchun kliyent tomonida unique `clientGeneratedId` (UUID) yarating. Agar tarmoq uzilib, kliyent qayta ulansa va bir xil xabarni ikki marta yuborsa, server o'sha ID bo'yicha dublikat xabarni bazaga yozmaydi va kliyentga avvalgi saqlangan xabarni qaytaradi.
+3. **Oflayn rejimlarni qo'llab-quvvatlang (Offline Queue):** Agar internet yo'q bo'lsa, xabarlarni o'chirmasdan `IndexedDB` yoki local storage navbatida (queue) saqlang. Internet qaytishi bilanoq ularni navbati bilan serverga yuboring (Reconciliation).
+
+---
+
 ## Xulosa
 
-Professional chat tizimi quyidagilarni o'z ichiga oladi:
+Chat Implementation bo'yicha yakuniy xulosa:
 
-1. **Optimistic updates** - instant feedback
-2. **Message queue** - offline support
-3. **Delivery/read receipts** - status tracking
-4. **Typing indicators** - presence awareness
-5. **Sync mechanism** - reconnect handling
-6. **Deduplication** - data integrity
-
-Production chat tizimi murakkab state management va reliability talab qiladi.
+| Xususiyati | Optimistic UI | Idempotent ID | Offline Queue |
+| --- | --- | --- | --- |
+| **Muammo** | Tarmoq sekinligi tufayli xabar yuborishda foydalanuvchi kutib qolishi | Qayta ulanishda bir xil xabar 2 marta ketib qolishi | Internet yo'qolganda yozilgan xabarlar yo'qolishi |
+| **Yechim** | Xabarni darhol ekranda "soat" belgisi bilan chizish | Kliyentda UUID yaratib, serverda dublikatni tekshirish | Xabarlarni IndexedDB navbatida saqlab, internet kelganda yuborish |
+| **Tavsiya** | Majburiy (UX uchun) | Majburiy (Data integrity uchun) | Tavsiya etiladi |
 
 Keyingi bo'lim: [Live Notifications](./07-live-notifications.md)

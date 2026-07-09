@@ -2,6 +2,15 @@
 
 ## Nazariya
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturlashda ko'p jarayonlar vaqt oladi: serverdan ma'lumot yuklash, fayl o'qish yoki taymerlar. Agar biz bu javoblarni "Sinxron" (kodni to'xtatib) kutsak, butun sayt aylanib qotib qoladi. Promises va Async/Await — bu o'sha vaqt oluvchi operatsiyalarni fonda (backgroundda) bajarib, natijasi kelganda bizga "Xabar qilish" ni ta'minlovchi eng kuchli zamonaviy JS vositasi hisoblanadi. Bugungi kunda ushbu mavzusiz hech qanday loyihada ishlay olmaysiz.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Fast-food Restoranidagi Chek"**  
+> Kassirga pul to'lab pitsa buyurtma qildingiz. U sizga darhol pitsani emas, qog'oz **Chek (Promise)** berdi. Bu chek shuni anglatadiki, sizga kelajakda yoki Pitsa beriladi (Resolved), yoki pulingiz qaytariladi (Rejected — masalan masalliq tugagan). 
+> Siz chekni qo'lda ushlab, rastaga suyanib turmaysiz. Joyga borib o'tirasiz, telefoningizni titkalaysiz (boshqa ishlarni qilasiz). Tabloda "14-raqam tayyor" degan yozuv chiqishi (Event Loop tomonidan Call Stackka kelishi) bilan borib pitsangizni olasiz. `async/await` esa xuddi o'rningizdan turmasdan VIP stolda o'tirishingiz va pitsa pishganida stolingizga olib kelishlariga o'xshaydi (kod o'qilishi xuddi sinxrondek sodda ko'rinadi).
+
 ### Promise Nima?
 
 Promise — bu asinxron operatsiya natijasini ifodalovchi ob'ekt. U uchta holatdan birida bo'ladi:
@@ -30,20 +39,20 @@ promise
 
 ### Promise State Machine
 
-```
-                    ┌─────────────┐
-                    │   PENDING   │
-                    └──────┬──────┘
-                           │
-              ┌────────────┼────────────┐
-              │            │            │
-              ↓            │            ↓
-       ┌────────────┐      │      ┌────────────┐
-       │ FULFILLED  │      │      │  REJECTED  │
-       │ (resolved) │      │      │            │
-       └────────────┘      │      └────────────┘
-                           │
-              SETTLED (o'zgarmas holat)
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> PENDING
+    
+    PENDING --> FULFILLED : resolve(value)
+    PENDING --> REJECTED : reject(error)
+    
+    FULFILLED --> [*] : Settled
+    REJECTED --> [*] : Settled
+
+    note right of PENDING : Kutish holati
+    note right of FULFILLED : .then() ishlaydi
+    note right of REJECTED : .catch() ishlaydi
 ```
 
 **Muhim:** Promise bir marta settled bo'lgandan keyin, holati HECH QACHON o'zgarmaydi.
@@ -957,3 +966,10 @@ async function getDataMixed() {
   return { user, posts, friends };
 }
 ```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **`.catch()` har doim eng oxirida bo'lsin:** Bir nechta `.then()` zanjirida qayerda xato chiqishidan qat'i nazar oxiridagi bitta `.catch()` uni ushlaydi. O'rtada ushlash kerak bo'lmagan holatlarda uni zanjir so'ngida qo'llang.
+2. **`await` tsikllari ichida xavfli:** `for` tsikli ichida `await` ishlatsangiz so'rovlar ketma-ket (biri tugagach ikkinchisi) bajariladi. O'zaro bog'liq bo'lmagan mustaqil so'rovlarni massivga yig'ib `Promise.all()` ishlatsangiz dastur N barobar tezlashadi.
+3. **Try-Catch ni unutmang:** `async/await` ni yaxshi ko'rishimizning sababi `try/catch` sintaksisida chiroyli xatoliklarni ushlash imkonidir. Har doim server bilan ishlayotganda `try/catch` dan foydalaning.
+

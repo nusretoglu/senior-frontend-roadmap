@@ -1,10 +1,35 @@
 # Playwright
 
+## Kirish
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Garchi Cypress E2E olamida inqilob qilgan bo'lsa-da, uning ma'lum cheklovlari bor edi: faqat bitta tab bilan ishlash, o'zgaruvchan brauzer arxitekturasi va iframe'lar bilan muammolar. Microsoft tomonidan yaratilgan Playwright bu muammolarni hal etib, barcha brauzerlarda (Chromium, Firefox, Safari) juda tez va parallel ishlaydigan yangi avlod test freymvorkini taqdim etdi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Pultli o'yinchoq mashina vs Aqlli avtopilot"**  
+> **Eski usul (Selenium):** O'yinchoq mashinani pultda boshqarish. Mashina to'siqqa borib qolsa ham siz pultdan "oldiga yur" deb bosib turasiz, lekin u yura olmaydi va sinadi (Flaky tests).
+> **Playwright (Avtopilot):** Mashina o'z-o'zini boshqaradi, to'siqni ko'rsa kutadi, yo'l ochilganda harakatni davom ettiradi. U barcha oynalar, tablar va ramkalarni bitta vaqtda kuzatib turadi.
+
 Playwright - bu Microsoft tomonidan yaratilgan zamonaviy E2E testing framework. Cross-browser testing, mobile emulation va powerful automation uchun eng yaxshi tool.
 
 ## Playwright Nima?
 
 Playwright - bu Chromium, Firefox va WebKit browser'larini avtomatlashtirish uchun yaratilgan library. Bir API bilan barcha zamonaviy browser'larda test yozish imkonini beradi.
+
+```mermaid
+graph TD
+    subgraph Playwright Arxitekturasi
+        N[Node.js Test Kriptlari] -->|WebSocket connection| C[Playwright Server]
+        C -->|Chrome DevTools Protocol| B1[Chromium]
+        C -->|Firefox Remote Protocol| B2[Firefox]
+        C -->|WebKit Remote Protocol| B3[Safari/WebKit]
+    end
+    
+    style N fill:#f5f5f5,stroke:#9e9e9e
+    style C fill:#e3f2fd,stroke:#1565c0
+    style B1 fill:#e8f5e9,stroke:#2e7d32
+```
 
 ### Playwright Xususiyatlari
 
@@ -1069,6 +1094,14 @@ export default defineConfig({
 // Job 1: npx playwright test --shard=1/4
 // Job 2: npx playwright test --shard=2/4
 ```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Auto-waiting ni buzmang**: Playwright o'zi element qachon bossa bo'ladigan holatga (clickable, visible) kelishini avtomatik kutadi. Siz qo'shimcha tarzda `page.waitForTimeout(5000)` kabi statik kutishlarni ishlatsangiz, bu ajoyib qobiliyatni yo'qqa chiqargan bo'lasiz.
+2. **Web-first Assertions ishlating**: `expect(await page.textContent('.title')).toBe('Hello')` o'rniga, doimo `await expect(page.locator('.title')).toHaveText('Hello')` ishlating. Ikkinchi usul avtomatik ravishda text "Hello" bo'lguncha qayta-qayta tekshirib (retry) kutadi, birinchisi esa o'sha soniyada nima bo'lsa shuni olib qulaydi.
+3. **Trace Viewer dan foydalaning**: Testlaringiz CI da (masalan GitHub Actions da) qulaganda nima bo'lganini bilish qiyin. `trace: 'on-first-retry'` sozlamasi orqali Playwright sizga test qulagan vaqtdagi butun DOM, network, va konsol jurnallarini o'z ichiga olgan ZIP fayl yaratib beradi.
+
+---
 
 ## Xulosa
 

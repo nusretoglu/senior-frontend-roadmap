@@ -16,7 +16,15 @@
 
 ## Reaktivlik Nima?
 
-Reaktivlik - ma'lumot o'zgarganda UI avtomatik yangilanishi.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Zamonaviy web-dasturlashda eng katta muammo DOM ni qo'lda yangilash (masalan `document.getElementById('...').innerText = ...`). Reaktivlik bizni bu azobdan qutqaradi. Siz faqat o'zgaruvchilarni (state) o'zgartirasiz, UI esa o'zi avtomatik yangilanadi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Excel Jadvallari"**  
+> Tasavvur qiling sizda Excel jadvali bor. A1 katakchada `10`, B1 katakchada `20` qiymati bor. C1 katakchaga `=A1+B1` formulasini yozdingiz (`30` chiqdi). Agar A1 ni `50` ga o'zgartirsangiz, siz C1 ni yangilab o'tirmaysiz — u avtomatik `70` bo'lib qoladi. Reaktivlik xuddi shunday ishlaydi! Ma'lumot (A1) o'zgarganda, unga bog'liq bo'lgan hamma narsa (C1) avtomatik qayta hisoblanadi.
+
+Reaktivlik - ma'lumot o'zgarganda UI (yoki boshqa bog'langan logikalar) avtomatik yangilanishi.
 
 ### Vue 2 - Object.defineProperty
 
@@ -1516,6 +1524,15 @@ const { user, loading } = useUser()
 
 ---
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **`ref` va `reactive` dan foydalanish**: Oddiy va primitive ma'lumotlar uchun doim `ref` ishlating. Kompleks obyektlar yoki guruhlangan ma'lumotlar uchungina `reactive` ishlating.
+2. **Destructuring xavfi**: `reactive` obyektni komponent ichida oddiy `const { ... } = state` shaklida destructure qilsangiz reaktivlik buziladi! Reaktivlikni saqlab qolish uchun `toRefs(state)` ishlating.
+3. **`computed` qiymatlarni o'zgartirmang**: `computed` qiymatlar faqat ma'lumotni o'qish va transformatsiya qilish uchun. Ularning ichida ma'lumotlarni o'zgartirish (side-effect) ga aslo yo'l qo'ymang.
+4. **Shallow tiplardan to'g'ri foydalaning**: Katta o'lchamli massivlar (minglab elementlar) bilan ishlaganda `shallowRef` ishlating, bu Vue'ni har bir elementni kuzatish (deep watch) dan qutqarib performance'ni oshiradi.
+
+---
+
 ## Xulosa
 
 Vue 3 Reactivity System:
@@ -1526,10 +1543,3 @@ Vue 3 Reactivity System:
 4. **watch** - aniq dependencies, side effects
 5. **watchEffect** - avtomatik dependencies
 6. **toRefs** - reactivity saqlash
-
-Best practices:
-- Oddiy holatda ref ishlating
-- Complex state uchun reactive
-- Side effects uchun watch/watchEffect
-- Performance uchun shallow*
-- Composables'dan toRefs qaytaring

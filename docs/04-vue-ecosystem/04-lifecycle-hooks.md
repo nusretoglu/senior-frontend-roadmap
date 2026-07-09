@@ -2,93 +2,35 @@
 
 ## Kirish
 
-Vue komponentining hayot sikli - bu komponent yaratilishidan yo'q qilinishigacha bo'lgan jarayon. Har bir bosqichda maxsus hook'lar chaqiriladi, bu bizga kerakli vaqtda kod ishlatish imkonini beradi.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Komponentlar ekranga chizilayotganda, o'zgarayotganda va ekrandan yo'qolayotganda ma'lum bir bosqichlardan o'tadi. Lifecycle (Hayot sikli) hook'lari bizga ushbu bosqichlarning har biriga "quloq solish" (eshtib turish) va aniq bir bosqichda kod ishga tushirish (masalan: ma'lumotni bazadan serverdan so'rash yoki listenerlarni o'chirish) imkonini beradi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Teatr tomoshasi"**  
+> - **created()**: Aktyorlar ssenariyni o'qishmoqda, rollarni o'rganishmoqda (Ma'lumotlar bor, lekin sahna bo'sh).  
+> - **mounted()**: Parda ochildi, aktyorlar sahnada. Tomoshabin ularni ko'rmoqda (Komponent DOM ga chizildi, ekranda ko'rindi. API so'rovlarni jo'natish uchun eng zo'r vaqt).  
+> - **updated()**: Aktyor kiyimini o'zgartirib chiqdi (Data o'zgardi, DOM ham unga moslashdi).  
+> - **unmounted()**: Tomosha tugadi, parda yopildi. Aktyorlar kiyimlarini yechib, uylariga tarqalishdi (Komponent o'chdi. Taymerlar, scroll listenerlarni o'chirish kerak).
 
 ## Lifecycle Diagramma
 
-```
-                    ┌─────────────────────────┐
-                    │      createApp()        │
-                    │      app.mount()        │
-                    └───────────┬─────────────┘
-                                │
-                    ┌───────────▼─────────────┐
-                    │     beforeCreate        │
-                    │  (Options API only)     │
-                    │  - data, methods yo'q   │
-                    │  - this mavjud          │
-                    └───────────┬─────────────┘
-                                │
-                    ┌───────────▼─────────────┐
-                    │    Reactivity Setup     │
-                    │    (data, computed,     │
-                    │     methods, watch)     │
-                    └───────────┬─────────────┘
-                                │
-                    ┌───────────▼─────────────┐
-                    │       created           │
-                    │  (Options API only)     │
-                    │  - data, methods bor    │
-                    │  - DOM yo'q             │
-                    └───────────┬─────────────┘
-                                │
-                    ┌───────────▼─────────────┐
-                    │      beforeMount        │
-                    │  - template compiled    │
-                    │  - DOM yo'q             │
-                    └───────────┬─────────────┘
-                                │
-                    ┌───────────▼─────────────┐
-                    │    DOM Elements         │
-                    │      Created            │
-                    └───────────┬─────────────┘
-                                │
-                    ┌───────────▼─────────────┐
-                    │        mounted          │
-                    │  - DOM mavjud           │
-                    │  - $el, $refs mavjud    │
-                    │  - child mounted        │
-                    └───────────┬─────────────┘
-                                │
-            ┌───────────────────┴───────────────────┐
-            │                                       │
-            │  ┌─────── Reactive Data Changed ────┐ │
-            │  │                                  │ │
-            │  │  ┌──────────────────────────┐   │ │
-            │  │  │      beforeUpdate        │   │ │
-            │  │  │  - old DOM state         │   │ │
-            │  │  │  - new data              │   │ │
-            │  │  └───────────┬──────────────┘   │ │
-            │  │              │                   │ │
-            │  │  ┌───────────▼──────────────┐   │ │
-            │  │  │       DOM Patched        │   │ │
-            │  │  └───────────┬──────────────┘   │ │
-            │  │              │                   │ │
-            │  │  ┌───────────▼──────────────┐   │ │
-            │  │  │        updated           │   │ │
-            │  │  │  - new DOM state         │   │ │
-            │  │  └──────────────────────────┘   │ │
-            │  │                                  │ │
-            │  └──────────────────────────────────┘ │
-            │                                       │
-            └───────────────────┬───────────────────┘
-                                │
-                    ┌───────────▼─────────────┐
-                    │     beforeUnmount       │
-                    │  - DOM hali mavjud      │
-                    │  - cleanup boshlanadi   │
-                    └───────────┬─────────────┘
-                                │
-                    ┌───────────▼─────────────┐
-                    │    Watchers, Effects    │
-                    │       Stopped           │
-                    └───────────┬─────────────┘
-                                │
-                    ┌───────────▼─────────────┐
-                    │       unmounted         │
-                    │  - DOM o'chirilgan      │
-                    │  - full cleanup         │
-                    └─────────────────────────┘
+```mermaid
+stateDiagram-v2
+    [*] --> created: createApp()
+    
+    state "Reactivity Setup (data, computed)" as Setup
+    created --> Setup
+    Setup --> beforeMount: Compile template
+    
+    beforeMount --> mounted: Render DOM elements
+    mounted --> beforeUpdate: Reactive data changed
+    beforeUpdate --> updated: DOM Patched
+    updated --> mounted: Wait for next change
+    
+    mounted --> beforeUnmount: app.unmount()
+    beforeUnmount --> unmounted: Watchers/Effects stopped
+    unmounted --> [*]
 ```
 
 ## Options API Lifecycle Hooks
@@ -898,6 +840,16 @@ deactivated() {
   this.saveScrollPosition()
 }
 ```
+
+---
+
+---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Memory Leak (Xotira to'lib qolishi) ning oldini oling:** Agar siz `mounted` ichida `setInterval`, `window.addEventListener` yoki boshqa tashqi ob'ektlar ulagan bo'lsangiz, albatta ularni `unmounted` da o'chirib (clear) keting. Bo'lmasa dastur xotirani to'ldirib qo'yadi.
+2. **API so'rovlari `mounted` da qiling:** Garchand API so'rovlarni `created` da qilish mumkin bo'lsa ham, eng ishonchli joy `mounted` yoki Composition API dagi `onMounted` hisoblanadi. Bu ayniqsa Nuxt.js (SSR) bilan ishlaganda double-fetch xatolarini oldini oladi.
+3. **`updated` ni suiste'mol qilmang:** Odatda holat (state) o'zgarganda nimanidir o'zgartirish kerak bo'lsa, buning uchun `watch` (yoki `computed`) mosroq tushadi. `updated` har qanday holat o'zgarganda ishlayveradi, bu esa performance muammolariga olib kelishi mumkin.
 
 ---
 

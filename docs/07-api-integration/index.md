@@ -1,5 +1,17 @@
 # API Integration
 
+## Kirish
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Bugungi kunda Frontend ilovalar juda aqlli bo'lib ketgan, lekin ma'lumotlarsiz ular faqatgina chiroyli quti, xolos. Backend bilan xavfsiz, tezkor va barqaror aloqa o'rnatish har bir web-ilovaning yuragi hisoblanadi. 
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Restoran zanjiri"**  
+> Frontend — bu mijozlar o'tiradigan zal. 
+> Backend — bu oshxona. 
+> **API Integratsiya** — bu ofitsiantlar, menyular, kassalar va ovqat yetkazib berish tizimi. Bu tizim (API) qanchalik mukammal, xatosiz va tez ishlasa, restoran (Ilova) shunchalik muvaffaqiyatli bo'ladi.
+
 Bu bo'lim frontend-backend integratsiyasi, REST va GraphQL API'lar bilan ishlash, hamda zamonaviy HTTP client pattern'larini chuqur o'rganishga bag'ishlangan.
 
 ## Bo'lim Tarkibi
@@ -55,30 +67,33 @@ Zamonaviy web ilovalar deyarli 100% API-driven. Backend bilan samarali integrats
 
 ## Real-World Ahamiyati
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                      Frontend Application                    │
-├─────────────────────────────────────────────────────────────┤
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
-│  │   Caching   │  │   Retries   │  │  Token Management   │  │
-│  │    Layer    │  │   Layer     │  │       Layer         │  │
-│  └──────┬──────┘  └──────┬──────┘  └──────────┬──────────┘  │
-│         └────────────────┼───────────────────-┘             │
-│                          ▼                                   │
-│              ┌───────────────────────┐                       │
-│              │    HTTP Client        │                       │
-│              │  (Axios/Fetch/ky)     │                       │
-│              └───────────┬───────────┘                       │
-└──────────────────────────┼──────────────────────────────────┘
-                           ▼
-                    ┌─────────────┐
-                    │   Network   │
-                    └──────┬──────┘
-                           ▼
-              ┌────────────────────────┐
-              │    Backend API         │
-              │   (REST / GraphQL)     │
-              └────────────────────────┘
+```mermaid
+graph TD
+    subgraph Frontend Application
+        CL[Caching Layer]
+        RL[Retries Layer]
+        TL[Token Management Layer]
+        HC[HTTP Client - Axios/Fetch/ky]
+        
+        CL --- HC
+        RL --- HC
+        TL --- HC
+    end
+
+    subgraph Network
+        Net((Internet))
+    end
+
+    subgraph Backend
+        API[Backend API - REST/GraphQL]
+    end
+
+    HC <-->|Request / Response| Net
+    Net <--> API
+    
+    style Frontend Application fill:#e3f2fd,stroke:#1565c0
+    style Network fill:#f5f5f5,stroke:#9e9e9e
+    style Backend fill:#e8f5e9,stroke:#2e7d32
 ```
 
 ## O'rganish Tartibi
@@ -101,6 +116,14 @@ Har bir faylda 3-5 ta interview savol va javoblar mavjud. Ko'p uchraydigan mavzu
 - Axios interceptor'lar nimaga kerak?
 - Infinite scroll qanday implement qilinadi?
 - Cache invalidation strategiyalari
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Markazlashtirish**: Hamma API chaqiruvlarini bitta `apiClient` yoki shunga o'xshash xizmat fayllarida saqlang. Komponentlar ichida to'g'ridan-to'g'ri `fetch` yoki `axios` yozishdan qoching.
+2. **Kesh ishlating**: Qayta-qayta o'zgarmaydigan ma'lumotlarni so'rash uchun Backend'ga yuguravermang. SWR yoki Vue Query ishlating.
+3. **Xavfsizlik**: Tokenlarni va sezgir ma'lumotlarni hech qachon `localStorage` da saqlamang. Eng yaxshisi "HttpOnly" cookie-fayllardan foydalaning.
+
+---
 
 ## Amaliy Mashqlar
 

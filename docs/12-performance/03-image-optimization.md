@@ -1,21 +1,30 @@
 # Image Optimization
 
-Rasmlar web sahifalarning o'rtacha 50% hajmini tashkil qiladi. Image optimization - bu performance yaxshilashning eng samarali usullaridan biri.
+## Kirish
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Bugungi kunda veb-sayt og'irligining deyarli 50% dan ko'prog'ini rasmlar tashkil qiladi. Qanchalik chiroyli va qiziqarli sayt qilmang, agar uni ichidagi bitta 5MB lik HD rasm tufayli sayt 10 soniyada yuklansa, mijozlar kutib o'tirmay chiqib ketishadi. **Rasmlarni optimallashtirish (Image Optimization)** orqali saytning yuklanish vaqtini sekundlardan millisekundlargacha tushirish, server xarajatlarini tejash va Google Qidiruvida (SEO) oldingi o'rinlarga chiqish mumkin.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Pochtada Yuk Jo'natish"**  
+> Siz Amerikaga katta kitob jo'natmoqchisiz.  
+> - **Optimizatsiyasiz (Yomon):** Kitobni katta va og'ir temir sandiqqa solib jo'natyapsiz. Yo'lkira qimmat va yetib borishi sekin bo'ladi.  
+> - **Optimizatsiya qilingan (Yaxshi):** Kitobni ixcham, yengil karton qutiga joylaysiz, bo'sh joylarni olib tashlaysiz va ustiga "Faqat manzilga yetganda oling" (Lazy load) degan stiker yopishtirasiz. U arzon va tez yetib boradi.
 
 ## Nazariya
 
 ### Rasmlar Nima Uchun Muammo?
 
-```
-O'rtacha web sahifa:
-┌─────────────────────────────────┐
-│ Total: 2MB                      │
-│ ├── Images: 1MB (50%)           │
-│ ├── JavaScript: 500KB (25%)     │
-│ ├── CSS: 200KB (10%)            │
-│ ├── Fonts: 200KB (10%)          │
-│ └── HTML: 100KB (5%)            │
-└─────────────────────────────────┘
+O'rtacha veb-sahifa tarkibi ko'pincha shunday ko'rinishda bo'ladi:
+
+```mermaid
+pie title O'rtacha Web Sahifa Og'irligi (Total: 2MB)
+    "Rasmlar (Images)" : 50
+    "JavaScript" : 25
+    "CSS" : 10
+    "Shriftlar (Fonts)" : 10
+    "HTML" : 5
 ```
 
 ### Image Format Comparison
@@ -29,14 +38,14 @@ O'rtacha web sahifa:
 | SVG | Icons, logos | Vector | Ha | Ha |
 | GIF | Simple animation | Lossless | Ha | Ha |
 
-### Size Comparison (1920x1080 foto)
+### Hajmlarni taqqoslash (1920x1080 o'lchamdagi foto)
 
-```
-JPEG (quality 80): 250KB
-PNG: 1.5MB
-WebP (quality 80): 150KB  (-40% vs JPEG)
-AVIF (quality 80): 100KB  (-60% vs JPEG)
-```
+| Format | Sifati (Quality) | Taxminiy Hajm | JPEG ga nisbatan farq |
+| --- | --- | --- | --- |
+| **PNG** | Lossless (Yo'qotishsiz) | 1.5MB | Eng og'ir |
+| **JPEG** | 80% | 250KB | Standart |
+| **WebP** | 80% | 150KB | -40% yengil |
+| **AVIF** | 80% | 100KB | -60% yengil |
 
 ## Modern Image Formats
 
@@ -948,20 +957,13 @@ Individual Images:
 <Icon name="search" />
 ```
 
-## Best Practices Checklist
+## Eng Yaxshi Amaliyotlar (Best Practices)
 
-```markdown
-[ ] Modern formatlar (WebP/AVIF + fallback)
-[ ] Responsive images (srcset + sizes)
-[ ] Lazy loading (below-the-fold)
-[ ] Width/Height attributes (CLS prevention)
-[ ] Placeholder/skeleton (UX)
-[ ] CDN usage
-[ ] Build-time optimization
-[ ] LCP image preload
-[ ] Proper alt text (a11y)
-[ ] decoding="async"
-```
+1. **Zamonaviy formatlarni (WebP/AVIF) ishlating:** Har qanday `.jpg` yoki `.png` o'rniga `.webp` yoki `.avif` ni (va `<picture>` tegida eski brauzerlar uchun fallback variantini) ishlating.
+2. **Width va Height atributlarini unutmang:** Har doim `<img>` tegiga ehtimoliy bo'yi va enini yozing (`width="800" height="600"`). Bu Layout Shift (CLS) ni oldini oladi (rasm yuklanishidan oldin sahifada joy band qilib turadi).
+3. **Above-the-fold EAGER, qolganiga LAZY:** Ekranni ochganda darhol ko'rinadigan birinchi rasmni (Hero image) `loading="eager"` (yoki preload) qiling. Qolgan barcha ko'rinmaydigan pastdagi rasmlarga esa `loading="lazy"` qo'ying.
+
+---
 
 ## Xulosa
 
@@ -974,11 +976,9 @@ Image optimization strategiyasi:
 5. **CDN** - Edge delivery
 6. **Metrics** - LCP, CLS tracking
 
-```
-Initial Load:
-├── Hero: 150KB (preload, eager, high priority)
-├── Above-fold: 200KB (eager)
-└── Below-fold: lazy load on scroll
+| Yuklanish bosqichi | Qaysi rasm? | Holati |
+| --- | --- | --- |
+| **Dastlabki yuklanish (Eager)** | Bosh sahifadagi eng yuqori rasm (Hero) | Preload, yuqori ustuvorlik (~150KB) |
+| **Hover / Scroll qilganda (Lazy)** | Pastroqdagi yoki ko'rinmaydigan rasmlar | Sekin yuklanadi |
 
-Total initial: ~350KB (vs 2MB+ unoptimized)
-```
+*Natija: Sahifa 2MB emas, ~350KB bilan boshlanadi.*

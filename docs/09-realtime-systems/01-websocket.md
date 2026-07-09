@@ -2,29 +2,33 @@
 
 ## Kirish
 
-WebSocket - bu client va server o'rtasida doimiy, full-duplex aloqa kanalini ta'minlovchi protokol. HTTP'dan farqli o'laroq, bir marta connection o'rnatilgandan keyin ikkala tomon ham istalgan vaqtda ma'lumot yuborishi mumkin.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> An'anaviy veb-saytlar HTTP protokoli orqali ishlaydi, unda faqat kliyent so'rov yuborishi mumkin, server esa faqat javob beradi (Request-Response). Agar sizga chat ilovasi, live sport natijalari yoki birja narxlari kabi ma'lumotlarni soniya sayin yangilab turish kerak bo'lsa, har soniyada HTTP so'rov yuborish (Polling) serverni charchatib, tarmoqni to'ldirib yuboradi. **WebSocket** esa bir marta ulanish o'rnatilgach, server va brauzer orasida doimiy va ikki tomonlama (full-duplex) tezyurar yo'l ochadi. Endi server ham istalgan paytda yangi xabarni kliyentga push qila oladi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Pochta xati vs Telefon qo'ng'irog'i"**  
+> - **HTTP (Pochta xati):** Siz do'stingizga xat yozib yuborasiz (Request). U xatni olib o'qiydi va javob yozib yuboradi (Response). Agar siz yangi ma'lumot bor-yo'qligini bilmoqchi bo'lsangiz, yana qaytadan xat yuborishingiz kerak bo'ladi (Polling).
+> - **WebSocket (Telefon qo'ng'irog'i):** Siz do'stingizga telefon qilasiz va u go'shakni ko'taradi (Handshake). Go'shakni ikkala tomon ham qo'ymaydi (Persistent connection). Endi ikkalangiz ham istalgan paytda bir-biringizga gapirishingiz (Data frame) mumkin va bu juda tez amalga oshadi.
+
+---
 
 ## WebSocket Protocol Anatomiyasi
 
-### HTTP Handshake
+### HTTP Handshake (Ulanish)
 
-WebSocket aloqasi HTTP Upgrade so'rovi bilan boshlanadi:
+WebSocket ulanishi dastlab HTTP Upgrade so'rovi orqali boshlanib, muvaffaqiyatli bo'lgach WebSocket protokoliga o'tadi:
 
-```
-Client Request:
-GET /chat HTTP/1.1
-Host: server.example.com
-Upgrade: websocket
-Connection: Upgrade
-Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==
-Sec-WebSocket-Version: 13
-Origin: http://example.com
-
-Server Response:
-HTTP/1.1 101 Switching Protocols
-Upgrade: websocket
-Connection: Upgrade
-Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
+```mermaid
+sequenceDiagram
+    participant Browser as Brauzer (Kliyent)
+    participant Server as Server
+    
+    Browser->>Server: GET /chat HTTP/1.1 (Upgrade: websocket)
+    Server-->>Browser: HTTP/1.1 101 Switching Protocols
+    Note over Browser,Server: WebSocket aloqa kanali ochiq (WSS)
+    Browser->>Server: Bidirectional message (Text/Binary)
+    Server-->>Browser: Bidirectional message (Text/Binary)
 ```
 
 ### Frame Structure
@@ -1051,10 +1055,13 @@ function getReconnectDelay(attempt) {
 3. **Shared State:** Connection state Redis/Memcached'da
 4. **Horizontal Scaling:** Kubernetes + HPA
 
-```
-Client → Load Balancer → Server 1 ←→ Redis ←→ Server 2
-                              ↑                   ↑
-                              └───────────────────┘
+```mermaid
+graph LR
+    Client[Kliyentlar] --> LB[Load Balancer]
+    LB --> S1[WebSocket Server 1]
+    LB --> S2[WebSocket Server 2]
+    S1 <--> Redis[Redis Pub/Sub <br/> Hub]
+    S2 <--> Redis
 ```
 
 ### 5. WebSocket security qanday ta'minlanadi?
@@ -1070,14 +1077,23 @@ Client → Load Balancer → Server 1 ←→ Redis ←→ Server 2
 5. **Input validation:** Server-side message validation
 6. **CSRF protection:** Origin checking
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **WSS (WebSocket Secure) ishlatish shart:** Ishlab chiqarish (production) muhitida hech qachon shifrlanmagan `ws://` dan foydalanmang. Doimo `wss://` ishlating (bu HTTPS ning muqobili bo'lib, yo'ldagi proksi-serverlar yoki provayderlar ma'lumotlarni o'qib olishidan yoki to'sishidan saqlaydi).
+2. **Heartbeat (Ping/Pong) o'rnating:** WebSocket ulanishlari ba'zida tarmoq uzilishi tufayli jimgina "o'lib qoladi" va brauzer buni bilmaydi. Har 30 soniyada server va kliyent o'rtasida Ping/Pong xabarlarini yuborish orqali ulanishning tirikligini tekshirib turing (Heartbeat).
+3. **Qayta ulanishda backoff qo'llang:** Tarmoq uzilganda kliyentlar darhol va tinimsiz qayta ulanishga harakat qilib serverni o'ldirib qo'ymaydi (thundering herd). Qayta ulanish vaqtini asta-sekin oshiradigan `Exponential Backoff + Jitter` strategiyasidan foydalaning.
+
+---
+
 ## Xulosa
 
-WebSocket - bu realtime ilovalar uchun eng samarali texnologiya. Production'da ishlatishda quyidagilarga e'tibor bering:
+WebSocket bo'yicha yakuniy xulosa:
 
-1. **Robust reconnection** - exponential backoff + jitter
-2. **State management** - connection state machine
-3. **Message reliability** - acknowledgments, queue
-4. **Proper cleanup** - memory leak oldini olish
-5. **Monitoring** - connection metrics, latency tracking
+| Xususiyati | WebSocket | HTTP Polling |
+| --- | --- | --- |
+| **Aloqa yo'nalishi** | Ikki tomonlama (Full-Duplex) | Bir tomonlama (Kliyent so'raydi) |
+| **Header overhead** | Juda kichik (bir marta ulanish o'rnatilgach, faqat 2-6 bayt) | Har bir requestda to'liq sarlavha (1KB+) |
+| **Tezlik (Latency)** | Real-time (bir zumda) | Sekin (polling intervaliga bog'liq) |
+| **Mos keluvchi loyihalar**| Chatlar, Live o'yinlar, Birjalar | Odatiy dashboardlar, analytics |
 
 Keyingi bo'lim: [Server-Sent Events](./02-sse.md)

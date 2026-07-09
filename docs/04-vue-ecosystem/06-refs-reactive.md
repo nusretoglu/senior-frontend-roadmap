@@ -2,13 +2,36 @@
 
 ## Kirish
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Vue 3 da Composition API ni boshlagan har bir dasturchining birinchi savoli: "Qachon `ref` ishlataman, qachon `reactive`?". Agar siz buni farqiga bormasangiz, ertaga "Nega ekranda o'zgarish bo'lmayapti?" deb soch yulishni boshlaysiz. Chunki JS primitives (string, number, boolean) ob'ektlar kabi reference orqali ishlolmaydi. `ref` o'sha primitivlarni ham reaktiv qila oladigan "jodugarlik" qutisidir.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Quti va Uy"**  
+> Tasavvur qiling sizda pul (primitive value) bor. Uni to'g'ridan-to'g'ri birovga bersangiz, u ketib qoladi, uni kuzatolmaysiz.  
+> **`ref()` (Maxsus Quti):** Siz pulni shaffof va kuzatuvchisiga ega qutiga solib qo'ydingiz. Pulning qiymati o'zgarganini bilish uchun faqat qutini (`.value`) ochib qaraysiz. Primitiv narsalar faqat quti orqali ishlay oladi.  
+> **`reactive()` (Uy):** Uy bu ob'ekt. Uyning ichida televizor (xossa), muzlatgich (xossa) bor. Uyning o'zi kuzatuv tizimiga (Proxy) ulangan. Ichidagi narsani almashtirish uchun quti shart emas, to'g'ridan-to'g'ri `Uy.televizor = 'yangi'` qilaverasiz. Lekin televizorni ko'tarib uydan (destructuring) olib chiqib ketsangiz, kameralar unga nima bo'layotganini ko'rolmay qoladi.
+
 Vue 3 ning reaktivlik tizimi JavaScript Proxy asosida qurilgan. Ikki asosiy primitive mavjud: `ref()` va `reactive()`. Ularning farqlarini tushunish Vue 3 bilan samarali ishlash uchun muhim.
 
 ## ref() - Reference Wrapper
 
 ### Asosiy Tushuncha
 
-`ref()` har qanday qiymatni reactive wrapper'ga o'raydi. Qiymatga `.value` orqali kiriladi.
+`ref()` har qanday qiymatni reactive wrapper'ga o'raydi. Qiymatga JavaScript kodida doim `.value` orqali kiriladi (lekin template ichida o'zi ochiladi).
+
+```mermaid
+graph TD
+    subgraph ref_qutisi [ref Object]
+        Value[.value getter/setter]
+        Value --> P[Reaktiv Tizim]
+    end
+    
+    Primitive[0, 'hello', false] -->|O'rash| ref_qutisi
+    
+    style ref_qutisi fill:#e3f2fd,stroke:#1565c0
+    style Primitive fill:#ffcdd2,stroke:#d32f2f
+```
 
 ```javascript
 import { ref } from 'vue'
@@ -887,6 +910,12 @@ function useDebouncedRef(value, delay) {
 - Validation on change
 - Async operations
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **"ref all the things" yondashuvi:** Ko'pgina Vue mutaxassislari, jumladan Vue core team a'zolari ham iloji boricha hamma narsaga (obyekt bo'lsa ham) `ref` ishlatishni maslahat berishadi. Bu bilan jamoada ".value qo'yamanmi yo'qmi?" degan savol yo'qoladi, hamma narsaga .value qo'yiladi.
+2. **Destructuring balosi:** API dan javob kelsa va siz uni `reactive` ga assign qilmoqchi bo'lsangiz `state = response.data` deb yozolmaysiz (referens uziladi). Ammo `state.value = response.data` ishlayaveradi. Yoki `const { a, b } = reactiveObj` qilsangiz a va b oddiy JS qiymatiga aylanadi va ekranda o'zgarmaydi. To'g'rilash uchun `toRefs` ishlating.
+3. **Template o'zgaruvchilari uchun xavfsizlik:** Qachonki bitta butun obyektni yopib, boshqa funksiyaga argument sifatida berayotganda `ref` o'z holatini yaxshi saqlab qoladi.
+
 ---
 
 ## Xulosa
@@ -900,4 +929,4 @@ Vue 3 reaktivlik tizimi Proxy asosida qurilgan va juda kuchli:
 - **readonly** - Immutable wrappers
 - **markRaw/toRaw** - Reactivity control
 
-To'g'ri tool tanlash muhim - ref primitives uchun, reactive complex objects uchun.
+To'g'ri tool tanlash muhim - tavsiya sifatida hamma narsa uchun `ref` dan foydalanish eng xavfsiz va bosh og'rig'isiz usuldir.

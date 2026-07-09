@@ -2,29 +2,29 @@
 
 ## Kirish
 
-Server-Sent Events (SSE) - bu server'dan client'ga bir tomonlama (unidirectional) real-time ma'lumot yuborish texnologiyasi. WebSocket'dan farqli o'laroq, SSE oddiy HTTP protokoli ustida ishlaydi va browser tomonidan avtomatik reconnection qo'llab-quvvatlanadi.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Agar loyihangizda faqatgina serverdan kliyentga ma'lumot uzatish kerak bo'lsa (masalan, bir tomonlama yangiliklar lentasi, monitoring panellari, yuklanish foizi - progress bar yoki ChatGPT kabi matnni stream qilib chiqarish), ikki tomonlama og'ir WebSocket protokolini sozlash shart emas. **SSE (Server-Sent Events)** shunchaki oddiy HTTP protokoli orqali ishlaydi, brauzerda tayyor `EventSource` obyekti bor va u tarmoq uzilsa o'z-o'zidan qayta ulanadi (auto-reconnect). U ancha yengil va xavfsizdir.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Rassom va uning ko'rgazmasi vs Televideniye"**  
+> - **WebSocket (Ikki tomonlama suhbat):** Ikki kishining telefon orqali gaplashishi. Ikkalasi ham bir-biriga gapira oladi.
+> - **SSE (Televideniye):** Siz televizor ko'ryapsiz. Telekanal (Server) sizga doimiy ravishda ko'rsatuvlar (Data stream) yuboradi, lekin siz televizor orqali telekanalga javob qaytara olmaysiz. Siz faqat tinglaysiz (One-way client listen). ChatGPT matnni stream qilganda aynan shu usuldan foydalanadi.
+
+---
 
 ## SSE vs WebSocket
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                        SSE vs WebSocket                                  │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│  Server-Sent Events                    WebSocket                        │
-│  ──────────────────                    ─────────                        │
-│                                                                          │
-│  Server ────────────► Client           Server ◄────────► Client         │
-│  (One-way only)                        (Full-duplex)                    │
-│                                                                          │
-│  HTTP/1.1, HTTP/2                      WebSocket Protocol               │
-│  Text only (UTF-8)                     Text + Binary                    │
-│  Auto reconnect                        Manual reconnect                 │
-│  Simple to implement                   More complex                     │
-│  Works with proxies                    Proxy issues possible            │
-│                                                                          │
-└─────────────────────────────────────────────────────────────────────────┘
-```
+### SSE vs WebSocket Taqqoslovi
+
+| Kriteriya | Server-Sent Events (SSE) | WebSocket |
+| --- | --- | --- |
+| **Aloqa yo'nalishi** | Bir tomonlama (Faqat Server -> Kliyent) | Ikki tomonlama (Full-Duplex) |
+| **Protokol** | Oddiy HTTP / HTTP/2 | Alohida WebSocket Protokoli |
+| **Ma'lumot turi** | Faqat Matn (Text - UTF-8) | Matn va Binary (Rasmlar, fayllar) |
+| **Qayta ulanish** | Avtomatik (Brauzer o'zi qayta ulanadi) | Qo'lda yozish kerak (Reconnection logic) |
+| **Tayyorlash qiyinligi**| Juda oson (HTTP ustida ishlaydi) | Murakkabroq (alohida setup va portlar) |
+| **Proksi/Fayrvolllar**| Muammosiz ishlaydi | Bloklanish ehtimoli bor |
 
 ## SSE Protocol Format
 
@@ -1170,19 +1170,23 @@ app.get('/api/events', (req, res) => {
 });
 ```
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **HTTP/2 yoki HTTP/3 ni majburiy qiling:** Eski HTTP/1.1 protokoli ustida bitta brauzerda maksimum 6 ta parallel so'rov limiti mavjud. Agar foydalanuvchi saytingizni 6 ta tabda ochsa va ularning har biri SSE ulanishiga ega bo'lsa, 7-tab butunlay yuklanmay muzlab qoladi. HTTP/2 multiplexing yordamida bu limitni cheksiz qiling (yoki Shared Worker ishlating).
+2. **Nginx/Proxy bufferingni o'chiring:** Agar oldinda Nginx kabi proksi serverlar tursa, ular serverdan kelayotgan stream ma'lumotlarni "buferlab" birdaniga kliyentga berishga harakat qiladi va real-time effekti yo'qoladi. Buni tuzatish uchun server javobiga `X-Accel-Buffering: no` sarlavhasini qo'shib yuboring.
+3. **Heartbeat yuboring:** Tarmoqdagi oraliq proksi-serverlar agar ulanishda 30 soniya ma'lumot aylanmasa uni avtomatik yopib yuboradi. Buni oldini olish uchun har 15-20 soniyada shunchaki bo'sh izoh (comment: `:\n\n`) yuborib turing.
+
+---
+
 ## Xulosa
 
-SSE - server'dan client'ga real-time data streaming uchun oddiy va samarali yechim:
+Server-Sent Events bo'yicha yakuniy xulosa:
 
-1. **Simple API:** EventSource browser'da built-in
-2. **Auto-reconnect:** Browser avtomatik reconnect qiladi
-3. **HTTP compatible:** Proxy, firewall muammolari kam
-4. **Last-Event-ID:** Missed message'larni tiklash mumkin
-
-Production'da e'tibor bering:
-- Connection limit (HTTP/2 yoki shared connection)
-- Heartbeat (stale connection detection)
-- Buffer'larni o'chirish (nginx, proxy)
-- Proper cleanup (memory leak oldini olish)
+| Xususiyati | SSE | WebSocket |
+| --- | --- | --- |
+| **Brauzerni qo'llashi** | Tayyor API (`EventSource`) | Tayyor API (`WebSocket`) |
+| **Qayta ulanish** | Avtomatik (Last-Event-ID bilan) | Qo'lda yoziladi |
+| **Resurs sarfi (Server)** | Kamroq (Oddiy HTTP so'rovi) | Ko'proq (Port va handshake saqlash) |
+| **Tarmoq mosligi** | Proksi/Firewallarga mos | Ba'zi firewallar WebSocketni bloklaydi |
 
 Keyingi bo'lim: [Polling Strategies](./03-polling.md)

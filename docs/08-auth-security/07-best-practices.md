@@ -1,14 +1,16 @@
 # Security Best Practices
 
-## Mundarija
-1. [Defense in Depth](#defense-in-depth)
-2. [Authentication Best Practices](#authentication-best-practices)
-3. [Authorization Best Practices](#authorization-best-practices)
-4. [Data Protection](#data-protection)
-5. [Secure Development Lifecycle](#secure-development-lifecycle)
-6. [Security Headers](#security-headers)
-7. [Audit va Monitoring](#audit-va-monitoring)
-8. [Interview Savollari](#interview-savollari)
+## Kirish
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturchi sifatida biz yozayotgan ilovalarda yuzlab ulanish nuqtalari, formalar, API chaqiriqlar va ma'lumot saqlash joylari bo'ladi. Xavfsizlik bo'yicha eng yaxshi amaliyotlarni (Best Practices) bilmaslik va tizimni faqat bitta himoya vositasiga (masalan, faqat auth tokenga) ishonib topshirish — uyni faqatgina eshik qulfi bilan himoya qilishga o'xshaydi. Ko'p qatlamli xavfsizlik (Defense in depth) usullarini bilish va ularni har kuni qo'llash loyihamizni har qanday professional kiberhujumdan saqlab qoladi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Bankni Himoya Qilish (Defense in Depth)"**  
+> Tasavvur qiling, siz bank binosini himoya qilishingiz kerak.  
+> - **Faqat bitta himoya (Yomon):** Faqatgina bankning old eshigiga kalit o'rnatgansiz (masalan, oddiy login-parol). Agar o'g'ri kalitni o'g'irlasa yoki eshikni buzsa, to'g'ridan-to'g'ri pul seyfiga kirib oladi.  
+> - **Ko'p qatlamli himoya (Yaxshi - Defense in depth):** Bank oldida qorovul bor (Layer 1 - WAF/Network). Eshikda kalit bor (Layer 2 - Auth). Ichkarida kameralar bor (Layer 3 - Audit/Monitoring). Pul seyfining o'zida ham alohida seyf kodi va barmoq izi tekshiruvi bor (Layer 4 - Data Encryption/Authorization). Agar o'g'ri birinchi va ikkinchi qatlamdan o'tsa ham, baribir seyfni ocha olmaydi.
 
 ---
 
@@ -17,44 +19,26 @@
 ### Multi-Layer Security
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                        Defense in Depth                                  │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│  ┌─────────────────────────────────────────────────────────────────┐    │
-│  │ Layer 1: Network Security                                        │    │
-│  │ • CDN/WAF (Cloudflare, AWS WAF)                                 │    │
-│  │ • DDoS protection                                                │    │
-│  │ • IP whitelisting (admin endpoints)                             │    │
-│  │ • Rate limiting at edge                                         │    │
-│  └─────────────────────────────────────────────────────────────────┘    │
-│                              │                                           │
-│  ┌─────────────────────────────────────────────────────────────────┐    │
-│  │ Layer 2: Transport Security                                      │    │
-│  │ • HTTPS/TLS 1.3                                                  │    │
-│  │ • HSTS header                                                    │    │
-│  │ • Certificate pinning (mobile)                                   │    │
-│  │ • Secure cipher suites                                          │    │
-│  └─────────────────────────────────────────────────────────────────┘    │
-│                              │                                           │
-│  ┌─────────────────────────────────────────────────────────────────┐    │
-│  │ Layer 3: Application Security                                    │    │
-│  │ • Input validation                                               │    │
-│  │ • Output encoding                                                │    │
-│  │ • Authentication/Authorization                                   │    │
-│  │ • CSRF/XSS protection                                           │    │
-│  │ • CSP headers                                                    │    │
-│  └─────────────────────────────────────────────────────────────────┘    │
-│                              │                                           │
-│  ┌─────────────────────────────────────────────────────────────────┐    │
-│  │ Layer 4: Data Security                                           │    │
-│  │ • Encryption at rest                                             │    │
-│  │ • Encryption in transit                                          │    │
-│  │ • Secure key management                                          │    │
-│  │ • Data masking/tokenization                                      │    │
-│  └─────────────────────────────────────────────────────────────────┘    │
-│                                                                          │
-└─────────────────────────────────────────────────────────────────────────┘
+### Defense in Depth (Ko'p Qatlamli Himoya)
+
+```mermaid
+graph TD
+    subgraph Ko'p Qatlamli Himoya Tizimi
+        L1[Layer 1: Network Security <br/> CDN/WAF, DDoS Protection, Rate Limiting]
+        L2[Layer 2: Transport Security <br/> HTTPS/TLS 1.3, HSTS Headers]
+        L3[Layer 3: Application Security <br/> Input validation, CSP, Auth, XSS/CSRF Prevention]
+        L4[Layer 4: Data Security <br/> Encryption at rest/in transit, Key management]
+        
+        L1 --> L2
+        L2 --> L3
+        L3 --> L4
+    end
+    
+    style L1 fill:#e3f2fd,stroke:#1565c0
+    style L2 fill:#fff3e0,stroke:#e65100
+    style L3 fill:#e8f5e9,stroke:#2e7d32
+    style L4 fill:#f3e5f5,stroke:#7b1fa2
+```
 ```
 
 ### Bir qatlam buzilsa
@@ -1164,11 +1148,28 @@ const safeUser = { id, name };  // No password, SSN
    - Black/white box
    - Real-world attack scenarios
 
-**Frequency:**
-- Automated: Every commit
-- Manual audit: Quarterly
-- Pentest: Annually or after major changes
+**Frequency (Tekshiruvlar davriyligi):**
+- **Avtomatlashtirilgan:** Har bir commit va PR da (CI/CD pipeline)
+- **Qo'lda tahlil (Manual Audit):** Har chorakda (har 3 oyda)
+- **Pentest (Hujum simulyatsiyasi):** Har yili yoki yirik o'zgarishlardan so'ng
 
-**Bug Bounty:**
-- Continuous testing by community
-- Responsible disclosure program
+---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Ko'p qatlamli xavfsizlik (Defense in Depth) madaniyatini shakllantiring:** Hech qachon xavfsizlik uchun faqatgina bitta qatlam (masalan, faqat input validation) etarli deb o'ylamang. Network, Transport, Application va Data darajasida himoyani barpo qiling.
+2. **Uchinchi tomon paketlarini (NPM) muntazam tekshiring:** `npm audit` yoki Snyk toollari orqali loyihangizdagi kutubxonalarning zaifliklarini avtomatik tekshirib boring va ularni o'z vaqtida yangilang.
+3. **Mijozlar maxfiyligini birinchi o'ringa qo'ying:** Foydalanuvchilarning parollarini serverda aslo ochiq holda saqlamang (`bcrypt` yoki `argon2` yordamida hashlang). Kliyent tomonida (brauzerda) esa hech qanday maxfiy API kalitlarni qoldirmang.
+
+---
+
+## Xulosa
+
+Security Best Practices bo'yicha yakuniy xulosa:
+
+| Xavfsizlik Qatlami | Asosiy Vositalar | Maqsadi |
+| --- | --- | --- |
+| **Network (Tarmoq)** | CDN, Cloudflare WAF, Rate limiting | DDoS va avtomatlashgan botlar hujumidan himoya |
+| **Transport (Uzatish)** | HTTPS, HSTS, Secure Ciphers | Ma'lumotlarni yo'lda o'g'irlash (MitM) dan himoyalash |
+| **Application (Dastur)** | Input validation, CSP, JWT/Cookie, CORS | XSS, CSRF, Injection va ruxsatsiz kirishlarni to'sish |
+| **Data (Ma'lumot)** | Hash (bcrypt), AES Encryption, Key vaults | Ma'lumotlar bazasi sizib chiqqanda ma'lumotlarni o'qib bo'lmasligini ta'minlash |

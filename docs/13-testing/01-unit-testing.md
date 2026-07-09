@@ -4,17 +4,38 @@ Unit testing - bu dasturiy ta'minotni test qilishning eng asosiy va muhim qatlam
 
 ## Unit Test Nima?
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Unit testlar sizning kodingiz uchun "sug'urta" vazifasini o'taydi. Loyiha kattalashgan sari, kiritilgan kichik o'zgarish boshqa joyni buzib qo'yishi ehtimoli ortadi. Unit testlar bunday xatolarni mijozlarga yetib bormasidan oldin ushlab qoladi va kodni qo'rqmasdan refactoring qilish imkonini beradi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Mashina ehtiyot qismlari"**  
+> Mashina yig'ish zavodini tasavvur qiling. Zavodda minglab qismlar yig'iladi. Agar rulni yoki tormoz tizimini alohida (izolyatsiyada) tekshirmasdan to'g'ridan-to'g'ri mashinaga o'rnatsak va mashina yurmasa, xato qayerda ekanligini topish juda qiyin bo'ladi.
+> **Unit Test** — bu tormoz tizimini mashinaga ulashdan oldin uni maxsus stendga qo'yib, bosimi va ishlashini alohida tekshirishdir.
+
 Unit test - bu kodning eng kichik mustaqil qismini (unit) izolyatsiya qilingan holda test qilish. Unit odatda bitta funksiya, method yoki class bo'lishi mumkin.
 
-### Unit Test Xususiyatlari
+### Unit Test Xususiyatlari (FIRST)
 
-| Xususiyat | Tavsif |
-|-----------|--------|
-| **Isolated** | Boshqa unitlarga bog'liq emas |
-| **Fast** | Millisekundlarda bajariladi |
-| **Deterministic** | Har doim bir xil natija |
-| **Independent** | Boshqa testlarga bog'liq emas |
-| **Repeatable** | Har qanday muhitda ishlaydi |
+```mermaid
+mindmap
+  root((FIRST<br>Principles))
+    Fast
+      ::icon(fa fa-bolt)
+      (Millisekundlarda<br>ishlaydi)
+    Isolated
+      ::icon(fa fa-cube)
+      (Boshqa unitlarga<br>bog'liq emas)
+    Repeatable
+      ::icon(fa fa-redo)
+      (Har qanday muhitda<br>bir xil natija)
+    Self-Validating
+      ::icon(fa fa-check)
+      (O'zi pass/fail<br>bo'lishini hal qiladi)
+    Timely
+      ::icon(fa fa-clock)
+      (Koddin oldin yozilishi<br>yaxshi - TDD)
+```
 
 ```javascript
 // Ideal unit test
@@ -1073,6 +1094,15 @@ test('user registration', async () => {
 ```
 
 Bu pattern testlarni o'qishni osonlashtiradi va structure beradi.
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **AAA Patterniga qat'iy rioya qiling:** Arrange (Tayyorlash), Act (Bajarish), Assert (Tekshirish) bosqichlarini har bir testda alohida ajratib yozing.
+2. **Bitta Test - Bitta Mantiq:** Bitta test ichida faqat bitta ssenariyni tekshiring. 20 xil narsani birdan tekshirish xato topishni qiyinlashtiradi.
+3. **Flaky Testlardan qoching:** Tasodifiy sonlarga (Math.random) va joriy vaqtga (Date.now) bog'liq testlar yozmang, ularni doim Mock qiling.
+4. **Izolyatsiya muhim:** Testlar bir-biriga bog'liq bo'lmasligi kerak. 1-test ishlagandan keyin o'zgartirgan o'zgaruvchilarni 2-testga ta'sir qilmasligi uchun `beforeEach` da tozalab turing.
+
+---
 
 ## Xulosa
 

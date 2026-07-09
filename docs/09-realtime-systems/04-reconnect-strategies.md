@@ -2,48 +2,33 @@
 
 ## Kirish
 
-Real-time ilovalar uchun connection'lar uzilishi muqarrar. Network instability, server restart, mobile network switch - bularning barchasi reconnection strategiyasini talab qiladi. Professional darajadagi reconnection - bu faqat qayta ulanish emas, balki user experience va server stability'ni hisobga olgan holda murakkab state machine.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Foydalanuvchilar har doim barqaror internet tarmoqda o'tirishmaydi. Wi-Fi dan mobil internetga o'tganda, liftga kirganda yoki server restart bo'lganda WebSocket/SSE ulanishlar uziladi. Agar loyihangizda to'g'ri qayta ulanish (reconnection) mantiqi yozilmagan bo'lsa, foydalanuvchi sahifani qo'lda yangilamaguncha yangi xabarlarni ololmay qoladi. Professional reconnection yozish — bu shunchaki `ws.connect()` ni takror chaqirish emas, balki foydalanuvchi interfeysi (UI) ni buzmagan holda, serverni so'rovlar bilan charchatmay (backoff) ishni tashkil qilishdir.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Quloqchin taqqan odam bilan suhbat"**  
+> Tasavvur qiling, shovqinli ko'chada do'stingiz bilan gaplashyapsiz. Do'stingizning qulog'ida shovqinni to'suvchi quloqchin (Instability) bor.  
+> - **Strategiyasiz (Yomon):** Do'stingiz har soniyada sizga "Nima deding?" deb baqiraveradi. Bu sizni gapirishdan to'xtatadi va charchatadi (Server DDOS/Crash).
+> - **Exponential Backoff bilan (Yaxshi):** Do'stingiz birinchi marta uzilishda 1 soniya kutadi va so'raydi. Agar yana shovqin bo'lsa, keyingi safar 2 soniya, keyin 4 soniya, keyin 8 soniya kutib so'raydi. U vaqt oralig'ini uzaytiradi va siz nafas olib gapirishingiz uchun joy beradi.
+
+---
 
 ## Connection State Machine
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                    CONNECTION STATE MACHINE                              │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│                         ┌──────────────┐                                │
-│                         │ DISCONNECTED │◄───────────────────────────┐   │
-│                         └──────┬───────┘                            │   │
-│                                │                                    │   │
-│                           connect()                                 │   │
-│                                │                                    │   │
-│                                ▼                                    │   │
-│                         ┌──────────────┐                            │   │
-│              ┌─────────►│  CONNECTING  │◄────────┐                  │   │
-│              │          └──────┬───────┘         │                  │   │
-│              │                 │                 │                  │   │
-│              │          success/failure      timeout                │   │
-│              │                 │                 │                  │   │
-│              │    ┌────────────┴────────────┐    │                  │   │
-│              │    │                         │    │                  │   │
-│              │    ▼                         ▼    │                  │   │
-│              │ ┌─────────┐         ┌─────────────┴──┐               │   │
-│              │ │CONNECTED│         │  RECONNECTING  │───────────────┤   │
-│              │ └────┬────┘         └────────────────┘               │   │
-│              │      │                      ▲                        │   │
-│              │   error/                    │                        │   │
-│              │   close                     │                        │   │
-│              │      │                      │                        │   │
-│              │      └──────────────────────┘                        │   │
-│              │                                                      │   │
-│              │                                  max retries         │   │
-│              │                                      │               │   │
-│              │                                      ▼               │   │
-│              │                              ┌──────────────┐        │   │
-│              └──────────────────────────────│    FAILED    │────────┘   │
-│                       manual retry          └──────────────┘            │
-│                                                                          │
-└─────────────────────────────────────────────────────────────────────────┘
+### Connection State Machine (Ulanish Holatlari)
+
+```mermaid
+stateDiagram-v2
+    [*] --> DISCONNECTED
+    DISCONNECTED --> CONNECTING : connect()
+    CONNECTING --> CONNECTED : success
+    CONNECTING --> RECONNECTING : failure / timeout
+    CONNECTED --> RECONNECTING : error / close
+    RECONNECTING --> CONNECTING : retry delay end
+    RECONNECTING --> FAILED : max retries reached
+    FAILED --> CONNECTING : manual retry
+    FAILED --> DISCONNECTED : reset
 ```
 
 ## Exponential Backoff
@@ -1345,17 +1330,22 @@ if (!navigator.onLine) {
 }
 ```
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Jitter qo'shish majburiy:** Reconnection yozganda shunchaki oddiy exponential backoff ishlatmang. Qayta ulanish vaqtiga ozgina tasodifiy o'zgarish (Jitter) qo'shing. Bu tarmoq o'chib yonganda millionlab kliyentlar serverga bir vaqtning o'zida yopishib olib, uni qayta o'ldirib qo'yishini (Thundering Herd) oldini oladi.
+2. **Network/Offline holatlarini tinglang:** Brauzerning `navigator.onLine` holatini va `online` / `offline` hodisalarini kuzatib boring. Agar internet butunlay yo'q bo'lsa, backoff taymerini to'xtatib turing. Qachonki tarmoq qaytsa (`online` event), taymerni kutib o'tirmasdan darhol qayta ulanishni boshlang.
+3. **Kliyent tomonda navbat (Offline Queue) yarating:** Kliyent oflayn bo'lganida yubormoqchi bo'lgan xabarlarini o'chirib yubormang. Ularni maxsus massivda saqlab turing va ulanish qayta tiklangach, avtomatik ravishda serverga jo'natib oling (Message queue reconciliation).
+
+---
+
 ## Xulosa
 
-Professional reconnection strategiyasi quyidagilarni o'z ichiga oladi:
+Reconnection strategiyalari bo'yicha yakuniy xulosa:
 
-1. **Exponential backoff** - server himoyasi
-2. **Jitter** - thundering herd prevention
-3. **State machine** - predictable behavior
-4. **State recovery** - subscription/message restoration
-5. **Network awareness** - online/offline handling
-6. **Max attempts** - infinite loop prevention
-
-Production'da reconnection muhim reliability komponenti hisoblanadi.
+| Xususiyati | Exponential Backoff | Jitter (Tasodifiy siljish) | Network Awareness |
+| --- | --- | --- | --- |
+| **Vazifasi** | Har safar ulanish o'xshamasa kutish vaqtini ko'paytirish | Qayta ulanish vaqtini har xil kliyentlarda har xil qilish | Tarmoq bor/yo'qligini tekshirish |
+| **Natija** | Server yuklamasini kamaytiradi | Thundering Herd muammosini yo'qotadi | Keraksiz so'rovlarni to'xtatadi, tarmoq qaytganda tez ulanadi |
+| **Tavsiya** | Majburiy | Juda tavsiya etiladi | Majburiy |
 
 Keyingi bo'lim: [Presence Systems](./05-presence-systems.md)

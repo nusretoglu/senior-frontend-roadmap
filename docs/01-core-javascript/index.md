@@ -1,5 +1,13 @@
 # Core JavaScript
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturchilar ko'pincha freymvorklarni (React, Vue, Angular) tezroq o'rganishga shoshishadi. Lekin tag zaminida ularning hammasi Core JavaScript da ishlaydi. Agar siz `this` qanday ishlashini, `Event Loop` qachon to'xtashini yoki `Closure` xotirani qanday to'ldirishini bilmasangiz, ertasiga loyihada tushunarsiz "jodugarlik" kabi bug'larga duch kelasiz. Yaxshi muhandis vositani (freymvork) emas, materialni (tilni) mukammal tushunishi shart.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Poydevor"**  
+> Chiroyli g'ishtlar, naqshlar (Vue, React) bilan uy qursangizu, ostida mustahkam beton poydevor (Core JS) bo'lmasa nima bo'ladi? Kichik bir yer qimirlashi yoki kuchli shamol (Murakkab funksionallik, katta foydalanuvchilar oqimi) uyingizni ag'darib yuboradi. Ushbu bo'limdagi barcha darsliklar Sizning poydevoringizga qo'yiladigan "beton" dir.
+
 Bu bo'lim JavaScript'ning fundamental tushunchalarini chuqur o'rganishga bag'ishlangan. Senior darajadagi bilim uchun zarur bo'lgan barcha mavzular qamrab olingan.
 
 ## Bo'lim Tarkibi
@@ -68,3 +76,8 @@ Bu mavzular frontend interview'larda eng ko'p so'raladigan va real loyihalarda e
 Har bir faylda interview savollari mavjud. Ularni ketma-ket o'rganish tavsiya etiladi.
 
 **Eslatma:** Kod misollarini faqat o'qish emas, balki console'da ishlatib ko'rish muhim. Har bir tushunchani real loyihada qo'llash imkoniyatini izlang.
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Tilni seving, freymvorkni emas:** Frameworklar kelib ketaveradi, lekin JavaScript qoladi. JS'ni yaxshi bilgan dasturchi istalgan frameworkni 1-2 haftada mukammal o'zlashtira oladi.
+2. **"Nega?" deb so'rang:** Kod ishlaganida xursand bo'lib ketavermang, "Nega bunday ishladi?" degan savolni har doim berishni va Core JS prinsiplari orqali isbotlashni odat qiling.

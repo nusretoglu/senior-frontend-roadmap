@@ -4,39 +4,31 @@ Code splitting - bu JavaScript bundle'ni kichikroq qismlarga bo'lish texnikasi. 
 
 ## Nazariya
 
-### Muammo
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Foydalanuvchi sizning saytingizga kirganda barcha kodlar jamlangan bitta ulkan JS faylni (bundle.js) tortib olsa, bu sayt qotishiga olib keladi. Code Splitting "Hamma narsani bitta sumkaga tiqmasdan, faqat kerakli qismlarini alohida jildlarga solish" degani. 500KB o'rniga faqat joriy sahifaga kerakli 50KB kod yuklanadi. Qolgani - foydalanuvchi boshqa sahifaga o'tgandagina (Lazy Loading bilan birga) yuklanadi.
 
-```
-Oddiy SPA Bundle:
-┌─────────────────────────────────────────┐
-│ vendor.js (React/Vue) - 200KB           │
-│ app.js (barcha sahifalar) - 500KB       │
-│ styles.css - 100KB                      │
-│ ─────────────────────────────────       │
-│ TOTAL: 800KB (bitta so'rov)             │
-└─────────────────────────────────────────┘
+> [!NOTE]
+> **Real-hayot analogiyasi: "Pitseriya va Retseptlar Kitobi"**  
+> - **Monolitik Bundle (Yomon):** Pitseriyaga ishga kirdingiz. Sizga dunyodagi hamma ovqatlar (Pitsa, Palov, Sushi) retsepti bor 10 ming sahifali kitobni qo'lingizga berishdi. Uni ko'tarib yurish og'ir, o'qishga vaqt ketadi, vaholanki siz faqat Pitsa tayyorlaysiz.
+> - **Code Splitting (Yaxshi):** Sizga faqatgina Pitsa bo'limi yirtib olingan 10 varaqli kitobcha berishdi. Vaqti kelib sizga Sushi buyurtma qilishsagina, Sushi retsepti yozilgan qo'shimcha varaqni olib kelasiz.
 
-Foydalanuvchi faqat Home sahifani ochsa ham
-800KB yuklanadi!
-```
+### Muammo va Yechim
 
-### Yechim: Code Splitting
-
-```
-Code Split Bundle:
-┌─────────────────────────────────────────┐
-│ Initial Load:                           │
-│ ├── vendor.js - 80KB (critical only)    │
-│ ├── app.js - 50KB (core + router)       │
-│ └── home.js - 30KB (home page)          │
-│     TOTAL: 160KB                        │
-│                                         │
-│ On Demand:                              │
-│ ├── about.js - 20KB                     │
-│ ├── products.js - 100KB                 │
-│ ├── admin.js - 150KB                    │
-│ └── vendor-charts.js - 120KB            │
-└─────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph Yomon [Oddiy SPA Bundle]
+        A[vendor.js + app.js + styles.css<br/>TOTAL: 800KB]
+    end
+    
+    subgraph Yaxshi [Code Split Bundle]
+        B[Initial Load<br/>vendor 80KB + core 50KB + home 30KB<br/>TOTAL: 160KB]
+        C[On Demand<br/>about.js 20KB<br/>products.js 100KB<br/>admin.js 150KB]
+        B -.-> C
+    end
+    
+    style Yomon fill:#ffebee,stroke:#c62828
+    style Yaxshi fill:#e8f5e9,stroke:#2e7d32
 ```
 
 ### Splitting Strategiyalari
@@ -984,6 +976,14 @@ build: {
   }
 }
 ```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Vite da manualChunks:** Barcha NPM kutubxonalaringizni (Vue, Router, Pinia) bitta `vendor` chunk ga, e-commerce qismlari (Stripe, Axios) ni `ecommerce` chunk ga bo'lishni unutmang. Aks holda Vite/Webpack barini aralashtirib yuborishi mumkin.
+2. **Qancha Kichik, Shuncha Yaxshi... emasmikan?:** Juda ko'p kichik fayllarga (masalan, har bir fayl 1-2KB) ajratib yubormang. Brauzer yuzlab fayllarni yuklash o'rniga, bitta 50KB faylni yuklagani afzal. Optimal chunk hajmi 30KB - 100KB atrofida bo'lishi tavsiya etiladi.
+3. **Kutubxonalarni Code Splitting qilish:** Og'ir kutubxonalarni (masalan ECharts, Moment.js) hamma joyda import qilmang. Ularni faqatgina shu kutubxona kerak bo'ladigan komponentlardagina `import()` qiling.
+
+---
 
 ## Xulosa
 

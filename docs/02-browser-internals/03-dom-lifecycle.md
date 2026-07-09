@@ -2,7 +2,19 @@
 
 ## Kirish
 
-Brauzer HTML'ni qabul qilganidan to'liq yuklangunga qadar bir necha bosqichlardan o'tadi. Har bir bosqichda turli eventlar trigger bo'ladi. Bu eventlarni tushunish to'g'ri script yuklash va resurslarni boshqarish uchun muhim.
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Foydalanuvchi sahifangizni ochganda, skriptlaringiz qachon ishga tushishi va qaysi resurslar qachon yuklanishi sahifaning tezligini belgilaydi. Agar siz `DOMContentLoaded` va `window.onload` farqini bilmasangiz, skriptlaringiz hali rasm va shriftlar yuklanmay turib sahifani muzlatib qo'yishiga yo'l qo'yasiz. Yoki foydalanuvchi sahifadan chiqib ketayotganda ma'lumotlarni saqlab qolish (analytics beacon) mantiqini yozolmasligingiz mumkin. DOM Lifecycle (Hujjat hayot sikli) ni mukammal bilish — ishonchli va tezkor sahifalar qurish uchun muhimdir.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Yangi Uyga Ko'chib O'tish (Lifecycle Events)"**  
+> Sahifaning yuklanish hayot sikli — yangi uy qurib, unga ko'chib kirishga o'xshaydi:
+> - **loading (HTML parse bo'lmoqda):** Uy g'ishtlari terilmoqda va devorlar ko'tarilmoqda.
+> - **interactive / DOMContentLoaded (DOM tayyor - ko'chib kirish):** Uyni qurib bitirdingiz, kalitni oldingiz va ichkariga kirdingiz. Devorlar bo'yalmagan bo'lishi, mebellar (rasmlar, shriftlar) hali kelmagan bo'lishi mumkin, lekin uydan foydalansa bo'ladi.
+> - **complete / window.onload (Hammasi yuklandi):** Barcha mebellar (rasmlar) yetkazildi, devorlar bo'yaldi (CSS chizildi), pardalar taqildi. Uy to'laqonli tayyor.
+> - **beforeunload / unload (Ko'chib ketish):** Siz uyni tark etyapapsiz. Chiqishdan oldin chiroqlar o'chganligini tekshirish (ma'lumotlarni saqlash) va eshikni qulflash.
+
+---
 
 ---
 
@@ -16,43 +28,26 @@ console.log(document.readyState);
 // "complete"    - Barcha resurslar yuklandi
 ```
 
-### Timeline
-```
-┌──────────────────────────────────────────────────────────────────────┐
-│                        DOCUMENT LIFECYCLE                            │
-├──────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│  HTML Start                                                          │
-│      │                                                               │
-│      ▼                                                               │
-│  ┌─────────────────────────────────────────┐                        │
-│  │         readyState: "loading"           │                        │
-│  │         HTML Parsing...                 │                        │
-│  └─────────────────────────────────────────┘                        │
-│      │                                                               │
-│      │  <script> (blocking)                                         │
-│      │  Images/CSS/fonts start loading (parallel)                   │
-│      │                                                               │
-│      ▼                                                               │
-│  ┌─────────────────────────────────────────┐                        │
-│  │      readyState: "interactive"          │                        │
-│  │      DOM ready, resources loading...    │                        │
-│  │                                         │                        │
-│  │      ★ DOMContentLoaded event           │                        │
-│  └─────────────────────────────────────────┘                        │
-│      │                                                               │
-│      │  Images, iframes, fonts loading...                           │
-│      │                                                               │
-│      ▼                                                               │
-│  ┌─────────────────────────────────────────┐                        │
-│  │       readyState: "complete"            │                        │
-│  │       All resources loaded              │                        │
-│  │                                         │                        │
-│  │       ★ window.load event               │                        │
-│  └─────────────────────────────────────────┘                        │
-│      │                                                               │
-│      │  User interaction...                                         │
-│      │                                                               │
+#### Hujjat yuklanish xronologiyasi (Timeline)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Browser as Brauzer (Parser)
+    participant DOM as DOM daraxti
+    participant Window as Oyna (window)
+
+    Note over Browser: readyState: "loading"
+    Browser->>DOM: HTML parsing boshlanadi
+    Note over Browser: Blocking scripts run, images/CSS parallel yuklanadi
+    Browser->>DOM: HTML parsing yakunlandi
+    Note over Browser: readyState: "interactive"
+    DOM-->>Browser: DOMContentLoaded hodisasi (DOM tayyor!)
+    Note over Browser: Rasmlar, fontlar va iframe'lar yuklanadi
+    Browser->>Window: Barcha resurslar to'liq yuklandi
+    Note over Browser: readyState: "complete"
+    Window-->>Browser: load hodisasi (Hamma narsa tayyor!)
+```                                                            │
 │      ▼                                                               │
 │  ┌─────────────────────────────────────────┐                        │
 │  │       ★ beforeunload event              │                        │
@@ -941,14 +936,24 @@ function performNonCriticalWork() {
 
 ---
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Defer va Async atributlaridan foydalaning:** Tashqi scriptlarni (`<script src="...">`) yuklaganda doimo `defer` yoki `async` atributlarini qo'llang. Bu brauzerga scriptni parallel yuklab, HTML parsing jarayonini bloklamaslik imkonini beradi. `defer` scriptlarni HTML parsing tugagandan so'ng, aniq tartibda ishga tushiradi.
+2. **DOMContentLoaded da dastlabki DOM ulanishlarini qiling:** Rasm va shriftlar yuklanishini kutib o'tirmasdan, DOM tayyor bo'lishi bilanoq ishga tushadigan logic'larni `DOMContentLoaded` event listeneriga ulab qo'ying. Bu foydalanuvchiga sayt tezroq javob berayotgandek tuyulishi uchun (FID/INP metrikalari uchun) o'ta muhim.
+3. **Analitika ma'lumotlarini sendBeacon bilan yuboring:** Sahifadan chiqib ketish vaqtida (`pagehide` yoki `unload` hodisalarida) analytics (tahliliy) ma'lumotlarni yuborish uchun an'anaviy `fetch`/`axios` ishlatmang (ular so'rov tugamasdan brauzer sahifani yopib yuborsa o'chib ketadi). Buning o'rniga brauzer fonida ishonchli ishlaydigan `navigator.sendBeacon(url, data)` funksiyasidan foydalaning.
+
+---
+
 ## Xulosa
 
-| Event/Observer | Qachon | Use Case |
-|----------------|--------|----------|
-| DOMContentLoaded | DOM ready | DOM setup, event listeners |
-| load | All loaded | Image sizes, fonts |
-| beforeunload | Before leaving | Unsaved changes warning |
-| pagehide | Page hidden | Analytics, cleanup |
-| MutationObserver | DOM changes | Auto-init, lazy load |
-| IntersectionObserver | Visibility | Lazy load, infinite scroll |
-| ResizeObserver | Size changes | Responsive components |
+DOM Lifecycle va Observerlar xulosasi:
+
+| Event/Observer | Qachon ishga tushadi? | Eng to'g'ri foydalanish sohasi (Use Case) |
+| --- | --- | --- |
+| **DOMContentLoaded** | Faqat DOM daraxti to'liq qurilganda | Elementlarga event listenerlar ulash, DOM boshqaruvi |
+| **load** | Barcha rasmlar, shriftlar va iframe'lar yuklanganda | Rasm o'lchamlarini o'lchash, yuklanish ekranini yopish |
+| **beforeunload** | Foydalanuvchi sahifani tark etish arafasida bo'lganda | "Saqlanmagan o'zgarishlar bor" deb ogohlantirish |
+| **pagehide** | Sahifa yashirilganda / tark etilganda | Analitika ma'lumotlarini yuborish, cleanup qilish |
+| **MutationObserver** | DOM daraxtida o'zgarish (qo'shish/o'chirish) bo'lganda | Elementlar dinamik o'zgarganda avtomatik init qilish |
+| **IntersectionObserver** | Element viewportda (ekranda) ko'ringanda/yo'qolganda | Rasmlarni lazy-load qilish, Infinite scroll |
+| **ResizeObserver** | Elementning o'lchami (eni, bo'yi) o'zgarganda | Responsiv va moslashuvchan komponentlar yaratish |

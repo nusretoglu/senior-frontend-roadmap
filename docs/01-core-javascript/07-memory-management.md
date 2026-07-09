@@ -2,27 +2,36 @@
 
 ## Nazariya
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturingiz qancha uzoq ishlasa, shuncha ko'p xotira (RAM) talab qila boshlaydi. JS da xotirani siz qo'lda boshqarmaysiz, buni avtomatik tarzda *Garbage Collector (Axlat yig'ishtiruvchi)* bajaradi. Lekin GC ko'r-ko'rona ishlamaydi. U faqat sizga endi "kerak bo'lmay qolgan" (hech qayerdan havola qilinmagan - unreachable) narsalarnigina tozalaydi. Agar siz esdan chiqarib DOM elementini ob'ekt ichida saqlab qo'ysangiz yoki timer'larni o'chirmasangiz, GC ularni "hali ham kerak" deb o'ylab tozalolmaydi. Buni **Memory Leak (Xotira sizib chiqishi)** deyiladi va oxir-oqibat u brauzerni qotirib, qulatib yuboradi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Restoran stoli va Ofitsiant"**  
+> Foydalanuvchi restoranga kelib stulga o'tirdi (Variable yaratildi, Xotira ajratildi). U ovqatlandi (Xotiradan foydalanildi). Keyin u o'rnidan turib ketdi (Xotiraga bo'lgan ehtiyoj yo'qoldi).
+> **Garbage Collector (Ofitsiant)** stol bo'shaganini (Unreachable) ko'rgach, kelib idishlarni yig'ishtirib oladi va keyingi mijoz uchun bo'shatadi (Xotirani tozalash). Lekin mijoz sumkasini stulga tashlab ketsa, ofitsiant "Bu stol hali band ekan" deb unga tegmaydi. Agar bunday holat ko'p marta takrorlansa, restoranda bo'sh joy qolmaydi (Memory Leak).
+
 ### JavaScript Memory Model
 
 JavaScript avtomatik memory management ishlatadi. Dasturchi qo'lda xotira ajratish/bo'shatish bilan shug'ullanmaydi, lekin memory leak'larni tushunish muhim.
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                         HEAP                                 │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐    │
-│  │ Object 1 │  │ Object 2 │  │ Array    │  │ Function │    │
-│  │ {a: 1}   │←─│ {ref: ●} │  │ [1,2,3]  │  │ fn()     │    │
-│  └──────────┘  └──────────┘  └──────────┘  └──────────┘    │
-└─────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────┐
-│                         STACK                                │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │ Execution Context                                     │   │
-│  │  - Local variables (primitives)                       │   │
-│  │  - References to heap objects                         │   │
-│  └──────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+graph LR
+    subgraph Stack [Stack Memory]
+        Prim[Primitivlar<br/>let age = 25]
+        Ref[Referencelar<br/>let user = ●]
+    end
+    
+    subgraph Heap [Heap Memory]
+        Obj[Ob'ektlar<br/>{name: 'Ali'}]
+        Arr[Massivlar<br/>1, 2, 3]
+        Func[Funksiyalar]
+    end
+    
+    Ref -->|Pointer| Obj
+    
+    style Stack fill:#e3f2fd,stroke:#1565c0
+    style Heap fill:#fff3e0,stroke:#e65100
 ```
 
 ### Memory Lifecycle
@@ -970,3 +979,9 @@ function ComponentFixed() {
   return <div>{data}</div>;
 }
 ```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Komponent o'lganda tozalash ishlarini unutmang:** Vue'da `onUnmounted`, React'da `useEffect` return qismida event listenerlarni va taymerlarni o'chirishni doim odat qiling.
+2. **Katta ro'yxatlarni to'g'ri ishlating:** Agar DOM'dan qandaydir `li` elementni o'chirib yuborgan bo'lsangiz-u, lekin u JS ob'ekti ichida ham saqlanayotgan bo'lsa (Detached DOM Element), u xotirada qolaveradi. DOM ni Node.js xotirasida zaxiralashga ehtiyot bo'ling.
+3. **Chrome DevTools Heap Snapshot:** Brauzeringiz nega qotayotganini tekshirish uchun Chrome DevTools -> Memory tabidan foydalanishni, Heap Snapshot olib avvalgi va keyingi holatlardagi farqni (Retained Size) solishtirishni o'rganing.

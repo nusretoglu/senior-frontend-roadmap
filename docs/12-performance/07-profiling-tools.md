@@ -1,45 +1,41 @@
 # Profiling Tools
 
-Performance optimization'ning birinchi qadami - muammoni aniqlash. Profiling tools orqali bottleneck'larni topish va ularni hal qilish strategiyalarini ko'rib chiqamiz.
+## Kirish
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dasturingiz qotib ishlayotganini sezsangiz, ko'r-ko'rona "kodni tezlashtirishga" harakat qilish yomon oqibatlarga olib keladi. Sababi siz xato joyni (masalan UI ni) to'g'irlamoqchi bo'lishingiz mumkin, vaholanki asl muammo serverdan ma'lumot kech kelishida bo'lishi mumkin. **Profiling Tools (Tahlil Asboblari)** orqali kasallikning aniq o'chog'ini topib, faqatgina o'sha qismni jarrohlik usulida davolash kerak.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Shifokor va Bemor"**  
+> - **Profilingsiz (Yomon):** Bemor "qornim og'riyapti" dedi. Shifokor uni rentgen qilib ko'rmasdan barcha a'zolarini (oshqozon, jigar, buyrak) kesib tekshira boshladi. (Taxmin qilib optimizatsiya qilish).
+> - **Profiling bilan (Yaxshi):** Shifokor bemorni UZI yoki MRT apparatiga (Profiling Tool) soldi. Apparat faqatgina buyrakda muammo borligini ko'rsatdi (Bottleneck). Shifokor faqat buyrakni davoladi.
 
 ## Nazariya
 
-### Performance Profiling Workflow
+### Performance Profiling Workflow (Tahlil Bosqichlari)
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│ 1. MEASURE (O'lchash)                                       │
-│    └── Baseline metrics olish                               │
-│                                                             │
-│ 2. ANALYZE (Tahlil)                                         │
-│    └── Bottleneck aniqlash                                  │
-│                                                             │
-│ 3. OPTIMIZE (Optimallashtirish)                             │
-│    └── Muammoni hal qilish                                  │
-│                                                             │
-│ 4. VERIFY (Tekshirish)                                      │
-│    └── Yaxshilanishni tasdiqlash                            │
-│                                                             │
-│ 5. MONITOR (Kuzatish)                                       │
-│    └── Production'da davom ettirish                         │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    A[1. MEASURE <br/> O'lchash] --> B[2. ANALYZE <br/> Tahlil qilib xatoni topish]
+    B --> C[3. OPTIMIZE <br/> Optimallashtirish]
+    C --> D[4. VERIFY <br/> Tasdiqlash]
+    D --> E[5. MONITOR <br/> Kuzatish]
+    E -.-> A
+    
+    style A fill:#e3f2fd,stroke:#1976d2
+    style C fill:#e8f5e9,stroke:#2e7d32
 ```
 
-### Asosiy Metrikalar
+### Asosiy Metrikalar (Vebning hayotiy ko'rsatkichlari)
 
-```
-Core Web Vitals:
-├── LCP (Largest Contentful Paint) < 2.5s
-├── FID (First Input Delay) < 100ms
-├── CLS (Cumulative Layout Shift) < 0.1
-└── INP (Interaction to Next Paint) < 200ms
-
-Other Metrics:
-├── FCP (First Contentful Paint) < 1.8s
-├── TTFB (Time to First Byte) < 800ms
-├── TTI (Time to Interactive) < 3.8s
-└── TBT (Total Blocking Time) < 200ms
-```
+| Metrika qisqartmasi | To'liq nomi | Tavsiya etilgan vaqt | Ma'nosi |
+| --- | --- | --- | --- |
+| **LCP** | Largest Contentful Paint | **< 2.5s** | Ekranda eng katta element (rasm/matn) qachon chiqdi? |
+| **FID** | First Input Delay | **< 100ms** | Foydalanuvchi bosganda, brauzer qachon reaksiya berdi? |
+| **CLS** | Cumulative Layout Shift | **< 0.1** | Sayt yuklanayotganda elementlar qanchalik "sakradi"? |
+| **INP** | Interaction to Next Paint | **< 200ms** | Foydalanuvchi bosishi va ekranda natija chiqishi orasidagi vaqt |
+| **TTFB** | Time to First Byte | **< 800ms** | Serverdan birinchi javob kelguncha ketgan vaqt |
 
 ## Chrome DevTools
 
@@ -956,38 +952,24 @@ new PerformanceObserver((list) => {
 // - SpeedCurve
 ```
 
-## Tools Summary
+## Eng Yaxshi Amaliyotlar (Best Practices)
 
-| Tool | Purpose | When to Use |
-|------|---------|-------------|
-| Chrome DevTools | Development profiling | Every time |
-| Lighthouse | Audit & recommendations | Before deploy |
-| web-vitals | Core Web Vitals | Production RUM |
-| Bundle Analyzer | Bundle size | Build time |
-| Coverage Tool | Unused code | Optimization |
-| Memory Panel | Memory leaks | Debug |
-| Performance Panel | Runtime profiling | Debug |
+1. **Incognito (Yashirin) rejimda ishlating:** Har qanday profilerni yoki Lighthouseni doimo Yashirin (Incognito) Chrome oynasida ishlating. Aks holda brauzeringizdagi 3-4 ta extensionlar (masalan Adblock, Grammarly) o'zgarishlar kiritib, "saytingizni sekin deb o'ylab" sizni aldaydi.
+2. **Sekin tarmoqni simulyatsiya qiling (Throttling):** Sayt sizning kuchli MacBook va gigabit internetingizda moshindek ishlaydi. Lekin haqiqiy mijoz qishloqda eski Android telefonda 3G da kirayotgan bo'lishi mumkin. Chrome DevTools da `Network -> Fast 3G` yoki `CPU -> 4x slowdown` qilib tahlil qilish eng to'g'ri o'lchovdir.
+3. **CI/CD da byudjet o'rnating:** Jamoangizdagi dasturchilar sayt hajmini oshirib yubormasligi uchun Github Actions da Performance Budget o'rnating. Ya'ni kod 2.5 sekunddan sekin yuklansa (yoki JS bundle 200KB dan oshsa), avtomatik ravishda PR qizil bo'lib, deploy bo'lmay qolishi kerak.
 
 ## Xulosa
 
 Performance profiling strategiyasi:
 
-1. **Measure First** - Baseline metrikalar
-2. **Use Right Tools** - Vazifaga mos tool
-3. **Focus on User** - Real user metrics
-4. **Automate** - CI/CD integration
-5. **Monitor** - Production RUM
+1. **Measure First** - Boshlang'ich (Baseline) metrikalarni oling.
+2. **Use Right Tools** - Chrome DevTools (Dasturchi uchun), Lighthouse (Audit uchun), Web Vitals (Real user kuzatuvi uchun).
+3. **Focus on User** - Mijozlarning internet tezligini inobatga oling (Real user metrics).
+4. **Automate** - CI/CD bilan avtomatlashtiring.
 
-```javascript
-// Performance culture
-const performanceBudget = {
-  LCP: 2500,    // ms
-  FID: 100,     // ms
-  CLS: 0.1,     // score
-  INP: 200,     // ms
-  bundleJS: 150, // KB (gzip)
-  bundleCSS: 30  // KB (gzip)
-};
-
-// Every PR must pass performance budget
-```
+| Asbob (Tool) | Asosiy maqsadi | Qachon ishlatiladi? |
+|------|---------|-------------|
+| **Chrome DevTools** | Chuqur tahlil (Flame charts) | Har kuni dasturlash vaqtida |
+| **Lighthouse** | Metrikalar va takliflar | Kodni Productionga ulashdan oldin |
+| **web-vitals (RUM)** | Haqiqiy mijozlardan ma'lumot yig'ish | Dastur Live bo'lgandan so'ng doim |
+| **Bundle Analyzer** | JS kod hajmini tahlil qilish | Og'ir kutubxonalarni aniqlashda |

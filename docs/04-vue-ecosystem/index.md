@@ -23,11 +23,14 @@ Vue.js - progressiv JavaScript framework bo'lib, foydalanuvchi interfeyslarini y
 ## Vue.js Falsafasi
 
 ### 1. Progressiv Framework
-```
-Oddiy → Murakkab
-─────────────────────────────────────────────────────►
-CDN Script   →   Vue CLI   →   Nuxt.js   →   Enterprise
-(widget)         (SPA)         (SSR/SSG)     (micro-frontends)
+```mermaid
+graph LR
+    A["CDN Script<br>(widget)"] --> B["Vue CLI/Vite<br>(SPA)"]
+    B --> C["Nuxt.js<br>(SSR/SSG)"]
+    C --> D["Enterprise<br>(micro-frontends)"]
+    
+    style A fill:#e8f5e9,stroke:#388e3c
+    style D fill:#e1bee7,stroke:#8e24aa
 ```
 
 ### 2. Reaktivlik Modeli
@@ -52,39 +55,40 @@ const reactiveHandler = {
 ```
 
 ### 3. Virtual DOM
-```
-Template  →  Render Function  →  VNode Tree  →  DOM Patch
-   ↓              ↓                  ↓              ↓
- .vue         JavaScript         Virtual DOM    Real DOM
+```mermaid
+graph TD
+    A[Template .vue] -->|Compile| B[Render Function JavaScript]
+    B -->|Bajariladi| C[VNode Tree Virtual DOM]
+    C -->|Patch| D[DOM Patch Real DOM]
 ```
 
 ## Vue 3 Arxitektura Diagrammasi
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     Vue Application                          │
-├─────────────────────────────────────────────────────────────┤
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
-│  │  Reactivity │  │  Compiler   │  │  Runtime            │  │
-│  │  System     │  │             │  │                     │  │
-│  │  ─────────  │  │  ─────────  │  │  ─────────────────  │  │
-│  │  ref()      │  │  Template   │  │  createApp()        │  │
-│  │  reactive() │  │  Parser     │  │  mount()            │  │
-│  │  computed() │  │  Transform  │  │  patch()            │  │
-│  │  watch()    │  │  Codegen    │  │  Component Instance │  │
-│  └─────────────┘  └─────────────┘  └─────────────────────┘  │
-├─────────────────────────────────────────────────────────────┤
-│                        VNode Layer                           │
-│  ┌─────────────────────────────────────────────────────┐    │
-│  │  h() / createVNode() → VNode Tree → Diff Algorithm  │    │
-│  └─────────────────────────────────────────────────────┘    │
-├─────────────────────────────────────────────────────────────┤
-│                      Renderer Layer                          │
-│  ┌─────────────────┐  ┌─────────────────┐                   │
-│  │  DOM Renderer   │  │  Custom Renderer │                  │
-│  │  (Browser)      │  │  (Canvas, WebGL) │                  │
-│  └─────────────────┘  └─────────────────┘                   │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph Component Layer
+        State[State Data]
+        Logic[Logic Setup]
+        Template[Template Render]
+    end
+
+    subgraph Core Layer
+        React[Reactivity System]
+        VDom[Virtual DOM Compiler]
+    end
+
+    subgraph Renderer Layer
+        DomRender[DOM Renderer Browser]
+        CustomRender[Custom Renderer Canvas/WebGL]
+    end
+
+    State --> React
+    Logic --> React
+    Template --> VDom
+    
+    React --> DomRender
+    VDom --> DomRender
+    VDom --> CustomRender
 ```
 
 ## Muhim Terminlar
@@ -102,22 +106,25 @@ Template  →  Render Function  →  VNode Tree  →  DOM Patch
 
 ## O'rganish Yo'l Xaritasi
 
-```
-Boshlang'ich                    O'rta                         Ilg'or
-────────────────────────────────────────────────────────────────────►
-
-Template Syntax          Composition API              Render Functions
-v-bind, v-model         ref, reactive, computed       h(), createVNode()
-v-if, v-for             watch, watchEffect           Custom Renderers
-     │                        │                            │
-     ▼                        ▼                            ▼
-Props & Events          Composables                  Plugin Development
-Component Basics        Provide/Inject               Compiler Macros
-     │                        │                            │
-     ▼                        ▼                            ▼
-Vue Router              State Management             Performance Tuning
-Basic Routing           Pinia Stores                 Tree-shaking
-                                                     Code Splitting
+```mermaid
+flowchart TD
+    subgraph Boshlang'ich
+        A1(Template Syntax<br>v-bind, v-model) --> A2(Props & Events<br>Component Basics)
+        A2 --> A3(Vue Router<br>Basic Routing)
+    end
+    
+    subgraph O'rta
+        B1(Composition API<br>ref, reactive) --> B2(Composables<br>Provide/Inject)
+        B2 --> B3(State Management<br>Pinia Stores)
+    end
+    
+    subgraph Ilg'or
+        C1(Render Functions<br>Custom Renderers) --> C2(Plugin Development<br>Compiler Macros)
+        C2 --> C3(Performance Tuning<br>Tree-shaking)
+    end
+    
+    A1 -.-> B1
+    B1 -.-> C1
 ```
 
 ## Senior Developer Uchun Muhim Mavzular

@@ -2,55 +2,37 @@
 
 ## Kirish
 
-**Critical Rendering Path (CRP)** - brauzer HTML, CSS va JavaScript'ni ekrandagi birinchi pikselga aylantiradigan bosqichlar ketma-ketligi. CRP ni optimallashtirish = tezroq First Contentful Paint (FCP).
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Foydalanuvchilar oq sahifaga qarab turishni yomon ko'rishadi. Agar sayt ochilganda birinchi piksel (First Paint) 3 soniyadan kech ko'rinsa, foydalanuvchilarning yarmi saytdan darhol chiqib ketadi (Bounce Rate ortadi). **Critical Rendering Path (CRP)** — bu brauzerning sayt kodini yuklab olib, birinchi pikselni chizguncha bosib o'tadigan eng muhim zanjiridir. Uni optimallashtirish (zanjirni qisqartirish va to'siqlarni olib tashlash) orqali saytingizning yuklanish tezligini bir necha barobar oshirishingiz mumkin.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Oshxonadagi taom tayyorlash zanjiri (CRP)"**  
+> Mijoz restoranga kirdi va ovqat buyurtma qildi. Ovqat stolga yetib kelguncha (First Paint) bir necha bosqichlar bor:
+> - **HTML yuklash (Masalliqlarni olib kelish):** Bozordan go'sht va sabzavotlar olib kelindi.
+> - **CSS yuklash (Retseptlarni o'qish - Render Blocking):** Oshpaz retseptni oxirigacha o'qib chiqmaguncha go'shtni qozonga solmaydi (CSS to'liq o'qilmaguncha sahifa chizilmaydi).
+> - **JS yuklash (Oshxonadagi maxsus robotlar - Parser Blocking):** Robot oshxonaga kirib ishlashni boshlasa, oshpazning yo'lini to'sib qo'yadi (JavaScript yuklanib bajarilmaguncha HTML parsing to'xtab turadi).
+> - **Optimallashtirilgan CRP:** Retseptni (CSS) faqat birinchi kerakli qismini o'qib, robotlarni (JS) keyinroqqa surib qo'yish (defer/async) orqali mijozga taomni ancha tezroq yetkazib berish mumkin.
+
+---
 
 ---
 
 ## CRP Bosqichlari
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    CRITICAL RENDERING PATH                                  │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  ┌──────────────┐      ┌──────────────┐      ┌──────────────────────────┐  │
-│  │   Network    │──────│     HTML     │──────│      DOM Tree           │  │
-│  │   Request    │      │   Download   │      │   Construction          │  │
-│  └──────────────┘      └──────────────┘      └──────────────────────────┘  │
-│         │                                              │                    │
-│         │              ┌──────────────┐               │                    │
-│         └──────────────│     CSS      │               │                    │
-│                        │   Download   │               │                    │
-│                        └──────────────┘               │                    │
-│                               │                       │                    │
-│                               ▼                       │                    │
-│                        ┌──────────────┐               │                    │
-│                        │    CSSOM     │               │                    │
-│                        │ Construction │               │                    │
-│                        └──────────────┘               │                    │
-│                               │                       │                    │
-│                               │       ┌───────────────┘                    │
-│                               │       │                                    │
-│                               ▼       ▼                                    │
-│                        ┌────────────────────┐                              │
-│                        │    Render Tree     │                              │
-│                        │   Construction     │                              │
-│                        └────────────────────┘                              │
-│                                    │                                       │
-│                                    ▼                                       │
-│                        ┌────────────────────┐                              │
-│                        │      Layout        │                              │
-│                        └────────────────────┘                              │
-│                                    │                                       │
-│                                    ▼                                       │
-│                        ┌────────────────────┐                              │
-│                        │       Paint        │                              │
-│                        └────────────────────┘                              │
-│                                    │                                       │
-│                                    ▼                                       │
-│                             ★ FIRST PAINT                                  │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
+### Critical Rendering Path Oqimi
+
+```mermaid
+flowchart TD
+    HTML[1. HTML yuklash] --> DOM[2. DOM qurish]
+    CSS[1. CSS yuklash] --> CSSOM[3. CSSOM qurish]
+    DOM --> RT[4. Render Tree qurish]
+    CSSOM --> RT
+    RT --> Layout[5. Layout geometriya]
+    Layout --> Paint[6. Paint chizish]
+    Paint --> FP{★ FIRST PAINT}
+    
+    style FP fill:#fff3e0,stroke:#e65100,stroke-width:2px
 ```
 
 ---
@@ -765,20 +747,22 @@ app.use((req, res, next) => {
 
 ---
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Critical CSS-ni inline qiling:** Birinchi ekrandagi kontent (Above-the-fold) uchun zarur bo'lgan minimal CSS'ni (Critical CSS) aniqlab, uni `<style>` tegi ichida bevosita HTML'ning o'ziga yozib yuboring (inline). Qolgan barcha katta CSS fayllarni esa asinxron ravishda keyinroq yuklang. Bu FCP metrikasini 1 soniyadan ko'proq tezlattiradi.
+2. **JavaScript-ni defer atributi bilan ishlating:** Hech qachon `<script>` tegini `defer` yoki `async` atributlarisiz ishlatmang. Oddiy script yuklanganda HTML parsing jarayonini darhol to'xtatadi. `defer` esa skriptni fonda parallel yuklab, faqat DOM daraxti to'liq tayyor bo'lgandan so'ng (`DOMContentLoaded` oldidan) tartib bilan ishga tushiradi.
+3. **LCP rasmini preload qiling:** Saytda birinchi bo'lib ko'rinadigan eng katta rasmni (masalan, Hero image) `<link rel="preload" as="image" href="...">` orqali brauzerga oldindan yuklash buyrug'ini bering. Bu Largest Contentful Paint (LCP) metrikasini sezilarli darajada yaxshilaydi.
+
+---
+
 ## Xulosa
 
-| Optimizatsiya | FCP ta'siri | Qiyinlik |
-|---------------|-------------|----------|
-| Critical CSS inline | HIGH | Medium |
-| JS defer/async | HIGH | Low |
-| Resource hints | MEDIUM | Low |
-| Font optimization | MEDIUM | Medium |
-| Image optimization | MEDIUM-HIGH | Medium |
-| Code splitting | HIGH | High |
+CRP optimallashtirish usullari xulosasi:
 
-**Eng muhim qadamlar:**
-1. Critical CSS inline, qolganini async
-2. Barcha JS'ni defer qilish
-3. LCP image'ni preload
-4. Third-party domenlarni preconnect
-5. Fontlarga font-display: swap
+| Optimizatsiya Usuli | FCP va LCP ga ta'siri | Qiyinlik darajasi | Tavsiya etilgan yechim |
+| --- | --- | --- | --- |
+| **Critical CSS (Inline)** |  **Juda Yuqori** | O'rtacha | CSS-in-JS yoki maxsus kutubxonalar orqali ajratish |
+| **JS defer / async** |  **Juda Yuqori** | Oson | Skriptlarni to'liq `defer` qilish |
+| **Resource Hints (Preload)**|  **O'rtacha** | Oson | LCP rasmlari va shriftlarni preload qilish |
+| **Font Display Swap** |  **O'rtacha** | Oson | CSS-da `font-display: swap` qo'llash |
+| **Code Splitting** |  **Juda Yuqori** | Murakkab | Marshrutlar bo'yicha dinamik importlardan foydalanish |

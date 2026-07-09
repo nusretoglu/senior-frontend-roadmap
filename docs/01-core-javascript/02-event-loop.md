@@ -2,33 +2,45 @@
 
 ## Nazariya
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> JavaScript faqatgina **bitta thread** (bir oqim) da ishlaydi, ya'ni bir vaqtning o'zida faqat bitta qator kodni ishlata oladi. Agar u API ga so'rov yuborib 5 soniya kutib tursa, butun veb-saytingiz qotib (freeze bo'lib) qolardi. Lekin unday bo'lmaydi. Sayt ishlashda davom etadi. Nega? Chunki unda **Event Loop** mexanizmi bor! Event loop va Micro/Macro tasklar ketma-ketligini tushunmaslik Intervyularda o'ta ko'p yiqilishga, shuningdek real loyihalarda `setTimeout` nega kutilgan vaqtda ishlamasligi kabi tushunarsiz bug'larga sabab bo'ladi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Yolg'iz ofitsiant va Oshxona"**  
+> Tasavvur qiling restoranda faqat **1 ta ofitsiant** (JavaScript Thread) bor. U mijozdan buyurtma oladi (Sinxron kod). Agar u buyurtmani oshpazga bersa va oshpaz ovqatni pishirmagunicha kutib tursa (Sinxron kutish), qolgan mijozlar xizmat ko'rmasdan qochib ketardi. 
+> Lekin ofitsiant "aqlli". U buyurtmani oshpazga (`Web API / Node.js C++ API`) beradi-da, darhol keyingi mijozga xizmat qilgani ketadi. Oshpaz ovqatni pishirib bo'lgach, tayyor ovqatni "Tayyor buyurtmalar stoli" ga (`Callback Queue`) qo'yadi. Ofitsiant (Event Loop) zalda ishi qolmagan (Call Stack bo'shagan) zahoti o'sha tayyor ovqatlarni olib mijozlarga tarqatadi.
+
 ### JavaScript Single-Threaded
 
 JavaScript bitta thread'da ishlaydi. Bu degani bir vaqtda faqat bitta operatsiya bajariladi. Lekin browser/Node.js muhiti async operatsiyalarni qo'llab-quvvatlaydi. Bu qanday ishlaydi?
 
 ### Event Loop Komponentlari
 
-```
-┌─────────────────────────────────────────────────────┐
-│                     Call Stack                       │
-│  (Hozir bajarilayotgan kod)                         │
-└─────────────────────────────────────────────────────┘
-                        ↑
-                        │
-┌───────────────────────┴─────────────────────────────┐
-│                    Event Loop                        │
-│  (Call Stack bo'sh bo'lganda queue'larni tekshiradi)│
-└───────────────────────┬─────────────────────────────┘
-                        │
-        ┌───────────────┼───────────────┐
-        ↓               ↓               ↓
-┌───────────────┐ ┌───────────────┐ ┌───────────────┐
-│  Microtask    │ │   Task        │ │  Animation    │
-│  Queue        │ │   Queue       │ │  Callbacks    │
-│ (Promise,     │ │ (setTimeout,  │ │ (requestAnim- │
-│  queueMicro-  │ │  setInterval, │ │  ationFrame)  │
-│  task)        │ │  I/O, events) │ │               │
-└───────────────┘ └───────────────┘ └───────────────┘
+```mermaid
+graph TD
+    CS[Call Stack<br/>Sinxron Kodlar]
+    
+    subgraph Browser / Node APIs
+        API[Web APIs<br/>DOM, setTimeout, fetch]
+    end
+    
+    subgraph Queues
+        Micro[Microtask Queue<br/>Promises, queueMicrotask]
+        Macro[Macrotask Queue<br/>setTimeout, setInterval]
+    end
+    
+    CS -->|Async So'rovlar| API
+    API -->|Tayyor bo'lgach| Micro
+    API -->|Tayyor bo'lgach| Macro
+    
+    Micro -.->|1. Call Stack bo'shasa<br/>Avval Microtasklar| CS
+    Macro -.->|2. Micro bo'shasa<br/>Keyin Macrotasklar| CS
+    
+    style CS fill:#ffcdd2,stroke:#d32f2f
+    style API fill:#e3f2fd,stroke:#1565c0
+    style Micro fill:#c8e6c9,stroke:#388e3c
+    style Macro fill:#fff9c4,stroke:#fbc02d
 ```
 
 ### Call Stack
@@ -728,3 +740,9 @@ window.addEventListener('unhandledrejection', (event) => {
   console.error('Unhandled rejection:', event.reason);
 });
 ```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Synchronous ishlarni qisqartiring (Non-blocking):** Agar tsikl ichida 1 million marta operatsiya qilsangiz, brauzer muzlab qoladi. Katta tsikllarni `setTimeout(fn, 0)` bilan kichik bo'laklarga bo'ling (Chunking), shunda UI render qilishga ulguradi.
+2. **Microtasklarga extiyot bo'ling:** Qayta-qayta zanjir bo'lib o'zini chaqiradigan (recursive) `Promise.then()` lar UI'ni butunlay freeze qilib qo'yadi. Chunki Microtask queue bo'shamagunicha Event Loop Macrotasklarga ham, UI renderinga ham ruxsat bermaydi.
+3. **`setTimeout` vaqtiga ishonmang:** `setTimeout(fn, 100)` 100 millisoniyadan keyin ishlashga KAFOLAT bermaydi! Bu eng kamida 100 millisoniya o'tgach Call Stack bo'shasa ishlashini anglatadi. Agar Call Stack band bo'lsa u 500ms ham kutib qolishi mumkin. Aniq animatsiyalar uchun `requestAnimationFrame` ishlating.

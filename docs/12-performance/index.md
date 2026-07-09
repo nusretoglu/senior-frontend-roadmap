@@ -2,23 +2,34 @@
 
 Frontend ilovalar uchun performance optimallashtirish - bu foydalanuvchi tajribasini yaxshilash va biznes maqsadlariga erishishning eng muhim qismlaridan biri.
 
+## Kirish
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Foydalanuvchilar soniyalar o'tgan sari sabrsizlanib borishadi. Amazon kompaniyasi tadqiqotlariga ko'ra, saytning yuklanishi atigi 100 millisoniyaga sekinlashishi ularga 1% savdoni yo'qotishga olib keladi. Qolaversa, Google sekin saytlarni qidiruv natijalarida ancha pastga tushirib yuboradi (SEO). Shuning uchun, chiroyli kod yozish o'z yo'liga, tez ishlaydigan kod yozish esa sizni haqiqiy "Senior" darajaga olib chiqadi.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Poyga avtomobili"**  
+> - **Optimizatsiyasiz (Yomon):** Poyga mashinasining yukxonasiga og'ir toshlar, g'ishtlar va keraksiz asbob-uskunalarni tashlab olgansiz. Motori (Algoritm) qanchalik kuchli bo'lmasin, mashina sekin yuradi.
+> - **Optimizatsiya qilingan (Yaxshi):** Mashina karbonat angidriddan ishlangan (eng yengil qismlar - Code Splitting, Compression), orqa o'rindiqlari umuman yo'q (Dead Code Elimination). Mashina qushdek uchadi.
+
 ## Nega Performance Muhim?
 
 ### Biznes Ta'siri
 
-```
-+1 soniya yuklanish vaqti = -7% konversiya
-+3 soniya kutish = 53% foydalanuvchi tark etadi
-```
+| Kechikish | Biznesga Ta'siri |
+| --- | --- |
+| **+1 soniya** yuklanish vaqti | Konversiya -7% gacha pasayadi |
+| **+3 soniya** kutish | Mijozlarning 53% saytdan chiqib ketadi (Bounce Rate) |
 
-### Google Core Web Vitals
+### Google Core Web Vitals (Hayotiy Ko'rsatkichlar)
 
-| Metrika | Yaxshi | Yomon | Tavsif |
-|---------|--------|-------|--------|
-| LCP | < 2.5s | > 4s | Largest Contentful Paint |
-| FID | < 100ms | > 300ms | First Input Delay |
-| CLS | < 0.1 | > 0.25 | Cumulative Layout Shift |
-| INP | < 200ms | > 500ms | Interaction to Next Paint |
+| Metrika | Qisqartma | Yaxshi | Yomon | Ma'nosi |
+|---------|--------|-------|--------|--------|
+| **Largest Contentful Paint** | LCP | < 2.5s | > 4s | Asosiy kontent qachon ko'rindi? |
+| **First Input Delay** | FID | < 100ms | > 300ms | Birinchi reaksiyaga qancha vaqt ketdi? |
+| **Cumulative Layout Shift** | CLS | < 0.1 | > 0.25 | Sayt kutilmaganda "sakrab" ketdimi? |
+| **Interaction to Next Paint** | INP | < 200ms | > 500ms | Tugma bosilganda darhol ishladimi? |
 
 ## Bo'lim Tarkibi
 
@@ -49,12 +60,22 @@ performance.mark('end');
 performance.measure('slowFunction', 'start', 'end');
 ```
 
-### 2. Bottleneck'ni Topish
+### 2. Bottleneck (To'siqlar) ni Topish
 
-```
-Network → Parsing → Scripting → Rendering → Painting
-   ↓         ↓          ↓           ↓          ↓
- CDN      Minify    Code Split  Virtual DOM  GPU Layer
+Dastur tezligini oshirish zanjiri va uning yechimlari:
+
+```mermaid
+flowchart LR
+    A[Network <br/> (Tarmoq)] --> B[Parsing <br/> (O'qish)]
+    B --> C[Scripting <br/> (Bajarish)]
+    C --> D[Rendering <br/> (Joylashtirish)]
+    D --> E[Painting <br/> (Chizish)]
+    
+    A1((CDN, Compression)) -. Yechim .-> A
+    B1((Minify, Tree Shaking)) -. Yechim .-> B
+    C1((Code Splitting, Lazy Load)) -. Yechim .-> C
+    D1((Virtual DOM, Virtual Scroll)) -. Yechim .-> D
+    E1((GPU Layers, CSS Opt)) -. Yechim .-> E
 ```
 
 ### 3. Progressive Enhancement
@@ -174,7 +195,17 @@ onCLS(sendToAnalytics);
 onINP(sendToAnalytics);
 ```
 
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Premature optimization (O'z vaqtidan oldin optimallashtirish) qilmang:** "Barcha yomonliklarning ildizi - hali xato kuzatilmagan va sekin ishlamayotgan kodni tezlaturaman deb murakkablashtirishdir". Faqatgina `Performance Profiler` (Tahlil vositasi) sizga qaysi kod sekin ekanligini ko'rsatsagina o'sha joyni optimizatsiya qiling.
+2. **Kodni bo'lib tashlang (Code Splitting va Lazy Loading):** 5MB JS faylni bir urinishda yuklagandan ko'ra, 500KB lik 10 ta faylga bo'lish va faqat kerak bo'lgan sahifalarga keraklisini yuklash - eng yaxshi strategiya.
+3. **Rasmlar - Eng katta dushman va do'st:** Ko'pincha saytning 70% og'irligini rasmlar egallaydi. Barcha rasmlarni `.webp` yoki `.avif` formatga o'tkazing va hammasiga `loading="lazy"` atributini qo'shib chiqing. Faqat birinchi ko'rinadigan qismdagi (Hero) rasm bundan mustasno.
+
+---
+
 ## O'rganish Tartibi
+
+Siz bu qismda quyidagi tartibda darslarni ko'rib chiqasiz:
 
 1. **Profiling Tools** - avval o'lchashni o'rganing
 2. **Bundle Optimization** - build vaqtida optimallashtirish

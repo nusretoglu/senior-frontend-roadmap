@@ -1,10 +1,35 @@
 # Vitest
 
+## Kirish
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Uzoq yillar davomida JavaScript olamida "Jest" eng ommabop testlash freymvorki bo'lib keldi. Ammo Webpack o'rnini qanchalik tezlik bilan Vite egallayotgan bo'lsa, Jest o'rnini ham Vitest xuddi shunday tezlikda (hatto undan ham tezroq) egallamoqda. Agar siz React, Vue yoki Svelte da loyihani Vite orqali ko'targan bo'lsangiz, uni testlash uchun Vitest eng mukammal va "native" (chala sozlashlarsiz) ishlaydigan tanlovdir.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Benzinli avtomobil vs Elektromobil"**  
+> **Jest (Benzinli avto):** O'zini oqlagan, ishonchli, hamma usta uni qanday tuzatishni biladi. Ammo motori qizishi, moy almashtirishi kerak (Ko'p konfiguratsiyalar: Babel, TS-jest, Webpack).
+> **Vitest (Elektromobil):** Yangi avlod, juda tez tezlanadi (Instant HMR), ortiqcha shovqin va ehtiyot qismlari yo'q. Faqat zaryadga (Vite) tiqib haydab ketish kerak.
+
 Vitest - bu Vite-native unit test framework. Tez, zamonaviy, va Vite ecosystem bilan mukammal integratsiyalangan. Jest-compatible API bilan ishlash oson.
 
 ## Vitest Nima?
 
 Vitest Vite tomonidan qo'llab-quvvatlanadigan next-generation test runner. Vite'ning tezkor dev server'i va HMR (Hot Module Replacement) imkoniyatlaridan foydalanadi.
+
+```mermaid
+graph LR
+    subgraph Jest Arxitekturasi
+        TSJ[TypeScript/ESM] --> |Transformatsiya kerak<br/>Babel/ts-jest| J[Jest Runner]
+    end
+
+    subgraph Vitest Arxitekturasi
+        TSV[TypeScript/ESM] --> |Native tushunadi<br/>Zero config| V[Vitest Runner]
+    end
+    
+    style J fill:#f5f5f5,stroke:#9e9e9e
+    style V fill:#e3f2fd,stroke:#1565c0
+```
 
 ### Jest vs Vitest
 
@@ -1200,6 +1225,14 @@ mount(Component, {
   }
 })
 ```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Global Configuration'ni o'chirib qo'ying**: Agar test fayllarida `import { describe, it, expect } from 'vitest'` yozishga erinmasangiz, Vite configuration'ida `globals: true` qilishni tavsiya etmaymiz. Explicit import doim osonroq tushuniladi va global namespace'ni ifloslantirmaydi.
+2. **Setup fayllarni ajrating**: Barcha API mock'lari, global component (Vue'da masalan Router, Pinia) o'rnatishlarini har bir test ichida yozish o'rniga, markaziy `tests/setup.ts` faylini yarating va uni config orqali ulang (`setupFiles: ['./tests/setup.ts']`).
+3. **In-source testing**: Kichik utils fayllar yoki helper funksiyalari uchun Vitest'ning ajoyib imkoniyati bor - kodning o'zida yozib ketiladigan "in-source" testlar. Bunda alohida `.test.ts` fayl yaratishga hojat qolmaydi.
+
+---
 
 ## Xulosa
 

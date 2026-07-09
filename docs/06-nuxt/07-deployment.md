@@ -1,38 +1,27 @@
 # Deployment
 
-Nuxt.js turli deployment strategiyalarini qo'llab-quvvatlaydi - static hosting'dan serverless'gacha. Nitro server engine'i tufayli deyarli har qanday platformaga deploy qilish mumkin.
+## Kirish
+
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dastur tuzib bo'lingach, uni faqat o'zingizning kompyuteringizda emas, butun dunyo ko'rishi uchun internetga joylashingiz kerak (Deployment). An'anaviy Vue dasturlarini odatda faqat bitta usulda — Statik fayllar (`index.html`, `js`, `css`) sifatida hostingga joylash mumkin. Ammo Nuxt sizga tanlov erkinligini beradi: uni an'anaviy statik hostda, haqiqiy Node.js serverida, Serverless (Vercel kabi) platformalarda yoki hatto Edge (Cloudflare kabi) tarmoqlarida ham yurgiza olasiz. Bu Nuxt ichidagi **Nitro** server motori sharofatidir.
+
+> [!NOTE]
+> **Real-hayot analogiyasi: "Restoran Ochish"**  
+> - **Static Hosting (SSG):** Ovqatlarni oldindan pishirib qo'yib (generate), faqat tarqatib beradigan kiosk. (Juda tez, arzon, lekin menyu o'zgarsa qayta pishirish kerak).
+> - **Node.js Server (SSR):** Haqiqiy oshpaz (Server) buyurtma tushganda joyida pishirib beradi (Har doim issiq va yangi, lekin oshpaz ushlab turish qimmat va sekinroq).
+> - **Serverless:** Oshpazingiz faqat buyurtma tushgandagina ishga keladi va pishirib bo'lib yana g'oyib bo'ladi. (Tezkor va tejamkor).
 
 ## Nazariya
 
 ### Deployment Turlari
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Deployment Types                          │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│  1. STATIC HOSTING (SSG)                                    │
-│     npm run generate → .output/public/                      │
-│     Deploy to: Netlify, Vercel, GitHub Pages, Cloudflare    │
-│     Server: NOT REQUIRED                                    │
-│                                                              │
-│  2. NODE.JS SERVER (SSR)                                    │
-│     npm run build → .output/server/                         │
-│     Deploy to: VPS, DigitalOcean, Railway, Render           │
-│     Server: Node.js REQUIRED                                │
-│                                                              │
-│  3. SERVERLESS (SSR)                                        │
-│     npm run build → platform-specific                       │
-│     Deploy to: Vercel, Netlify, AWS Lambda, Cloudflare      │
-│     Server: Platform provides                               │
-│                                                              │
-│  4. EDGE (SSR)                                              │
-│     npm run build → edge runtime                            │
-│     Deploy to: Cloudflare Workers, Vercel Edge, Deno Deploy │
-│     Server: Edge network                                    │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
-```
+| Turi | Build Komandasi | Output | Server kerakmi? | Platformalar |
+| --- | --- | --- | --- | --- |
+| **Static Hosting (SSG)** | `npm run generate` | `.output/public/` | Yo'q | Netlify, Vercel, GH Pages |
+| **Node.js Server (SSR)** | `npm run build` | `.output/server/` | Ha (Node.js) | VPS, DigitalOcean, Railway |
+| **Serverless (SSR)** | `npm run build` | *Platform-specific* | Platforma beradi | Vercel, AWS Lambda |
+| **Edge (SSR)** | `npm run build` | *Edge runtime* | Edge network | Cloudflare Workers, Deno |
 
 ### Build Commands
 
@@ -1184,6 +1173,16 @@ export default defineEventHandler(async () => {
   return { ready: true }
 })
 ```
+
+---
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+
+1. **Atrof-muhit o'zgaruvchilari (Env Variables):** Hech qachon API kalitlarni kod ichida saqlamang. `.env` fayl ishlating va hosting platformangizda (Vercel/Netlify) Env variables bo'limiga kiriting. `runtimeConfig` ularni Nuxt dasturiga xavfsiz bog'lashga yordam beradi.
+2. **SSG yoki SSR ni to'g'ri tanlash:** Agar saytingiz asosan blog, portfel yoki landing page bo'lsa `generate` (SSG) ishlating. Bu arzon va eng tezkor usul. Ammo har daqiqada yangilanuvchi e-commerce platformasi bo'lsa `build` (SSR) yondashuvi to'g'ri bo'ladi.
+3. **Avtomatlashtirish (CI/CD):** Har doim GitHub/GitLab ga kod push qilinganida avtomatik deploy bo'ladigan qilib sozlang. O'z kompyuteringizdan FTP yordamida qo'lda fayl yuklamang. Bu xatolar xavfini nolga tushiradi.
+
+---
 
 ## Xulosa
 
