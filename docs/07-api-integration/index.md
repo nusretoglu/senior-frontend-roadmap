@@ -14,58 +14,32 @@
 
 Bu bo'lim frontend-backend integratsiyasi, REST va GraphQL API'lar bilan ishlash, hamda zamonaviy HTTP client pattern'larini chuqur o'rganishga bag'ishlangan.
 
-## Bo'lim Tarkibi
+---
+
+## 🟢 Junior (Asoslar va Tushunchalar)
+
+### API Nima o'zi?
+API (Application Programming Interface) - bu ikki xil dasturning bir-biri bilan gaplashishi uchun qoidalar to'plami. Frontend vizual oyna yasasa, uni haqiqiy foydalanuvchilar, rasmlar, mahsulotlar kabi ma'lumotlar (Data) bilan to'ldirish uchun Backend API ga murojaat (Request) qiladi va javob (Response) oladi.
+
+### Asosiy Mavzular
+Bo'limda o'rganiladigan asosiy yo'nalishlar:
 
 | # | Mavzu | Tavsif |
 |---|-------|--------|
-| 01 | [REST API](./01-rest-api.md) | REST principlari, HTTP metodlar, status kodlar, HATEOAS |
+| 01 | [REST API](./01-rest-api.md) | REST principlari, HTTP metodlar, status kodlar |
 | 02 | [GraphQL](./02-graphql.md) | Query, Mutation, Subscription, Apollo Client, caching |
-| 03 | [Pagination](./03-pagination.md) | Offset, cursor, infinite scroll, virtual scrolling |
-| 04 | [Caching](./04-caching.md) | HTTP cache, SWR, React Query, cache invalidation |
-| 05 | [Retries & Interceptors](./05-retries-interceptors.md) | Exponential backoff, request/response interceptors |
-| 06 | [Token Refresh](./06-token-refresh.md) | JWT refresh, silent renewal, race condition handling |
-| 07 | [Axios vs Fetch](./07-axios-vs-fetch.md) | Comparison, wrapper patterns, modern alternatives |
+| 03 | [Pagination](./03-pagination.md) | Katta ma'lumotlarni qism-qism ko'rsatish (Offset, cursor) |
+| 04 | [Caching](./04-caching.md) | Tarmoq so'rovlarini kamaytirish strategiyalari |
+| 05 | [Retries & Interceptors](./05-retries-interceptors.md) | Tarmoqdagi uzilishlarni nazorat qilish |
+| 06 | [Token Refresh](./06-token-refresh.md) | Xavfsizlik kalitlarini avtomatik yangilash |
+| 07 | [Axios vs Fetch](./07-axios-vs-fetch.md) | HTTP Clientlarni taqqoslash va to'g'ri tanlash |
 
-## Nima Uchun Bu Mavzular?
+---
 
-Zamonaviy web ilovalar deyarli 100% API-driven. Backend bilan samarali integratsiya - senior frontend developer'ning asosiy ko'nikmalaridan biri.
+## 🟡 Middle (Amaliyot va Detallar)
 
-### REST API
-- Industry standard hisoblangan arxitektura
-- Barcha backend framework'lar bilan ishlash
-- Mobile va web uchun yagona endpoint'lar
-
-### GraphQL
-- Over-fetching va under-fetching muammolarini hal qilish
-- Real-time subscription'lar
-- Type-safe frontend development
-
-### Pagination
-- Million qatorli data'ni samarali ko'rsatish
-- UX va performance balance
-- SEO uchun pagination strategiyalari
-
-### Caching
-- Network request'larni kamaytirish
-- Offline-first ilovalar
-- Optimistic updates
-
-### Retries & Interceptors
-- Network instability handling
-- Global error handling
-- Request/response transformation
-
-### Token Refresh
-- Seamless authentication
-- Security best practices
-- Multi-tab synchronization
-
-### Axios vs Fetch
-- To'g'ri tool tanlash
-- Custom HTTP client yaratish
-- Bundle size optimization
-
-## Real-World Ahamiyati
+### Arxitektura: Tarmoq bilan ishlash Qatlami (Network Layer)
+Yaxshi loyihalarda API chaqiruvlari komponentlarning ichida sochilib yotmaydi. Buning o'rniga "Network Layer" (Tarmoq Qatlami) yaratiladi.
 
 ```mermaid
 graph TD
@@ -96,26 +70,39 @@ graph TD
     style Backend fill:#e8f5e9,stroke:#2e7d32
 ```
 
-## O'rganish Tartibi
+### O'rganish Tartibi
+Bularni qay tartibda o'rganganga ma'qul:
+1. **REST API** - Eng ommabop va fundamental tushunchalar
+2. **Axios vs Fetch** - Ma'lumotlarni olib keluvchi asbobni (HTTP client) to'g'ri tanlash
+3. **Token Refresh** - Tizimga kirish va xavfsizlik (Authentication) muammolari
+4. **Retries & Interceptors** - Mustahkam tarmoq mantiqi (Interceptors)
+5. **Pagination & Caching** - Tezlik, performans va foydalanuvchi qulayligi (UX)
+6. **GraphQL** - Murakkab arxitekturali loyihalar uchun mo'ljallangan ilg'or API tili
 
-1. **REST API** - fundamental tushunchalar
-2. **Axios vs Fetch** - HTTP client tanlash
-3. **Retries & Interceptors** - robust network layer
-4. **Token Refresh** - authentication flow
-5. **Caching** - performance optimization
-6. **Pagination** - large data handling
-7. **GraphQL** - advanced API patterns
+---
 
-## Interview Tayyorgarlik
+## 🔴 Senior (Arxitektura va Optimizatsiya)
 
-Har bir faylda 3-5 ta interview savol va javoblar mavjud. Ko'p uchraydigan mavzular:
+### Trade-offs (Tanlov kelishuvlari)
+Senior darajasida har bir API texnologiyasi o'zining plyus va minuslariga (Trade-off) ekanligini anglab yetish muhimdir. Barcha loyihaga ham GraphQL tiqishtiraverish to'g'ri emas.
 
-- REST vs GraphQL farqlari
-- HTTP status kodlarni tushuntiring
-- Token refresh qanday ishlaydi?
-- Axios interceptor'lar nimaga kerak?
-- Infinite scroll qanday implement qilinadi?
-- Cache invalidation strategiyalari
+- **REST:** Standartlashgan, kesh (HTTP caching) oson, o'rganish tez. Ammo ortiqcha ma'lumotlar kelishi (over-fetching) yoki bir necha marta so'rov yuborishga to'g'ri kelishi (under-fetching) kabi muammolari bor.
+- **GraphQL:** Frontend to'liq nazoratga ega bo'ladi (faqat keraklisini so'raydi), bitta URL orqali hamma ishni bajara oladi. Ammo backendda `N+1` muammosi yuzaga keladi, so'rovlarni analiz qilish (Performance monitoring) qiyinlashadi, fayl yuklash biroz noqulay.
+
+### Intervyu Savollari (Qiyin daraja)
+**1. Request qotib qolganda (Timeout bo'lganda) Frontend uni nechchi marta qayta (Retry) yuborishi kerak va bu jarayonda qanday matematik algoritm qo'llaniladi?**
+*Javob:* Odatda 3 martagacha Retry qilinadi. Bunda darhol yubormasdan "Exponential Backoff" algoritmi qo'llaniladi, ya'ni har bir muvaffaqiyatsiz urunishdan keyin kutish vaqti eksponensial tarzda uzayib boradi (masalan: 1-marta 1 soniya, 2-marta 2 soniya, 3-marta 4 soniyadan so'ng yuborish). Bu vaqtinchalik o'chib qolgan yoki bosim ostida qiynalayotgan Serverni battar qulatib qo'ymaslik uchun shart.
+
+**2. Kesh yaroqsizlanishi (Cache Invalidation) nima va u qachon ishlatiladi?**
+*Javob:* Frontend xotiradagi o'zgartirilmagan ma'lumotlarni qachon eskirganligini (Stale) va Serverdan yangitdan olib kelishi kerakligini hal qilish jarayoni "Cache Invalidation" deyiladi. Masalan "UserList"ni serverdan olib kelib keshga yozib qo'ydik. Agar administrator yangi user qo'shsa (Mutation/POST) darhol eski UserList keshini Invalid qilish kerak (Keshni tozalash va Fetch qilish). Bu SWR va Vue Query da `invalidateQueries` yordamida qilinadi.
+
+**3. Ovozli qo'ng'iroqlar, chatchalar, hamda doimiy yangilanadigan Birja jadvallari uchun siz REST API, GraphQL Mutation, Server-Sent Events (SSE) va WebSocketlardan qaysi birini tanlaysiz va nega?**
+*Javob:* 
+- GraphQL Mutation va REST bular uchun juda og'ir va sekin.
+- Bir tomonlama, serverdan tez-tez keladigan ma'lumotlar (Birja jadvali) uchun **SSE** yaxshiroq. Chunki u asosan HTTP ustida ishlaydi, oddiy va resurs tejamkor.
+- Ikki tomonlama, past kechikishli muloqot (Chat yoki Ovoz/Video oqim) uchun esa yagona yechim bu **WebSocket** (Yoki WebRTC) dir. U uzoq vaqt aloqani ochiq saqlab tura oladi.
+
+---
 
 ## Eng Yaxshi Amaliyotlar (Best Practices)
 
@@ -124,15 +111,6 @@ Har bir faylda 3-5 ta interview savol va javoblar mavjud. Ko'p uchraydigan mavzu
 3. **Xavfsizlik**: Tokenlarni va sezgir ma'lumotlarni hech qachon `localStorage` da saqlamang. Eng yaxshisi "HttpOnly" cookie-fayllardan foydalaning.
 
 ---
-
-## Amaliy Mashqlar
-
-Har bir bo'limda real-world case'lar va kod misollari mavjud. Ularni:
-
-1. O'z loyihangizda sinab ko'ring
-2. Edge case'larni o'ylab toping
-3. Error handling'ni yaxshilang
-4. Unit test'lar yozing
 
 ## Xulosa
 
@@ -145,4 +123,4 @@ Har bir bo'limda real-world case'lar va kod misollari mavjud. Ularni:
 
 Backend API qanchalik chiroyli ishlagan taqdirda ham, uzoq masofa, internet tezligi yoki server bandligi kabi muammolar uni sekinlashtiradi. Shu sababli API integratsiyasida "xatolarga tayyor turish" (Error Handling va Retry) mexanizmlari eng qadrlanadigan xususiyat hisoblanadi.
 
-**Eslatma:** API integratsiya - bu nafaqat kod yozish, balki arxitektura qarorlari ham. Har bir pattern'ning trade-off'larini tushunish muhim.
+**Eslatma:** API integratsiya - bu nafaqat kod yozish, balki arxitektura qarorlari ham. Har bir pattern'ning plyus va minuslarini (trade-off) tushunish muhim.

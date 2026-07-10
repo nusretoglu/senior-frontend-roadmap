@@ -1,24 +1,94 @@
-# GPU Acceleration - Hardware-Accelerated Rendering
-
-## Kirish
+# GPU Acceleration (Hardware-Accelerated Rendering)
 
 > [!IMPORTANT]
 > **Nima uchun muhim?**  
-> Foydalanuvchilar o'yinlar yoki mobil ilovalar kabi silliq, hech qanday "qotish"larsiz ishlaydigan animatsiyalarni kutishadi. Agar barcha hisob-kitoblar va animatsiyalar brauzerning CPU (Markaziy protsessor - Main Thread) zimmasida qolsa, sahifa har qanday yuklamada (masalan, API so'rov bajarilganda) qotib qoladi (jank). **GPU Acceleration (GPU orqali tezlashtirish)** bizga animatsiyalarni GPU (Video karta) ga o'tkazib, kompyuter protsessorini yuklamadan xalos qilish va 60 FPS tezlikdagi o'ta silliq interfeyslar qurish imkonini beradi.
+> Foydalanuvchilar silliq, hech qanday "qotish"larsiz ishlaydigan animatsiyalarni kutishadi. Agar barcha hisob-kitoblar va animatsiyalar brauzerning CPU (Markaziy protsessor - Main Thread) zimmasida qolsa, sahifa har qanday yuklamada (masalan, orqada kattaroq JS kodi ishlaganda) qotib qoladi (jank). **GPU Acceleration (GPU orqali tezlashtirish)** bizga animatsiyalarni GPU (Video karta) ga o'tkazib, kompyuter protsessorini yuklamadan xalos qilish va 60 FPS tezlikdagi o'ta silliq interfeyslar qurish imkonini beradi.
+
+## 🟢 Junior (Asoslar va Tushunchalar)
+
+### Terminologiya
+**GPU Acceleration** — ekrandagi siljishlar, ranglarning o'zgarishi va xiralashish kabi effektlarni markaziy protsessorga (CPU) emas, balki qotmasdan tez chiza oladigan video kartaga (GPU) topshirish.
 
 > [!NOTE]
-> **Real-hayot analogiyasi: "Teatrdagi fon ko'rgazmasi (Compositing Layers)"**  
-> - **CPU Rendering (Barcha rasmni bitta qog'ozga chizish):** Siz bitta katta qog'ozga daraxt, uy va osmonni chizdingiz. Agar daraxtni qimirlatmoqchi bo'lsangiz (Animatsiya), butun qog'ozni o'chirib, barcha narsalarni yangidan chizishingiz kerak (Layout + Paint). Bu juda qiyin va uzoq davom etadi.
-> - **GPU Rendering (Shaffof sellofan qatlamlar - Layers):** Siz shaffof sellofanning birinchi qatlamiga uyni, ikkinchisiga daraxtni, uchinchisiga osmonni chizdingiz. Agar endi daraxtni siljitmoqchi bo'lsangiz, faqat ikkinchi sellofanning o'zini surasiz (Composite). Qolgan sellofanlarga (qatlamlarga) tegish shart emas. Video karta (GPU) aynan shu shaffof sellofanlarni bir-birining ustiga qo'yib, juda tez harakatlantiruvchi kuchdir.
+> **Hayotiy o'xshatish: "Teatrdagi fon ko'rgazmasi"**  
+> - **CPU Rendering (Barcha rasmni bitta qog'ozga chizish):** Siz bitta katta qog'ozga daraxt, uy va osmonni chizdingiz. Agar daraxtni qimirlatmoqchi bo'lsangiz (Animatsiya), butun qog'ozni o'chirib, barcha narsalarni yana boshqatdan chizishingiz kerak (Juda og'ir va qiyin).
+> - **GPU Rendering (Shaffof qatlamlar - Layers):** Siz shaffof (plyonka) ning birinchi qatlamiga uyni, ikkinchisiga daraxtni, uchinchisiga osmonni chizdingiz. Agar endi daraxtni siljitmoqchi bo'lsangiz, faqat ikkinchi plyonkaning o'zini o'ngga surib qoyasiz. Qolganlariga tegish shart emas. Video karta (GPU) aynan shu plyonkalarni tez surish bilan shug'ullanadi.
+
+### Sodda Misol
+Agar siz menyu yonidan chiqib keladigan (Sidebar) animatsiya qilmoqchi bo'lsangiz margin ishlatsangiz u butun ekranni titratadi. Transform ishlatsangiz u plyonka qatlam kabi siljiydi.
+
+```css
+/* YOMON (CPU qiynaladi, qotadi) */
+.sidebar {
+  transition: margin-left 0.3s;
+  margin-left: -300px;
+}
+
+/* YAXSHI (GPU chizadi, 60 FPS silliq) */
+.sidebar {
+  transition: transform 0.3s;
+  transform: translateX(-100%);
+}
+```
 
 ---
 
+## 🟡 Middle (Amaliyot va Detallar)
+
+### Qaysi qoidalar GPU ni ishga tushiradi? (Composite Only)
+Barcha CSS xususiyatlari ham video kartani ishlatavermaydi. Asosan 2 tasigina to'g'ridan to'g'ri Composite (qatlamlarni biriktirish) bosqichida GPU tomonidan o'qiladi. Bu xossalarga animatsiya berilganda Main Thread ga tegmasdan o'ta silliq ishlaydi:
+
+1. `transform` (translate, scale, rotate, skew)
+2. `opacity` (Xiralashish va paydo bo'lish)
+
+### Qatlam yaratilish sabablari (Layer Creation)
+Siz qaysidir element shaffof plyonka (GPU Layer) ga aylanishini xohlasangiz quyidagi holatlarda brauzer buni avtomatik qiladi:
+- 3D transformlar (`translate3d`, `translateZ`)
+- `position: fixed` yoki `sticky` ishlatilsa
+- `<video>`, `<canvas>` elementlari
+- Va eng asosiysi: `will-change` atributi orqali
+
+### Ko'p uchraydigan xatolar va muammolar (Pitfalls)
+**Memory (Xotira) to'lib ketishi**
+Har bir GPU Layer xotirada joy egallaydi. Katta ekranli telefonda 1 ta rasm layeriga 10 MB gacha joy ketishi mumkin.
+
+```css
+/* XATO: 1000 ta ro'yxatni (List) hammasiga berib tashlash 
+   Siz RAMni qotirib brauzerni o'ldirib qo'yasiz (Crash) */
+.hamma-narsa {
+  will-change: transform; 
+}
+```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+- **will-change ni faqat kerakli paytda vaqtinchalik ishlating:** JS orqali elementga animatsiya boshlanishidan oldin (masalan, hover bo'lganda) `willChange = 'transform'` ni bering va animatsiya to'liq tugashi bilan uni yana `willChange = 'auto'` ga o'zgartirib, video xotirani bo'shating.
+- **Z-Index larni to'g'ri bering:** Agar siz GPU qatlam (masalan transform qilingan quti) ning tepasiga oddiy matnni `z-index: 10` bilan qo'ysangiz, matn qatlam ostida qolib ketmasligi uchun brauzer uni ham majburan og'ir GPU qatlamiga aylantiradi (Implicit Compositing). 
+
 ---
 
-## Brauzer Rendering Architecture
+## 🔴 Senior (Arxitektura va Optimallashtirish)
 
-### Brauzer Rendering Oqimi va Thread'lar (Threads Architecture)
+### "Under the hood" (Qopqoq ostida nimalar ro'y beradi)
+Chromium (va Blink) engine arxitekturasida 3 ta asosiy jarayon mavjud:
+1. **Main Thread (CPU)** - JS ni ishlatadi, Layout va Paint ni tayyorlab barchasini "Paint Records" degan formatda yig'adi.
+2. **Compositor Thread** - Layerlarni qabul qilib oladi va ekranni mayda to'rtburchaklarga (Tiles) bo'lib Rasterizatsiya qilishga jo'natadi.
+3. **GPU Process** - To'rtburchaklarni (Tiles) piksel formatda videokarta orqali ekranga biriktiradi (Compositing).
 
+Siz `transform` yoki `opacity` ishlatsangiz jarayon **Compositor Thread** dagi mustaqil ishlash bilan kifoyalanadi. Ammo `left` yoki `margin` qilsangiz, signal yana boshiga Main Thread ga borishi kerak bo'ladi va o'rtada JS da og'ir array hisoblanayotgan bo'lsa... tamom animatsiya qotadi!
+
+### Passive Event Listeners (Scroll Performance)
+Scroll hodisasi asinxron, ya'ni ekranni surganingizda UI Main Thread dan qat'iy nazar surilishi kerak. Ammo eski `window.addEventListener('scroll', fn)` ishlatilganda brauzer JS ichida qachondir `e.preventDefault()` (scroll ni to'xtatish) qilinib qolishi mumkinligini kutib turadi. Natijada Scroll GPU silliqligida emas, CPU kutishida ishlaydi.
+**Yechim:** Brauzerga "Men preventDefault qilmayman!" deb va'da bering:
+`window.addEventListener('scroll', onScroll, { passive: true })`
+
+### Intervyu Savollari (Qiyin daraja)
+**1. Eski davrdagi `transform: translateZ(0)` bilan `will-change: transform` ning farqi nimada?**
+*Javob:* Ikkalasi ham elementni Hardware Accelerated (GPU) Layerga o'tkazadi. Lekin `translateZ(0)` bu Brauzerni aldash (Hack) hisoblanadi. Unda brauzer asl niyatimiz nimaligini tushunmaydi va xotirani band qilib qo'yadi. `will-change` esa aniq maqsadli bo'lib, uning yordamida brauzer oldindan qaysi xususiyat optimallashishini tayyorlaydi.
+
+**2. Nima sababdan CSS Animatsiyalari JS animatsiyalariga qaraganda tezroq ishlaydi?**
+*Javob:* JS orqali (`requestAnimationFrame` bilan) qilingan har bir animatsiya freymi Main Thread da ishlaydi (UI to'silishi xavfi bor). CSS dagi keyframelar esa e'lon qilingandan so'ng deklarativ tarzda Compositor Thread ga oshiriladi va GPU da Main thread ga deyarli tegmasdan aylanib yotaveradi. Zamonaviy JS alternativi — **Web Animations API** (`element.animate()`) ham Composite Layerda silliq ishlash xususiyatiga ega.
+
+### Vizualizatsiya (Compositor Pipeline)
 ```mermaid
 graph TD
     subgraph Main Thread (CPU)
@@ -38,932 +108,17 @@ graph TD
         Raster --> Comp[Compositing: Textures to screen]
     end
 
-    style Main Thread (CPU) fill:#ffebee,stroke:#c62828
+    style Main Thread fill:#ffebee,stroke:#c62828
     style Compositor Thread fill:#e8f5e9,stroke:#2e7d32
     style GPU Process fill:#e3f2fd,stroke:#1565c0
-
-
-### Thread Roles
-
-| Thread | Vazifasi | Blocking Effect |
-|--------|----------|-----------------|
-| **Main Thread** | JS, DOM, Layout, Paint records | UI freeze |
-| **Compositor Thread** | Layer management, tile raster | Smooth |
-| **GPU Process** | Hardware rendering | Very fast |
-
----
-
-## Compositor Layers
-
-### Layer nima?
-Brauzer sahifani alohida "qatlamlarga" (layers) bo'ladi. Har layer GPU texture sifatida saqlanadi va mustaqil transform/composite qilinishi mumkin.
-
-### Layer yaratilish sabablari
-
-```css
-/* 1. 3D yoki perspective transform */
-.layer-3d {
-    transform: translateZ(0);
-    transform: translate3d(0, 0, 0);
-    transform: rotateY(45deg);
-    perspective: 1000px;
-}
-
-/* 2. will-change property */
-.layer-will-change {
-    will-change: transform;
-    will-change: opacity;
-    will-change: transform, opacity;
-}
-
-/* 3. CSS animation/transition (transform/opacity) */
-.layer-animated {
-    animation: slide 1s infinite;
-}
-@keyframes slide {
-    from { transform: translateX(0); }
-    to { transform: translateX(100px); }
-}
-
-/* 4. position: fixed/sticky */
-.layer-fixed {
-    position: fixed;
-    top: 0;
-}
-
-/* 5. opacity < 1 */
-.layer-opacity {
-    opacity: 0.99;
-}
-
-/* 6. filter, backdrop-filter */
-.layer-filter {
-    filter: blur(5px);
-    backdrop-filter: blur(10px);
-}
-
-/* 7. mix-blend-mode */
-.layer-blend {
-    mix-blend-mode: multiply;
-}
-
-/* 8. clip-path */
-.layer-clip {
-    clip-path: circle(50%);
-}
-
-/* 9. mask */
-.layer-mask {
-    mask-image: linear-gradient(to bottom, black, transparent);
-}
-
-/* 10. video, canvas, iframe */
-.layer-media {
-    /* video va canvas avtomatik alohida layer */
-}
 ```
-
-### Layer Hierarchy
-```
-┌─────────────────────────────────────────────┐
-│            Root Layer (document)            │
-│  ┌───────────────────────────────────────┐ │
-│  │         Scrollable content            │ │
-│  │  ┌─────────────────────────────────┐ │ │
-│  │  │     Card (will-change: transform)│ │ │
-│  │  └─────────────────────────────────┘ │ │
-│  │  ┌─────────────────────────────────┐ │ │
-│  │  │     Image (opacity animation)   │ │ │
-│  │  └─────────────────────────────────┘ │ │
-│  └───────────────────────────────────────┘ │
-│  ┌───────────────────────────────────────┐ │
-│  │     Fixed header (position: fixed)    │ │
-│  └───────────────────────────────────────┘ │
-│  ┌───────────────────────────────────────┐ │
-│  │     Modal (transform: translateZ)     │ │
-│  └───────────────────────────────────────┘ │
-└─────────────────────────────────────────────┘
-```
-
----
-
-## Composite-Only Properties
-
-### Faqat GPU'da ishlaydigan xossalar
-Bu xossalar main thread'ni band qilmaydi:
-
-```css
-/* COMPOSITE ONLY - Eng tezkor */
-.gpu-only {
-    /* Position */
-    transform: translateX(100px);
-    transform: translateY(50px);
-    transform: translate(100px, 50px);
-    transform: translate3d(100px, 50px, 0);
-
-    /* Scale */
-    transform: scale(1.5);
-    transform: scaleX(2);
-    transform: scaleY(0.5);
-
-    /* Rotation */
-    transform: rotate(45deg);
-    transform: rotateX(30deg);
-    transform: rotateY(60deg);
-    transform: rotate3d(1, 1, 0, 45deg);
-
-    /* Skew */
-    transform: skew(10deg);
-
-    /* Opacity */
-    opacity: 0.5;
-}
-```
-
-### Comparison: Layout vs Paint vs Composite
-
-```css
-/* LAYOUT TRIGGER - Eng qimmat */
-.layout {
-    width: 200px;
-    height: 100px;
-    padding: 20px;
-    margin: 10px;
-    top: 50px;
-    left: 100px;
-    border-width: 2px;
-    font-size: 18px;
-}
-
-/* PAINT TRIGGER - O'rta qimmat */
-.paint {
-    color: red;
-    background-color: blue;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    border-color: green;
-    border-radius: 10px;
-}
-
-/* COMPOSITE TRIGGER - Eng arzon */
-.composite {
-    transform: translateX(100px);
-    opacity: 0.8;
-}
-```
-
----
-
-## will-change Property
-
-### Nima qiladi?
-Brauzerga "bu element tez orada o'zgaradi" deb xabar beradi. Brauzer oldindan GPU layer yaratadi.
-
-### To'g'ri ishlatish
-
-```css
-/* STATIK - doim will-change (kam element uchun OK) */
-.animated-card {
-    will-change: transform;
-    transition: transform 0.3s;
-}
-.animated-card:hover {
-    transform: scale(1.05);
-}
-
-/* DINAMIK - faqat kerak paytda (ko'p element uchun) */
-.card {
-    transition: transform 0.3s;
-}
-.card:hover {
-    will-change: transform;
-    transform: scale(1.05);
-}
-```
-
-```javascript
-// JavaScript bilan dinamik boshqarish
-const cards = document.querySelectorAll('.card');
-
-cards.forEach(card => {
-    // Hover boshlanishida layer yaratish
-    card.addEventListener('mouseenter', () => {
-        card.style.willChange = 'transform';
-    });
-
-    // Animatsiya tugagach layer yo'q qilish
-    card.addEventListener('mouseleave', () => {
-        // Transition tugashini kutish
-        card.addEventListener('transitionend', () => {
-            card.style.willChange = 'auto';
-        }, { once: true });
-    });
-});
-```
-
-### Noto'g'ri ishlatish
-
-```css
-/* YOMON: Barcha elementlarga will-change */
-* {
-    will-change: transform; /* Memory disaster! */
-}
-
-/* YOMON: Kerak bo'lmagan xossalarga */
-.static-element {
-    will-change: transform; /* Hech qachon animatsiya qilmaydi */
-}
-
-/* YOMON: Juda ko'p xossalar */
-.over-optimized {
-    will-change: transform, opacity, top, left, width, height;
-    /* Ortiqcha memory */
-}
-```
-
-### will-change vs transform: translateZ(0)
-
-```css
-/* Eski hack - hali ham ishlaydi */
-.old-hack {
-    transform: translateZ(0);
-    /* yoki */
-    transform: translate3d(0, 0, 0);
-    /* Layer yaratadi, lekin niyat noaniq */
-}
-
-/* Zamonaviy yondashuv */
-.modern {
-    will-change: transform;
-    /* Niyat aniq, brauzer optimizatsiya qila oladi */
-}
-```
-
----
-
-## Animatsiya Best Practices
-
-### CSS Animation (Afzal)
-
-```css
-/* CSS animatsiya - Compositor thread'da */
-.slide-in {
-    animation: slideIn 0.5s ease-out forwards;
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Hover effect */
-.card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.card:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-}
-```
-
-### Web Animations API
-
-```javascript
-// JavaScript control bilan CSS performance
-const element = document.querySelector('.animated');
-
-// Composite-only properties
-const animation = element.animate([
-    { transform: 'translateX(0)', opacity: 1 },
-    { transform: 'translateX(100px)', opacity: 0.5 }
-], {
-    duration: 300,
-    easing: 'ease-out',
-    fill: 'forwards'
-});
-
-// Control
-animation.pause();
-animation.play();
-animation.reverse();
-animation.cancel();
-
-// Events
-animation.onfinish = () => console.log('Done');
-```
-
-### requestAnimationFrame
-
-```javascript
-// Manual animation - faqat murakkab logic uchun
-function animate() {
-    const element = document.querySelector('.box');
-    let position = 0;
-
-    function frame() {
-        position += 2;
-        // Composite-only property!
-        element.style.transform = `translateX(${position}px)`;
-
-        if (position < 200) {
-            requestAnimationFrame(frame);
-        }
-    }
-
-    requestAnimationFrame(frame);
-}
-
-// Easing function bilan
-function animateWithEasing(element, from, to, duration) {
-    const startTime = performance.now();
-
-    function easeOutCubic(t) {
-        return 1 - Math.pow(1 - t, 3);
-    }
-
-    function frame(currentTime) {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const easedProgress = easeOutCubic(progress);
-
-        const current = from + (to - from) * easedProgress;
-        element.style.transform = `translateX(${current}px)`;
-
-        if (progress < 1) {
-            requestAnimationFrame(frame);
-        }
-    }
-
-    requestAnimationFrame(frame);
-}
-```
-
----
-
-## Real-World Cases
-
-### Case 1: Parallax Effect
-
-```javascript
-// MUAMMO: top/left = Layout har frame
-window.addEventListener('scroll', () => {
-    parallaxLayers.forEach(layer => {
-        const speed = layer.dataset.speed;
-        layer.style.top = window.scrollY * speed + 'px';
-    });
-});
-
-// YECHIM: transform = Composite only
-let ticking = false;
-window.addEventListener('scroll', () => {
-    if (!ticking) {
-        requestAnimationFrame(() => {
-            const scrollY = window.scrollY;
-            parallaxLayers.forEach(layer => {
-                const speed = parseFloat(layer.dataset.speed);
-                layer.style.transform = `translateY(${scrollY * speed}px)`;
-            });
-            ticking = false;
-        });
-        ticking = true;
-    }
-}, { passive: true });
-```
-
-### Case 2: Modal Animation
-
-```css
-/* MUAMMO: height/scale mixed = Paint */
-.modal-bad {
-    height: 0;
-    overflow: hidden;
-    transition: height 0.3s;
-}
-.modal-bad.open {
-    height: auto;
-}
-
-/* YECHIM: Pure transform */
-.modal-overlay {
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s;
-}
-.modal-overlay.open {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.modal-content {
-    transform: scale(0.95) translateY(20px);
-    opacity: 0;
-    transition: transform 0.3s, opacity 0.3s;
-}
-.modal-overlay.open .modal-content {
-    transform: scale(1) translateY(0);
-    opacity: 1;
-}
-```
-
-### Case 3: Infinite Carousel
-
-```css
-/* Hardware accelerated carousel */
-.carousel-track {
-    display: flex;
-    will-change: transform;
-}
-
-.carousel-slide {
-    flex-shrink: 0;
-    width: 100%;
-}
-```
-
-```javascript
-class GPUCarousel {
-    constructor(element) {
-        this.track = element.querySelector('.carousel-track');
-        this.slides = element.querySelectorAll('.carousel-slide');
-        this.currentIndex = 0;
-
-        // Touch support
-        this.setupTouch();
-    }
-
-    goTo(index) {
-        this.currentIndex = index;
-        const offset = -index * 100;
-
-        // GPU accelerated
-        this.track.style.transform = `translateX(${offset}%)`;
-    }
-
-    setupTouch() {
-        let startX, currentX;
-
-        this.track.addEventListener('touchstart', (e) => {
-            startX = e.touches[0].clientX;
-            this.track.style.transition = 'none';
-        }, { passive: true });
-
-        this.track.addEventListener('touchmove', (e) => {
-            currentX = e.touches[0].clientX;
-            const diff = currentX - startX;
-            const offset = -this.currentIndex * 100 + (diff / this.track.offsetWidth) * 100;
-
-            // Real-time GPU transform
-            this.track.style.transform = `translateX(${offset}%)`;
-        }, { passive: true });
-
-        this.track.addEventListener('touchend', () => {
-            this.track.style.transition = 'transform 0.3s ease-out';
-            // Snap to nearest slide
-            this.goTo(Math.round(this.currentIndex));
-        });
-    }
-}
-```
-
-### Case 4: Sticky Header Shadow
-
-```css
-/* MUAMMO: JavaScript ile box-shadow = Paint */
-.header {
-    position: sticky;
-    top: 0;
-}
-
-/* YECHIM: Pseudo-element with opacity */
-.header {
-    position: sticky;
-    top: 0;
-}
-
-.header::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    left: 0;
-    right: 0;
-    height: 10px;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.1), transparent);
-    opacity: 0;
-    transition: opacity 0.3s;
-    pointer-events: none;
-}
-
-.header.scrolled::after {
-    opacity: 1; /* Composite only! */
-}
-```
-
-```javascript
-// Scroll detection
-const header = document.querySelector('.header');
-const observer = new IntersectionObserver(
-    ([entry]) => {
-        header.classList.toggle('scrolled', !entry.isIntersecting);
-    },
-    { threshold: 1, rootMargin: '-1px 0px 0px 0px' }
-);
-
-// Sentinel element
-const sentinel = document.createElement('div');
-sentinel.style.cssText = 'height: 1px; position: absolute; top: 0;';
-document.body.prepend(sentinel);
-observer.observe(sentinel);
-```
-
-### Case 5: Card Flip Animation
-
-```css
-.card-container {
-    perspective: 1000px;
-}
-
-.card {
-    position: relative;
-    transform-style: preserve-3d;
-    transition: transform 0.6s;
-}
-
-.card.flipped {
-    transform: rotateY(180deg);
-}
-
-.card-front,
-.card-back {
-    position: absolute;
-    inset: 0;
-    backface-visibility: hidden;
-}
-
-.card-back {
-    transform: rotateY(180deg);
-}
-```
-
----
-
-## Memory Management
-
-### Layer Memory Cost
-
-```javascript
-// Har layer ~width × height × 4 bytes (RGBA)
-// 1920×1080 layer ≈ 8MB
-
-// DevTools: Layers panel → Memory usage
-
-// Katta elementlarda layer yaratmaslik
-const hugeElement = document.querySelector('.huge');
-// hugeElement.style.willChange = 'transform'; // 50MB+ memory!
-```
-
-### Excessive Layers Prevention
-
-```javascript
-// Layer sonini monitoring
-function countLayers() {
-    // DevTools Protocol orqali
-    // chrome://tracing da "cc" category
-
-    // Manual check
-    const layerTriggers = document.querySelectorAll(`
-        [style*="will-change"],
-        [style*="transform: translate"],
-        [style*="translateZ"],
-        [style*="translate3d"]
-    `);
-
-    console.log('Potential layers:', layerTriggers.length);
-
-    if (layerTriggers.length > 50) {
-        console.warn('Too many layers! Check memory usage.');
-    }
-}
-```
-
-### Layer Promotion Control
-
-```css
-/* Keraksiz layer oldini olish */
-.no-layer {
-    will-change: auto;
-    transform: none;
-}
-
-/* Contain bilan izolyatsiya */
-.isolated-widget {
-    contain: strict;
-    /* Layer yaratadi, lekin chegaralangan */
-}
-```
-
----
-
-## DevTools Debugging
-
-### Layers Panel
-
-```
-1. DevTools → More Tools → Layers
-2. 3D view orqali layerlarni ko'rish
-3. Har layer uchun:
-   - Size (memory usage)
-   - Compositing reasons
-   - Paint count
-   - Slow scroll regions
-```
-
-### Rendering Panel
-
-```
-1. DevTools → More Tools → Rendering
-2. Enable:
-   - Paint flashing (repaint = qizil)
-   - Layer borders (sariq = GPU layer)
-   - Scrolling performance issues
-   - Frame Rendering Stats (FPS meter)
-```
-
-### Performance Panel
-
-```javascript
-// Custom performance marks
-performance.mark('animation-start');
-
-element.animate([
-    { transform: 'scale(1)' },
-    { transform: 'scale(1.5)' }
-], 300);
-
-setTimeout(() => {
-    performance.mark('animation-end');
-    performance.measure('animation', 'animation-start', 'animation-end');
-    console.log(performance.getEntriesByType('measure'));
-}, 300);
-```
-
-### Frame Budget Check
-
-```javascript
-// 60fps = 16.67ms per frame
-let lastTime = performance.now();
-let frameCount = 0;
-let worstFrame = 0;
-
-function measureFrame() {
-    const now = performance.now();
-    const delta = now - lastTime;
-    lastTime = now;
-    frameCount++;
-
-    if (delta > worstFrame) {
-        worstFrame = delta;
-    }
-
-    if (delta > 16.67) {
-        console.warn(`Slow frame: ${delta.toFixed(2)}ms`);
-    }
-
-    requestAnimationFrame(measureFrame);
-}
-
-requestAnimationFrame(measureFrame);
-
-// Report after 5 seconds
-setTimeout(() => {
-    console.log({
-        totalFrames: frameCount,
-        averageFPS: frameCount / 5,
-        worstFrame: worstFrame.toFixed(2) + 'ms'
-    });
-}, 5000);
-```
-
----
-
-## Interview Savollari
-
-### 1. Savol: GPU acceleration qanday ishlaydi?
-**Javob:**
-Brauzer ba'zi elementlarni alohida GPU texture (layer) sifatida saqlaydi. Bu layerlar GPU'da parallel transform va composite qilinadi.
-
-**Layer yaratish:**
-- `transform: translateZ(0)` yoki `translate3d()`
-- `will-change: transform`
-- `position: fixed/sticky`
-- `opacity < 1`, `filter`, `backdrop-filter`
-
-**Afzallik:** Main thread free, 60fps animatsiya.
-**Kamchilik:** Har layer memory sarflaydi.
-
-### 2. Savol: Nima uchun transform: translateX() left dan tezroq?
-**Javob:**
-| Property | Triggers | Thread |
-|----------|----------|--------|
-| `left` | Layout → Paint → Composite | Main |
-| `transform` | Composite only | Compositor |
-
-`transform` main thread'ni band qilmaydi, faqat GPU'da ishlaydi.
-
-### 3. Savol: will-change nima va qachon ishlatish kerak?
-**Javob:**
-`will-change` brauzerga element tez orada o'zgarishini bildiradi. Brauzer oldindan GPU layer yaratadi.
-
-**Qachon:**
-```css
-/* Animatsiya qilinadigan element */
-.animated {
-    will-change: transform;
-}
-```
-
-**Qachon EMAS:**
-```css
-/* Barcha elementlarga - memory disaster */
-* { will-change: transform; }
-
-/* Statik elementlarga */
-.static { will-change: transform; }
-```
-
-### 4. Savol: CSS animation vs JavaScript animation - qaysi biri yaxshiroq?
-**Javob:**
-| Aspect | CSS Animation | JS Animation |
-|--------|---------------|--------------|
-| Thread | Compositor | Main |
-| Control | Limited | Full |
-| Performance | Better | Good (with rAF) |
-| Use case | Simple | Complex logic |
-
-**CSS afzal:** transform/opacity animatsiyalar.
-**JS afzal:** Physics, gestures, complex sequences.
-
-```css
-/* CSS - Simple, performant */
-.card { transition: transform 0.3s; }
-.card:hover { transform: scale(1.05); }
-```
-
-```javascript
-// JS - Complex control
-element.animate(keyframes, {
-    duration: 300,
-    easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)'
-});
-```
-
-### 5. Savol: Qanday qilib 60fps animatsiya ta'minlash mumkin?
-**Javob:**
-
-1. **Faqat composite properties:**
-   ```css
-   .animate {
-       transform: translateX(100px);
-       opacity: 0.5;
-   }
-   ```
-
-2. **will-change oldindan qo'shish:**
-   ```javascript
-   element.style.willChange = 'transform';
-   // Animatsiya
-   // Keyin olib tashlash
-   ```
-
-3. **requestAnimationFrame:**
-   ```javascript
-   requestAnimationFrame(() => {
-       element.style.transform = `translateX(${x}px)`;
-   });
-   ```
-
-4. **Layout thrashing oldini olish:**
-   ```javascript
-   // Avval READ, keyin WRITE
-   const width = element.offsetWidth;
-   element.style.transform = `translateX(${width}px)`;
-   ```
-
-5. **DevTools monitoring:**
-   - Layers panel
-   - Frame rate meter
-   - Performance panel
-
----
-
-## Performance Tips
-
-### 1. Compositor-Only Animations
-```css
-/* HAR DOIM transform va opacity ishlating */
-.optimized-animation {
-    animation: moveAndFade 0.5s ease-out;
-}
-
-@keyframes moveAndFade {
-    from {
-        transform: translateY(20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-```
-
-### 2. Passive Event Listeners
-```javascript
-// Scroll/touch events uchun
-window.addEventListener('scroll', onScroll, { passive: true });
-element.addEventListener('touchmove', onTouch, { passive: true });
-
-// Bu brauzerga: "preventDefault() chaqirilmaydi"
-// Natija: Compositor thread free, smooth scrolling
-```
-
-### 3. Contain Property
-```css
-/* Layout/paint izolyatsiya */
-.widget {
-    contain: layout paint;
-}
-
-/* Content visibility (lazy render) */
-.below-fold {
-    content-visibility: auto;
-    contain-intrinsic-size: 0 500px;
-}
-```
-
-### 4. Avoid Implicit Layers
-```css
-/* MUAMMO: Ko'p implicit layers */
-.card {
-    position: relative;
-    z-index: 1; /* z-index = potential layer */
-}
-
-/* YECHIM: Faqat kerakli elementlarga */
-.card-interactive {
-    will-change: transform;
-}
-```
-
-### 5. Animation Cleanup
-```javascript
-// SPA da animation cleanup
-class AnimatedComponent {
-    constructor(element) {
-        this.element = element;
-        this.animations = [];
-    }
-
-    animate(keyframes, options) {
-        const animation = this.element.animate(keyframes, options);
-        this.animations.push(animation);
-        return animation;
-    }
-
-    destroy() {
-        // Barcha animatsiyalarni cancel
-        this.animations.forEach(a => a.cancel());
-        this.animations = [];
-
-        // will-change tozalash
-        this.element.style.willChange = 'auto';
-    }
-}
-```
-
----
-
-## Eng Yaxshi Amaliyotlar (Best Practices)
-
-1. **Layer-explosion (Qatlamlar portlashi) dan ehtiyot bo'ling:** Agar sizda juda ko'p elementlar (masalan, 100 ta kartochka) bo'lsa va ularning har biriga `will-change: transform` bersangiz, brauzer har biri uchun alohida GPU texture yaratishga majbur bo'ladi. Bu kompyuterning video xotirasini (VRAM) to'ldirib yuboradi va mobil qurilmalarda brauzerning shunchaki yopilib qolishiga (crash bo'lishiga) sabab bo'lishi mumkin.
-2. **will-change ni faqat kerakli paytda vaqtinchalik ishlating:** JS orqali elementga animatsiya boshlanishidan oldin (masalan, hover bo'lganda) `willChange = 'transform'` ni bering va animatsiya to'liq tugashi bilan uni yana `willChange = 'auto'` ga o'zgartirib, video xotirani bo'shating.
-3. **Passive Event Listeners qo'llang:** Silliq skrolling animatsiyalari uchun scroll va touch listenerlarga `passive: true` parametrini bering. Bu brauzerga scroll harakatini JS dagi `preventDefault` amali tugashini kutmasdan darhol bajarishga ruxsat beradi, natijada scroll o'ta silliq bo'ladi.
 
 ---
 
 ## Xulosa
 
-GPU Acceleration texnologiyalari taqqoslashi va xulosasi:
-
-| Texnologiya / Atribut | Tezlik (Performance) | Xotira yuki (Memory) | Eng yaxshi foydalanish sohasi (Use Case) |
-| --- | --- | --- | --- |
-| **`transform`** |  **A'lo (60fps)** | 🟢 Kam | Joylashuv, kattalik, burish animatsiyalari |
-| **`opacity`** |  **A'lo (60fps)** | 🟢 Kam | O'chib-yonish (Fade in/out) effektlari |
-| **`will-change`** |  **A'lo** | 🟡 O'rtacha (VRAM) | Oldindan ma'lum bo'lgan og'ir animatsiyalar |
-| **CSS Animations** |  **A'lo** | 🟢 Kam | Oddiy hover va transition effektlar |
-| **Web Animations API**|  **Juda Yaxshi** | 🟢 Kam | Kod orqali boshqariluvchi murakkab animatsiyalar |
-| **`requestAnimationFrame`** | 🟡 Yaxshi | 🟢 Kam | JS bilan boshqariladigan vizual hisob-kitoblar |
+| Daraja | Yondashuv va Fokus | Nimalarga qodir bo'lish kerak? |
+| --- | --- | --- |
+| **Junior** | **Mantiq:** CSS dagi barcha stil qoidalari ham bir xil tezlikda ishlamasligini biladi. | Hover effektlarda margin o'rniga doim transform dan foydalanadi. |
+| **Middle** | **Qo'llash:** Layer nima ekanini va CPU bilan GPU farqini tushunadi. | `will-change` ni suiiste'mol qilmaydi. CSS Animation va JS o'rtasidagi chegara qayerdaligini biladi. |
+| **Senior** | **Arxitektura & V8:** Main, Compositor va GPU process lari qanday xabar almashishini biladi. | DevTools "Layers" panelida GPU qatlamlarini Audit qiladi (Memory). Event listenerlarga doimo `{ passive: true }` yozadi. |

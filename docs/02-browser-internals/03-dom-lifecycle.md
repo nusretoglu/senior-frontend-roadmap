@@ -1,35 +1,115 @@
-# DOM Lifecycle - Hujjat Hayot Sikli
-
-## Kirish
+# DOM Lifecycle va Observerlar (Hujjat Hayot Sikli)
 
 > [!IMPORTANT]
 > **Nima uchun muhim?**  
-> Foydalanuvchi sahifangizni ochganda, skriptlaringiz qachon ishga tushishi va qaysi resurslar qachon yuklanishi sahifaning tezligini belgilaydi. Agar siz `DOMContentLoaded` va `window.onload` farqini bilmasangiz, skriptlaringiz hali rasm va shriftlar yuklanmay turib sahifani muzlatib qo'yishiga yo'l qo'yasiz. Yoki foydalanuvchi sahifadan chiqib ketayotganda ma'lumotlarni saqlab qolish (analytics beacon) mantiqini yozolmasligingiz mumkin. DOM Lifecycle (Hujjat hayot sikli) ni mukammal bilish — ishonchli va tezkor sahifalar qurish uchun muhimdir.
+> Foydalanuvchi sahifangizni ochganda, skriptlaringiz qachon ishga tushishi va qaysi resurslar qachon yuklanishi sahifaning tezligini belgilaydi. Agar siz `DOMContentLoaded` va `window.onload` farqini bilmasangiz, skriptlaringiz hali rasm va shriftlar yuklanmay turib sahifani muzlatib qo'yishiga yo'l qo'yasiz. Yoki foydalanuvchi sahifadan chiqib ketayotganda ma'lumotlarni saqlab qolish (analytics beacon) mantiqini yozolmasligingiz mumkin. DOM Lifecycle (Hujjat hayot sikli) va zamonaviy Observer APIlarni mukammal bilish — ishonchli va tezkor sahifalar qurish uchun muhimdir.
+
+## 🟢 Junior (Asoslar va Tushunchalar)
+
+### Terminologiya
+**DOM Lifecycle** — bu sahifa ochiq turgan vaqtda u bosib o'tadigan bosqichlar. "Yuklanyapti", "DOM yasaldi", "Hamma narsa keldi", "Yopilyapti" degan 4 ta asosiy bekatdan iborat.
 
 > [!NOTE]
-> **Real-hayot analogiyasi: "Yangi Uyga Ko'chib O'tish (Lifecycle Events)"**  
+> **Hayotiy o'xshatish: "Yangi Uyga Ko'chib O'tish"**  
 > Sahifaning yuklanish hayot sikli — yangi uy qurib, unga ko'chib kirishga o'xshaydi:
 > - **loading (HTML parse bo'lmoqda):** Uy g'ishtlari terilmoqda va devorlar ko'tarilmoqda.
-> - **interactive / DOMContentLoaded (DOM tayyor - ko'chib kirish):** Uyni qurib bitirdingiz, kalitni oldingiz va ichkariga kirdingiz. Devorlar bo'yalmagan bo'lishi, mebellar (rasmlar, shriftlar) hali kelmagan bo'lishi mumkin, lekin uydan foydalansa bo'ladi.
-> - **complete / window.onload (Hammasi yuklandi):** Barcha mebellar (rasmlar) yetkazildi, devorlar bo'yaldi (CSS chizildi), pardalar taqildi. Uy to'laqonli tayyor.
+> - **DOMContentLoaded (DOM tayyor - ko'chib kirish):** Uyni qurib bitirdingiz, kalitni oldingiz va ichkariga kirdingiz. Devorlar bo'yalmagan bo'lishi, mebellar (rasmlar, shriftlar) hali kelmagan bo'lishi mumkin, lekin uydan foydalansa bo'ladi.
+> - **window.onload (Hammasi yuklandi):** Barcha mebellar (rasmlar) yetkazildi, devorlar bo'yaldi (CSS chizildi), pardalar taqildi. Uy to'laqonli tayyor.
 > - **beforeunload / unload (Ko'chib ketish):** Siz uyni tark etyapapsiz. Chiqishdan oldin chiroqlar o'chganligini tekshirish (ma'lumotlarni saqlash) va eshikni qulflash.
 
----
-
----
-
-## Document Ready States
-
+### Sodda Misol (DOMContentLoaded va Load)
 ```javascript
-// document.readyState qiymatlari
-console.log(document.readyState);
-// "loading"     - HTML hali parse qilinmoqda
-// "interactive" - HTML parse tugadi, resurslar yuklanmoqda
-// "complete"    - Barcha resurslar yuklandi
+// 1. Birinchi bu ishlaydi. DOM qurib bo'lindi. (Rasmlar yo'q)
+document.addEventListener('DOMContentLoaded', () => {
+    const quti = document.querySelector('.quti');
+    quti.addEventListener('click', () => alert('Salom'));
+});
+
+// 2. Ikkinchi bu ishlaydi. Hamma rasm, CSS kelib bo'ldi.
+window.addEventListener('load', () => {
+    const rasm = document.querySelector('img');
+    console.log("Rasm bo'yi:", rasm.naturalHeight); // Rasm kelgani uchun aniq chiqadi!
+});
 ```
 
-#### Hujjat yuklanish xronologiyasi (Timeline)
+---
 
+## 🟡 Middle (Amaliyot va Detallar)
+
+### Script Loading (Scripts qanday yuklanadi?)
+JS fayllarni HTML da ulashning 3 xil mashhur yo'li bor va ular DOM Lifecycle ga to'g'ridan-to'g'ri bog'liq:
+
+1. **`<script src="app.js"></script>` (Standart):** HTML to'xtab qoladi, JS fayl yuklab olinadi, ishlab bo'ladi, keyin HTML davom etadi. (Eski va yomon usul).
+2. **`<script src="app.js" async></script>` (Asinxron):** JS fayl fonda yuklanadi. Yuklanib bo'lgan zahoti HTML qayerda to'xtagan bo'lishidan qat'iy nazar uzib qo'yib ishga tushadi. (Bir-biriga bog'liq bo'lmagan mustaqil kodlar — masalan, Google Analytics uchun yaxshi).
+3. **`<script src="app.js" defer></script>` (Kechiktirilgan):** JS fayl fonda yuklanadi. Lekin DOM to'liq yasalib bo'lishini kutadi va `DOMContentLoaded` dan salgina oldin tartib bilan ishga tushadi. (Loyihaning asosiy kodi uchun eng zo'ri!)
+
+### O'zgarishlarni kuzatish (Observer API)
+Bizda sahifani qiynamasdan uni kuzatib turuvchi 3 ta ajoyib kuzatuvchi (Observer) bor:
+
+**1. IntersectionObserver (Ekranda ko'rindimi?)**
+Element sahifada (viewport) ko'rinishni boshlaganida aytib beradi. Lazy loading (scroll qilganda rasmlar chiqishi) yoki Infinite Scroll (pastga tushganda yangi postlar yuklanishi) uchun eng zo'r vosita.
+```javascript
+const qorovul = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            console.log("Rasm ekranda ko'rindi, rasmni yuklaymiz!");
+            entry.target.src = entry.target.dataset.src;
+            qorovul.unobserve(entry.target); // Boshqa kuzatmaymiz
+        }
+    });
+});
+qorovul.observe(document.querySelector('.dangasa-rasm'));
+```
+
+**2. ResizeObserver (Kattalashdimi?)**
+Elementning o'lchami o'zgarganda xabar beradi. Ekran `resize` hodisasidan farqli o'laroq, faqat kerakli elementning o'zini kuzatadi. Responsive Chart'lar qilishda zo'r.
+
+**3. MutationObserver (DOM o'zgardimi?)**
+Qaysidir Div ni ichiga yangi element tushsa, atributi yoki klassi o'zgarsa xabar beradi.
+
+### Ko'p uchraydigan xatolar va muammolar (Pitfalls)
+**Yopilayotganda `fetch` ishlatish**
+Sahifa yopilayotganda (`unload`) serverga "Foydalanuvchi chiqib ketdi" deb ma'lumot yubormoqchi bo'lsangiz `fetch()` yoki `axios` ishlata olmaysiz, brauzer so'rov oxiriga yetishini kutmay sahifani o'ldirib yuboradi.
+
+```javascript
+// XATO: Serverga bormay qoladi!
+window.addEventListener('unload', () => {
+   fetch('/user-left', { method: 'POST' }); 
+});
+
+// TO'G'RI: sendBeacon brauzer yopilsa ham fonda aniq yetkazib boradi
+window.addEventListener('pagehide', () => {
+   navigator.sendBeacon('/user-left', "ketdi");
+});
+```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+- **Defer va Async atributlaridan foydalaning:** Tashqi scriptlarni (`<script src="...">`) yuklaganda doimo `defer` yoki `async` atributlarini qo'llang. Bu brauzerga scriptni parallel yuklab, HTML parsing jarayonini bloklamaslik imkonini beradi.
+- **DOMContentLoaded da dastlabki ulanishlarni qiling:** Rasm va shriftlar yuklanishini kutib o'tirmasdan, DOM tayyor bo'lishi bilanoq ishga tushadigan logic'larni `DOMContentLoaded` event listeneriga ulab qo'ying. 
+- **Qorovullarni (Observer) ishdan bo'shating:** Agar React Component o'chib ketsa yoki rasm yuklanib bo'lsa, `observer.disconnect()` yoki `observer.unobserve()` orqali xotirani tozalash esdan chiqmasin (Memory Leak).
+
+---
+
+## 🔴 Senior (Arxitektura va Optimallashtirish)
+
+### "Under the hood" (Qopqoq ostida nimalar ro'y beradi)
+V8 va Blink engine DOM Lifecycle da eventlarni qat'iy tartibda chaqiradi. Ammo e'tibor qarating, zamonaviy brauzerlar `unload` o'rniga `pagehide` ni afzal ko'rishadi, chunki brauzerda **BFCache (Back/Forward Cache)** degan tushuncha mavjud. 
+
+Agar siz sahifada `unload` event listeneni ishlatsangiz, Chrome ushbu sahifani BFCache ga qo'ya olmaydi! Chunki unload tozalash ishlarini qilib tashlaydi deb o'ylaydi. Agar foydalanuvchi brauzerning "Orqaga" (Back) tugmasini bossa, sahifa 0 dan noldan render qilinadi. BFCache bu butunlay muzlatilgan (freeze) sahifadir. U darhol ochiq holda ko'rsatiladi. BFCache bilan mos ishlash uchun `pagehide` va `pageshow` dan foydalanish shart.
+
+### Passive Event Listeners (Optimizatsiya)
+Scroll hodisasi asinxron, ya'ni ekranni surganingizda UI Main Thread dan qat'iy nazar surilishi kerak. Ammo eski `window.addEventListener('scroll', fn)` ishlatilganda brauzer JS ichida qachondir `e.preventDefault()` (scroll ni to'xtatish) qilinib qolishi mumkinligini kutib turadi. Natijada Scroll qotib qoladi.
+**Yechim:** Brauzerga qasamyod qiling! 
+`window.addEventListener('scroll', fn, { passive: true })` — bu orqali brauzerga "Men e.preventDefault() qilmayman, bemalol silliq scroll qilaver" deysiz!
+
+### Intervyu Savollari (Qiyin daraja)
+**1. IntersectionObserver oddiy `window.onscroll` dan qanday va nega farq qiladi?**
+*Javob:* `window.onscroll` har pikselli surilishda yuzlab marta chaqiriladi va Main Thread ni bloklaydi, ustiga-ustak siz o'zingiz `getBoundingClientRect()` orqali koordinatalarni hisoblashingiz kerak. IntersectionObserver esa C++ (brauzer engine) darajasida asinxron hisoblab o'tiradi va faqat kerakli nuqtada Main Thread ga habar beradi.
+
+**2. `DOMContentLoaded` va `window.onload` qachon bir vaqtda ishga tushishi mumkin?**
+*Javob:* Agar sahifada faqatgina text bo'lsa va hech qanday tashqi rasm, shriftlar, iframe yoki css fayllar bo'lmasa. Hamma narsa ichkariga (inline) yozilgan holatda ikkala event ketma-ket deyarli bir vaqtda ishlaydi.
+
+### Vizualizatsiya (Jarayon oqimi)
 ```mermaid
 sequenceDiagram
     autonumber
@@ -39,921 +119,22 @@ sequenceDiagram
 
     Note over Browser: readyState: "loading"
     Browser->>DOM: HTML parsing boshlanadi
-    Note over Browser: Blocking scripts run, images/CSS parallel yuklanadi
+    Note over Browser: Blocking scripts kutadi, "defer" orqada yuklanadi
     Browser->>DOM: HTML parsing yakunlandi
     Note over Browser: readyState: "interactive"
-    DOM-->>Browser: DOMContentLoaded hodisasi (DOM tayyor!)
-    Note over Browser: Rasmlar, fontlar va iframe'lar yuklanadi
-    Browser->>Window: Barcha resurslar to'liq yuklandi
+    DOM-->>Browser: DOMContentLoaded (DOM tayyor!)
+    Note over Browser: Rasmlar, CSS, fontlar va iframe'lar yuklanadi
+    Browser->>Window: Barcha resurslar to'liq keldi
     Note over Browser: readyState: "complete"
-    Window-->>Browser: load hodisasi (Hamma narsa tayyor!)
-```                                                            │
-│      ▼                                                               │
-│  ┌─────────────────────────────────────────┐                        │
-│  │       ★ beforeunload event              │                        │
-│  │       (Can prevent navigation)          │                        │
-│  └─────────────────────────────────────────┘                        │
-│      │                                                               │
-│      ▼                                                               │
-│  ┌─────────────────────────────────────────┐                        │
-│  │       ★ unload event                    │                        │
-│  │       (Page is being unloaded)          │                        │
-│  └─────────────────────────────────────────┘                        │
-│                                                                      │
-└──────────────────────────────────────────────────────────────────────┘
+    Window-->>Browser: window.onload (Hamma narsa tayyor!)
 ```
-
----
-
-## Asosiy Events
-
-### 1. DOMContentLoaded
-
-```javascript
-// DOM tayyor, lekin images/styles yuklanmagan bo'lishi mumkin
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM tayyor!');
-    console.log(document.readyState); // "interactive"
-
-    // DOM elementlariga kirish XAVFSIZ
-    const header = document.querySelector('header');
-    const buttons = document.querySelectorAll('button');
-
-    // Event listeners qo'shish
-    buttons.forEach(btn => {
-        btn.addEventListener('click', handleClick);
-    });
-});
-
-// defer scripts DOMContentLoaded dan OLDIN execute bo'ladi
-// async scripts DOMContentLoaded ni kutmaydi
-```
-
-### 2. window.load
-
-```javascript
-// BARCHA resurslar yuklandi (images, iframes, fonts)
-window.addEventListener('load', () => {
-    console.log('Hammasi yuklandi!');
-    console.log(document.readyState); // "complete"
-
-    // Rasm o'lchamlarini olish XAVFSIZ
-    const img = document.querySelector('img');
-    console.log(img.naturalWidth, img.naturalHeight);
-
-    // Font-based layout XAVFSIZ
-    const element = document.querySelector('.custom-font');
-    console.log(element.offsetWidth); // Font yuklangan
-
-    // Loading spinner yashirish
-    document.querySelector('.loader').classList.add('hidden');
-});
-```
-
-### 3. beforeunload
-
-```javascript
-// Sahifadan chiqishdan OLDIN - foydalanuvchiga ogohlantirish
-window.addEventListener('beforeunload', (event) => {
-    // Foydalanuvchida saqlanmagan o'zgarishlar bormi?
-    if (hasUnsavedChanges()) {
-        // Standart dialog ko'rsatish
-        event.preventDefault();
-        // Chrome uchun (eski)
-        event.returnValue = '';
-        // Firefox uchun
-        return '';
-    }
-});
-
-// Amaliy misol: Form editing
-let formDirty = false;
-const form = document.querySelector('form');
-
-form.addEventListener('input', () => {
-    formDirty = true;
-});
-
-form.addEventListener('submit', () => {
-    formDirty = false;
-});
-
-window.addEventListener('beforeunload', (e) => {
-    if (formDirty) {
-        e.preventDefault();
-        e.returnValue = '';
-    }
-});
-```
-
-### 4. unload
-
-```javascript
-// Sahifa yopilmoqda - cleanup
-window.addEventListener('unload', () => {
-    // Analytics yuborish (sendBeacon ishlatish!)
-    navigator.sendBeacon('/analytics', JSON.stringify({
-        timeOnPage: Date.now() - pageLoadTime,
-        scrollDepth: getScrollDepth()
-    }));
-
-    // LocalStorage cleanup
-    localStorage.removeItem('tempData');
-
-    // WebSocket yopish
-    socket.close();
-});
-
-// MUHIM: unload eventda async operatsiyalar ISHLAMAYDI
-// fetch, setTimeout, Promise - barchasi bekor qilinadi
-// FAQAT sendBeacon ishlaydi
-```
-
-### 5. pagehide (Modern alternative)
-
-```javascript
-// unload o'rniga - bfcache bilan yaxshi ishlaydi
-window.addEventListener('pagehide', (event) => {
-    if (event.persisted) {
-        // Page bfcache'ga kirmoqda
-        console.log('Page cached for back/forward');
-    } else {
-        // Page haqiqatan yopilmoqda
-        navigator.sendBeacon('/analytics', data);
-    }
-});
-
-// pageshow - bfcache'dan qaytganda
-window.addEventListener('pageshow', (event) => {
-    if (event.persisted) {
-        // bfcache'dan tiklandi
-        console.log('Restored from cache');
-        // State yangilash kerak bo'lishi mumkin
-        refreshData();
-    }
-});
-```
-
----
-
-## readystatechange Event
-
-```javascript
-// Har bir state o'zgarishini kuzatish
-document.addEventListener('readystatechange', () => {
-    console.log(`State: ${document.readyState}`);
-
-    switch (document.readyState) {
-        case 'loading':
-            // HTML parsing
-            break;
-        case 'interactive':
-            // DOM ready, DOMContentLoaded fired
-            initializeApp();
-            break;
-        case 'complete':
-            // All loaded, window.load fired
-            hideLoader();
-            break;
-    }
-});
-```
-
----
-
-## Script Loading Strategiyalari
-
-### Comparison
-```html
-<!-- 1. Default (Blocking) -->
-<script src="app.js"></script>
-<!-- HTML parsing to'xtaydi, script yuklanib execute bo'ladi -->
-
-<!-- 2. defer -->
-<script src="app.js" defer></script>
-<!-- Parallel yuklash, DOMContentLoaded dan oldin execute -->
-
-<!-- 3. async -->
-<script src="app.js" async></script>
-<!-- Parallel yuklash, yuklanganda darhol execute -->
-
-<!-- 4. type="module" -->
-<script type="module" src="app.js"></script>
-<!-- defer ga o'xshash + ES modules support -->
-```
-
-### Visual Comparison
-```
-DEFAULT:
-HTML:  ═══|parse|═══|blocked|═══|blocked|═══|parse|═══
-JS:              |download|     |execute|
-
-DEFER:
-HTML:  ═══|parse|═══════════════════════════|═════════|DOMContentLoaded|
-JS:              |download|                 |execute|
-
-ASYNC:
-HTML:  ═══|parse|═══════|blocked|═══════════|parse|═══|DOMContentLoaded|
-JS:              |download|      |execute|
-
-MODULE:
-HTML:  ═══|parse|═══════════════════════════|═════════|DOMContentLoaded|
-JS:              |download + parse deps|    |execute|
-```
-
-### Qachon qaysi birini ishlatish
-
-```html
-<!-- DEFER: Ko'pgina scriptlar uchun -->
-<!-- DOM kerak, ketma-ketlik muhim -->
-<script src="framework.js" defer></script>
-<script src="app.js" defer></script>
-
-<!-- ASYNC: Mustaqil scriptlar uchun -->
-<!-- DOM kerak emas, ketma-ketlik muhim emas -->
-<script src="analytics.js" async></script>
-<script src="ads.js" async></script>
-
-<!-- MODULE: Modern ES6+ apps -->
-<script type="module" src="main.js"></script>
-
-<!-- INLINE CRITICAL: First paint uchun kerak -->
-<script>
-    // Critical path JavaScript
-    document.documentElement.classList.remove('no-js');
-</script>
-```
-
----
-
-## MutationObserver
-
-### Nima uchun kerak?
-DOM o'zgarishlarini kuzatish - yangi elementlar qo'shilganda, atributlar o'zgarganda.
-
-### Basic Usage
-```javascript
-// Observer yaratish
-const observer = new MutationObserver((mutations) => {
-    mutations.forEach(mutation => {
-        console.log('Mutation type:', mutation.type);
-        console.log('Target:', mutation.target);
-
-        if (mutation.type === 'childList') {
-            console.log('Added nodes:', mutation.addedNodes);
-            console.log('Removed nodes:', mutation.removedNodes);
-        }
-
-        if (mutation.type === 'attributes') {
-            console.log('Attribute changed:', mutation.attributeName);
-            console.log('Old value:', mutation.oldValue);
-        }
-    });
-});
-
-// Kuzatishni boshlash
-const targetNode = document.getElementById('container');
-observer.observe(targetNode, {
-    childList: true,      // Child elements qo'shilishi/o'chirilishi
-    attributes: true,     // Attribute o'zgarishlari
-    characterData: true,  // Text content o'zgarishi
-    subtree: true,        // Barcha descendants
-    attributeOldValue: true, // Eski attribute qiymatini saqlash
-    characterDataOldValue: true // Eski text qiymatini saqlash
-});
-
-// To'xtatish
-observer.disconnect();
-```
-
-### Real-World Cases
-
-#### 1. Lazy Loading Images
-```javascript
-// Yangi qo'shilgan imagelarga lazy loading
-const lazyObserver = new MutationObserver((mutations) => {
-    mutations.forEach(mutation => {
-        mutation.addedNodes.forEach(node => {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-                // Yangi qo'shilgan img larni topish
-                const images = node.matches('img')
-                    ? [node]
-                    : node.querySelectorAll('img');
-
-                images.forEach(img => {
-                    if (img.dataset.src) {
-                        intersectionObserver.observe(img);
-                    }
-                });
-            }
-        });
-    });
-});
-
-lazyObserver.observe(document.body, {
-    childList: true,
-    subtree: true
-});
-```
-
-#### 2. Third-party Script Detection
-```javascript
-// Tashqi scriptlar qo'shilishini kuzatish
-const scriptObserver = new MutationObserver((mutations) => {
-    mutations.forEach(mutation => {
-        mutation.addedNodes.forEach(node => {
-            if (node.tagName === 'SCRIPT') {
-                const src = node.src;
-                if (src && !src.includes(window.location.origin)) {
-                    console.warn('Third-party script injected:', src);
-                    // Security check
-                    if (isBlacklistedDomain(src)) {
-                        node.remove();
-                    }
-                }
-            }
-        });
-    });
-});
-
-scriptObserver.observe(document.head, { childList: true });
-scriptObserver.observe(document.body, { childList: true });
-```
-
-#### 3. Auto-initialize Components
-```javascript
-// Yangi qo'shilgan componentlarni avtomatik initialize
-const componentObserver = new MutationObserver((mutations) => {
-    mutations.forEach(mutation => {
-        mutation.addedNodes.forEach(node => {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-                // data-component attributeli elementlarni topish
-                const components = node.querySelectorAll('[data-component]');
-                components.forEach(initComponent);
-
-                if (node.dataset?.component) {
-                    initComponent(node);
-                }
-            }
-        });
-    });
-});
-
-function initComponent(element) {
-    const componentName = element.dataset.component;
-    const ComponentClass = window.Components[componentName];
-
-    if (ComponentClass && !element._initialized) {
-        new ComponentClass(element);
-        element._initialized = true;
-    }
-}
-
-componentObserver.observe(document.body, {
-    childList: true,
-    subtree: true
-});
-```
-
-#### 4. Form Dirty State Tracking
-```javascript
-// Form o'zgarishlarini kuzatish
-function trackFormChanges(form) {
-    const initialValues = new Map();
-
-    // Boshlang'ich qiymatlarni saqlash
-    form.querySelectorAll('input, textarea, select').forEach(input => {
-        initialValues.set(input, input.value);
-    });
-
-    // Attribute o'zgarishlarini kuzatish
-    const observer = new MutationObserver((mutations) => {
-        let isDirty = false;
-
-        form.querySelectorAll('input, textarea, select').forEach(input => {
-            if (input.value !== initialValues.get(input)) {
-                isDirty = true;
-            }
-        });
-
-        form.classList.toggle('dirty', isDirty);
-    });
-
-    observer.observe(form, {
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['value']
-    });
-
-    // Input events ham kerak (attribute o'zgarishi bo'lmasligi mumkin)
-    form.addEventListener('input', () => {
-        // Check dirty state
-    });
-
-    return () => observer.disconnect();
-}
-```
-
----
-
-## IntersectionObserver
-
-### Nima uchun kerak?
-Element viewport'ga kirganda/chiqqanda - lazy loading, infinite scroll, analytics.
-
-### Basic Usage
-```javascript
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            console.log('Element visible:', entry.target);
-            console.log('Visibility ratio:', entry.intersectionRatio);
-        }
-    });
-}, {
-    root: null,           // Viewport (default)
-    rootMargin: '100px',  // Viewport ni kengaytirish
-    threshold: [0, 0.5, 1] // Callback trigger qilish nuqtalari
-});
-
-observer.observe(document.querySelector('.lazy-section'));
-```
-
-### Lazy Loading Images
-```javascript
-const imageObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            const img = entry.target;
-
-            // Src ni o'rnatish
-            img.src = img.dataset.src;
-            if (img.dataset.srcset) {
-                img.srcset = img.dataset.srcset;
-            }
-
-            // Observer'dan olib tashlash
-            imageObserver.unobserve(img);
-            img.classList.add('loaded');
-        }
-    });
-}, {
-    rootMargin: '200px' // 200px oldinroq yuklashni boshlash
-});
-
-document.querySelectorAll('img[data-src]').forEach(img => {
-    imageObserver.observe(img);
-});
-```
-
-### Infinite Scroll
-```javascript
-function setupInfiniteScroll(container, loadMore) {
-    // Sentinel element (list oxirida)
-    const sentinel = document.createElement('div');
-    sentinel.className = 'sentinel';
-    container.appendChild(sentinel);
-
-    const observer = new IntersectionObserver(async (entries) => {
-        if (entries[0].isIntersecting) {
-            // Loading indicator
-            sentinel.textContent = 'Loading...';
-
-            // Yangi content yuklash
-            const newItems = await loadMore();
-
-            // Sentinel dan oldin qo'shish
-            newItems.forEach(item => {
-                container.insertBefore(item, sentinel);
-            });
-
-            sentinel.textContent = '';
-
-            // Agar content tugagan bo'lsa
-            if (newItems.length === 0) {
-                observer.unobserve(sentinel);
-                sentinel.textContent = 'No more items';
-            }
-        }
-    }, {
-        rootMargin: '200px'
-    });
-
-    observer.observe(sentinel);
-
-    return () => observer.disconnect();
-}
-```
-
-### Section Analytics
-```javascript
-// Foydalanuvchi qaysi section'larni ko'rganini track qilish
-const sectionViews = new Map();
-
-const analyticsObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        const section = entry.target;
-        const sectionId = section.id;
-
-        if (entry.isIntersecting) {
-            // Vaqtni boshlash
-            sectionViews.set(sectionId, {
-                startTime: Date.now(),
-                viewed: true
-            });
-        } else {
-            // View tugadi
-            const data = sectionViews.get(sectionId);
-            if (data?.startTime) {
-                const viewDuration = Date.now() - data.startTime;
-
-                // Analytics yuborish
-                trackSectionView(sectionId, viewDuration);
-            }
-        }
-    });
-}, {
-    threshold: 0.5 // 50% ko'rinsa
-});
-
-document.querySelectorAll('section[id]').forEach(section => {
-    analyticsObserver.observe(section);
-});
-```
-
----
-
-## ResizeObserver
-
-### Nima uchun kerak?
-Element o'lchami o'zgarganda - responsive components, charts.
-
-### Basic Usage
-```javascript
-const resizeObserver = new ResizeObserver((entries) => {
-    entries.forEach(entry => {
-        const { width, height } = entry.contentRect;
-        console.log(`Element resized: ${width}x${height}`);
-
-        // Border-box o'lchamlari
-        const borderBoxSize = entry.borderBoxSize[0];
-        console.log(`Border-box: ${borderBoxSize.inlineSize}x${borderBoxSize.blockSize}`);
-    });
-});
-
-resizeObserver.observe(document.querySelector('.resizable'));
-```
-
-### Responsive Chart
-```javascript
-class ResponsiveChart {
-    constructor(container) {
-        this.container = container;
-        this.canvas = container.querySelector('canvas');
-        this.ctx = this.canvas.getContext('2d');
-
-        // Resize kuzatish
-        this.resizeObserver = new ResizeObserver(entries => {
-            const { width, height } = entries[0].contentRect;
-            this.resize(width, height);
-        });
-
-        this.resizeObserver.observe(container);
-    }
-
-    resize(width, height) {
-        // Canvas resolution
-        const dpr = window.devicePixelRatio || 1;
-        this.canvas.width = width * dpr;
-        this.canvas.height = height * dpr;
-        this.canvas.style.width = width + 'px';
-        this.canvas.style.height = height + 'px';
-        this.ctx.scale(dpr, dpr);
-
-        // Redraw
-        this.draw();
-    }
-
-    destroy() {
-        this.resizeObserver.disconnect();
-    }
-}
-```
-
-### Container Queries Polyfill
-```javascript
-// CSS Container Queries support bo'lmagan brauzerlar uchun
-const containerObserver = new ResizeObserver((entries) => {
-    entries.forEach(entry => {
-        const container = entry.target;
-        const width = entry.contentRect.width;
-
-        // Size classes qo'shish
-        container.classList.remove('sm', 'md', 'lg', 'xl');
-
-        if (width < 400) {
-            container.classList.add('sm');
-        } else if (width < 600) {
-            container.classList.add('md');
-        } else if (width < 900) {
-            container.classList.add('lg');
-        } else {
-            container.classList.add('xl');
-        }
-    });
-});
-
-document.querySelectorAll('[data-container]').forEach(container => {
-    containerObserver.observe(container);
-});
-```
-
----
-
-## To'g'ri va Noto'g'ri Misollar
-
-### DOM Ready Check
-
-```javascript
-// NOTO'G'RI: Event o'tib ketgan bo'lishi mumkin
-document.addEventListener('DOMContentLoaded', init);
-// Agar script body oxirida yoki defer bilan bo'lsa, event allaqachon fire bo'lgan
-
-// TO'G'RI: State tekshirish
-function domReady(callback) {
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', callback);
-    } else {
-        // DOM allaqachon tayyor
-        callback();
-    }
-}
-
-domReady(() => {
-    console.log('DOM tayyor!');
-});
-```
-
-### Resource Loading
-
-```javascript
-// NOTO'G'RI: Image o'lchami noto'g'ri
-document.addEventListener('DOMContentLoaded', () => {
-    const img = document.querySelector('img');
-    console.log(img.naturalWidth); // 0! Image yuklanmagan
-});
-
-// TO'G'RI: Image yuklangan bo'lsa
-function whenImageLoaded(img) {
-    return new Promise((resolve) => {
-        if (img.complete && img.naturalWidth > 0) {
-            resolve(img);
-        } else {
-            img.addEventListener('load', () => resolve(img));
-            img.addEventListener('error', () => resolve(null));
-        }
-    });
-}
-
-// Ishlatish
-const img = document.querySelector('img');
-whenImageLoaded(img).then(loadedImg => {
-    if (loadedImg) {
-        console.log(loadedImg.naturalWidth, loadedImg.naturalHeight);
-    }
-});
-```
-
-### Cleanup
-
-```javascript
-// NOTO'G'RI: Memory leak
-class Component {
-    constructor() {
-        this.observer = new MutationObserver(this.handleMutation);
-        this.observer.observe(document.body, { childList: true });
-        window.addEventListener('resize', this.handleResize);
-    }
-    // Hech qachon cleanup qilinmaydi!
-}
-
-// TO'G'RI: Proper cleanup
-class ComponentWithCleanup {
-    constructor(element) {
-        this.element = element;
-        this.handleResize = this.handleResize.bind(this);
-
-        this.mutationObserver = new MutationObserver(this.handleMutation);
-        this.mutationObserver.observe(element, { childList: true });
-
-        this.resizeObserver = new ResizeObserver(this.handleElementResize);
-        this.resizeObserver.observe(element);
-
-        window.addEventListener('resize', this.handleResize);
-    }
-
-    destroy() {
-        this.mutationObserver.disconnect();
-        this.resizeObserver.disconnect();
-        window.removeEventListener('resize', this.handleResize);
-        this.element = null;
-    }
-}
-```
-
----
-
-## Interview Savollari
-
-### 1. Savol: DOMContentLoaded va load farqi nima?
-**Javob:**
-- **DOMContentLoaded**: HTML parse tugadi, DOM tayyor. Images, stylesheets, subframes hali yuklanmagan bo'lishi mumkin.
-- **load**: BARCHA resurslar yuklandi - images, styles, fonts, iframes.
-
-```javascript
-// DOMContentLoaded - DOM manipulyatsiya uchun
-document.addEventListener('DOMContentLoaded', () => {
-    const button = document.querySelector('button');
-    button.addEventListener('click', handleClick);
-});
-
-// load - Image o'lchamlari, font metrics uchun
-window.addEventListener('load', () => {
-    const img = document.querySelector('img');
-    console.log(img.naturalWidth); // Real o'lcham
-});
-```
-
-### 2. Savol: defer va async script farqi nima?
-**Javob:**
-| Feature | defer | async |
-|---------|-------|-------|
-| Parsing blocking | Yo'q | Yo'q |
-| Execution order | HTML tartibida | Yuklangan tartibda |
-| DOMContentLoaded | Oldin execute | Kutmaydi |
-| Use case | App scripts | Analytics, ads |
-
-### 3. Savol: MutationObserver nima uchun kerak?
-**Javob:**
-DOM o'zgarishlarini kuzatish - deprecated `DOMNodeInserted` o'rniga. Use cases:
-- Lazy loading (yangi elementlarga)
-- Component auto-initialization
-- Third-party script monitoring
-- Form state tracking
-
-```javascript
-const observer = new MutationObserver(callback);
-observer.observe(target, { childList: true, subtree: true });
-```
-
-### 4. Savol: IntersectionObserver scroll event dan qanday farq qiladi?
-**Javob:**
-| Feature | scroll event | IntersectionObserver |
-|---------|--------------|---------------------|
-| Performance | Har scroll da | Optimized, batched |
-| Main thread | Blocking | Non-blocking |
-| Threshold | Manual hisoblash | Built-in |
-| Root margin | Manual | Built-in |
-
-```javascript
-// scroll - Har scroll da fire, main thread blocking
-window.addEventListener('scroll', () => {
-    const rect = element.getBoundingClientRect(); // Layout trigger!
-});
-
-// IntersectionObserver - Optimized
-const observer = new IntersectionObserver((entries) => {
-    // Faqat visibility o'zgarganda
-});
-```
-
-### 5. Savol: beforeunload va unload farqi, qaysi biri yaxshiroq?
-**Javob:**
-- **beforeunload**: Navigatsiya ni TO'XTATISH mumkin (saqlanmagan o'zgarishlar)
-- **unload**: Cleanup, lekin async ISHLAMAYDI
-- **pagehide**: Modern alternative, bfcache bilan yaxshi ishlaydi
-
-```javascript
-// beforeunload - faqat saqlanmagan data uchun
-window.addEventListener('beforeunload', (e) => {
-    if (hasUnsavedChanges) {
-        e.preventDefault();
-    }
-});
-
-// pagehide - cleanup uchun (unload o'rniga)
-window.addEventListener('pagehide', () => {
-    navigator.sendBeacon('/analytics', data);
-});
-```
-
----
-
-## Performance Tips
-
-### 1. Script Loading Strategy
-```html
-<!-- Critical path -->
-<script>
-    // Inline critical JS (< 1KB)
-    document.documentElement.classList.add('js');
-</script>
-
-<!-- Main app - defer -->
-<script src="app.js" defer></script>
-
-<!-- Analytics - async -->
-<script src="analytics.js" async></script>
-
-<!-- Lazy load -->
-<script>
-    // Dynamic import for non-critical features
-    button.addEventListener('click', async () => {
-        const { Modal } = await import('./modal.js');
-        new Modal().show();
-    });
-</script>
-```
-
-### 2. Observer Cleanup
-```javascript
-// SPA da observer cleanup
-class Page {
-    observers = [];
-
-    init() {
-        const io = new IntersectionObserver(/*...*/);
-        this.observers.push(io);
-
-        const mo = new MutationObserver(/*...*/);
-        this.observers.push(mo);
-    }
-
-    destroy() {
-        this.observers.forEach(o => o.disconnect());
-        this.observers = [];
-    }
-}
-```
-
-### 3. Debounced Observers
-```javascript
-// ResizeObserver debounce qilish
-let resizeTimeout;
-const debouncedResizeObserver = new ResizeObserver((entries) => {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(() => {
-        entries.forEach(handleResize);
-    }, 100);
-});
-```
-
-### 4. Passive Event Listeners
-```javascript
-// Scroll/touch events uchun passive
-window.addEventListener('scroll', handleScroll, { passive: true });
-
-// Bu brauzerga aytadi: preventDefault() chaqirilmaydi
-// Natija: Smooth scrolling
-```
-
-### 5. requestIdleCallback
-```javascript
-// Non-critical ishlarni idle paytda bajarish
-function performNonCriticalWork() {
-    requestIdleCallback((deadline) => {
-        while (deadline.timeRemaining() > 0 && tasks.length > 0) {
-            const task = tasks.shift();
-            task();
-        }
-
-        if (tasks.length > 0) {
-            requestIdleCallback(performNonCriticalWork);
-        }
-    });
-}
-```
-
----
-
-## Eng Yaxshi Amaliyotlar (Best Practices)
-
-1. **Defer va Async atributlaridan foydalaning:** Tashqi scriptlarni (`<script src="...">`) yuklaganda doimo `defer` yoki `async` atributlarini qo'llang. Bu brauzerga scriptni parallel yuklab, HTML parsing jarayonini bloklamaslik imkonini beradi. `defer` scriptlarni HTML parsing tugagandan so'ng, aniq tartibda ishga tushiradi.
-2. **DOMContentLoaded da dastlabki DOM ulanishlarini qiling:** Rasm va shriftlar yuklanishini kutib o'tirmasdan, DOM tayyor bo'lishi bilanoq ishga tushadigan logic'larni `DOMContentLoaded` event listeneriga ulab qo'ying. Bu foydalanuvchiga sayt tezroq javob berayotgandek tuyulishi uchun (FID/INP metrikalari uchun) o'ta muhim.
-3. **Analitika ma'lumotlarini sendBeacon bilan yuboring:** Sahifadan chiqib ketish vaqtida (`pagehide` yoki `unload` hodisalarida) analytics (tahliliy) ma'lumotlarni yuborish uchun an'anaviy `fetch`/`axios` ishlatmang (ular so'rov tugamasdan brauzer sahifani yopib yuborsa o'chib ketadi). Buning o'rniga brauzer fonida ishonchli ishlaydigan `navigator.sendBeacon(url, data)` funksiyasidan foydalaning.
 
 ---
 
 ## Xulosa
 
-DOM Lifecycle va Observerlar xulosasi:
-
-| Event/Observer | Qachon ishga tushadi? | Eng to'g'ri foydalanish sohasi (Use Case) |
+| Daraja | Yondashuv va Fokus | Nimalarga qodir bo'lish kerak? |
 | --- | --- | --- |
-| **DOMContentLoaded** | Faqat DOM daraxti to'liq qurilganda | Elementlarga event listenerlar ulash, DOM boshqaruvi |
-| **load** | Barcha rasmlar, shriftlar va iframe'lar yuklanganda | Rasm o'lchamlarini o'lchash, yuklanish ekranini yopish |
-| **beforeunload** | Foydalanuvchi sahifani tark etish arafasida bo'lganda | "Saqlanmagan o'zgarishlar bor" deb ogohlantirish |
-| **pagehide** | Sahifa yashirilganda / tark etilganda | Analitika ma'lumotlarini yuborish, cleanup qilish |
-| **MutationObserver** | DOM daraxtida o'zgarish (qo'shish/o'chirish) bo'lganda | Elementlar dinamik o'zgarganda avtomatik init qilish |
-| **IntersectionObserver** | Element viewportda (ekranda) ko'ringanda/yo'qolganda | Rasmlarni lazy-load qilish, Infinite scroll |
-| **ResizeObserver** | Elementning o'lchami (eni, bo'yi) o'zgarganda | Responsiv va moslashuvchan komponentlar yaratish |
+| **Junior** | **Mantiq:** DOM va Load hodisalari ketma-ketligini biladi. | Skriptlarni tag qismida yoki `defer` bilan yozadi. Scroll eventlarida ehtiyotkor. |
+| **Middle** | **Qo'llash:** Observerlarni to'g'ri tanlash va ishlatish. | IntersectionObserver bilan lazy-load qila oladi, komponentlar o'chganda `disconnect()` qilib Memory Leak dan qochadi. |
+| **Senior** | **Arxitektura & V8:** BFCache muammolari va Passive eventlarni biladi. | Analytics yuborishda `sendBeacon` va `pagehide` kombinatsiyasini qo'llay oladi. UI/Main thread ziddiyatlarini (Performance) yecha oladi. |

@@ -16,213 +16,83 @@ Bu bo'lim JavaScript/TypeScript loyihalarini test qilish bo'yicha chuqur bilimla
 
 | # | Mavzu | Tavsif |
 |---|-------|--------|
-| 01 | [Unit Testing](./01-unit-testing.md) | Isolated testing, mocking, test doubles, coverage |
-| 02 | [Integration Testing](./02-integration-testing.md) | Component integration, API testing, database testing |
-| 03 | [E2E Testing](./03-e2e-testing.md) | End-to-end flows, user scenarios, visual testing |
-| 04 | [Vitest](./04-vitest.md) | Modern test runner, Vue/React testing, snapshot testing |
-| 05 | [Cypress](./05-cypress.md) | Browser automation, component testing, network stubbing |
-| 06 | [Playwright](./06-playwright.md) | Cross-browser testing, mobile emulation, tracing |
-| 07 | [Testing Patterns](./07-testing-patterns.md) | AAA, Given-When-Then, test doubles, fixture patterns |
+| 01 | [Unit Testing](./01-unit-testing.md) | Alohida testlash (Isolated), Mocking, Jest |
+| 02 | [Integration Testing](./02-integration-testing.md) | Componentlar birlashuvi, API testlash |
+| 03 | [E2E Testing](./03-e2e-testing.md) | Browser testlari (Haqiqiy foydalanuvchi kabi) |
+| 04 | [Vitest](./04-vitest.md) | Zamonaviy va juda tezkor Unit Test freymvorki |
+| 05 | [Cypress](./05-cypress.md) | Vizual E2E testlash, tarmoqni boshqarish |
+| 06 | [Playwright](./06-playwright.md) | Barcha brauzerlarni qo'llab-quvvatlovchi E2E tool |
+| 07 | [Testing Patterns](./07-testing-patterns.md) | Testlarni sifatli va mustahkam yozish arxitekturasi |
 
-## Nima Uchun Testing?
+---
 
-### Biznes Qiymati
-- **Regression Prevention**: Yangi kod eski funksionallikni buzmaydi
-- **Confidence in Refactoring**: Kodni xavfsiz o'zgartirish imkoniyati
-- **Documentation**: Testlar living documentation sifatida
-- **Faster Development**: Bug'larni erta bosqichda ushlash
+## 🟢 Junior (Asoslar va Tushunchalar)
 
-### Testing Pyramid
+Junior dasturchi Testlash Piramidasini tushunishi va nima uchun testlar yozilishini bilishi kerak.
+
+### Nima Uchun Testing?
+1. **Regressiyani oldini olish**: Yangi yozgan kodingiz kecha yozilgan kodni buzib qo'ymaydi.
+2. **Qo'rqmasdan Refactoring qilish**: Eski va xunuk kodni chiroyli qilib tozalaganingizda tizim sinib qolganini darhol bilib olasiz.
+3. **Dokumentatsiya**: Test o'qigan odam "Ha, bu funksiya mana bunday ishlashi kerak ekan" deb darhol anglaydi.
+
+### Testlash Piramidasi (Testing Pyramid)
 
 ```mermaid
 pyramid
-    title Testlash Piramidasi (Testing Pyramid)
+    title Testlash Piramidasi
     "E2E Testlar (10%) - Sekin, qimmat, user UI ni tekshiradi"
     "Integratsiya Testlari (20%) - Componentlar o'zaro ishlashi, API/DB"
     "Unit Testlar (70%) - Juda tez, Business logikalar, sof funksiyalar"
 ```
 
-### Test Coverage Strategiyasi
+- **Unit Test**: Bitta dona funksiyani alohida tekshirish (Masalan: Sonlarni qo'shadigan funksiya).
+- **Integration Test**: 2 ta va undan ko'p tizimlarni birlashtirib tekshirish (Masalan: DB dan foydalanuvchini olib kelib hisoblash).
+- **E2E Test**: Brauzerni ochib, haqiqiy foydalanuvchi kabi tugmalarni bosib tekshirish.
 
-| Qatlam | Coverage Maqsad | Fokus |
-|--------|-----------------|-------|
-| Unit | 80%+ | Business logic, utilities |
-| Integration | 60%+ | API, database, external services |
-| E2E | Critical paths | User journeys, happy paths |
+---
 
-## Testing Terminologiyasi
+## 🟡 Middle (Amaliyot va Detallar)
 
-### Test Types
+Middle dasturchi Frameworklarni qachon va qaysi birini ishlatishni, shuningdek testlardagi ko'rinmas ob'ektlarni (Test Doubles) farqlay oladi.
 
-```javascript
-// Unit Test - isolated, fast
-test('formatPrice 1000 ni "1,000" ga format qiladi', () => {
-  expect(formatPrice(1000)).toBe('1,000')
-})
+### Test Doubles (O'rinbosarlar) farqi
+Test yozganda biz har doim ham bazaga ulanolmaymiz yoki sms yubora olmaymiz (pullik). Buning o'rniga soxta ob'ektlar ishlatamiz:
+- **Stub**: Oldindan tayyorlangan javob beruvchi robot.
+- **Mock**: Kodingiz unga ulandimi yoki yo'qmi sanab, "Ha, sms funksiyasi chaqirildi" deb hisobot beruvchi ayg'oqchi.
+- **Spy**: Asl funksiyani buzmasdan, u chaqirilganida orqadan kuzatuvchi.
 
-// Integration Test - multiple units together
-test('OrderService to'g'ri order yaratadi', async () => {
-  const order = await orderService.create({
-    items: [{ productId: 1, quantity: 2 }],
-    userId: 123
-  })
-  expect(order.total).toBe(2000)
-  expect(await db.orders.findById(order.id)).toBeDefined()
-})
+### Qaysi toollarni tanlash kerak?
 
-// E2E Test - full user flow
-test('User mahsulot sotib oladi', async ({ page }) => {
-  await page.goto('/products')
-  await page.click('[data-testid="product-1"]')
-  await page.click('[data-testid="add-to-cart"]')
-  await page.click('[data-testid="checkout"]')
-  await expect(page.locator('.order-success')).toBeVisible()
-})
-```
+| Asbob | Qachon ishlatiladi | Xususiyati |
+| --- | --- | --- |
+| **Vitest** | Vue, React (Vite-based) loyihalarda | Jest'dan 10x tezroq, TypeScript Native |
+| **Jest** | Eski yoki Node.js (Backend) loyihalarda | Standart va eng ko'p hujjatga ega |
+| **Cypress** | Frontend og'ir UI loyihalarda | Ko'z bilan ko'rib, oson debug qilinadi |
+| **Playwright** | Bir vaqtda Chrome, Safari da tezkor test | Juda tez, bir nechta Oynalarda parallel ishlaydi |
 
-### Test Doubles
+---
 
-```javascript
-// Stub - predefined return values
-const userServiceStub = {
-  getUser: () => ({ id: 1, name: 'Test User' })
-}
+## 🔴 Senior (Arxitektura va Optimizatsiya)
 
-// Mock - expectations on calls
-const loggerMock = vi.fn()
-loggerMock('error', 'Something went wrong')
-expect(loggerMock).toHaveBeenCalledWith('error', expect.any(String))
+Senior dasturchi testlarning loyiha darajasidagi qoplamasini (Coverage) strategik hal qiladi. CI/CD (GitHub Actions) ga ulaydi va arxitekturani moslashtiradi.
 
-// Spy - track real function calls
-const fetchSpy = vi.spyOn(global, 'fetch')
-await fetchData()
-expect(fetchSpy).toHaveBeenCalledTimes(1)
+### Real-World Testing Strategy
+Katta e-commerce loyihasi misolida nimalarni test qilish kerak:
 
-// Fake - working implementation
-class FakeUserRepository {
-  private users = new Map()
+| Ssenariy | Ustuvorlik | Test turi |
+|----------|----------|-----------|
+| To'lovni amalga oshirish | Juda Muhim | E2E + Integration |
+| Ro'yxatdan o'tish | Yuqori | E2E + Unit |
+| Qidiruv tizimi | Yuqori | Integration |
+| Narxlarni (Chegirma) hisoblash | Yuqori | Unit (Matematika) |
+| Temani o'zgartirish (Dark mode) | Past | Unit / UI Test |
 
-  async save(user) {
-    this.users.set(user.id, user)
-    return user
-  }
-
-  async findById(id) {
-    return this.users.get(id)
-  }
-}
-```
-
-## Framework Tanlash
-
-### Vitest vs Jest
-
-| Feature | Vitest | Jest |
-|---------|--------|------|
-| Speed | Juda tez (Vite-based) | Tezroq (v29+) |
-| ESM Support | Native | Configuration kerak |
-| Vue/React | First-class | Plugin orqali |
-| TypeScript | Native | Transform kerak |
-| Watch Mode | Instant | Sekinroq |
-
-### Cypress vs Playwright
-
-| Feature | Cypress | Playwright |
-|---------|---------|------------|
-| Browsers | Chrome, Firefox, Edge | Chrome, Firefox, Safari, Edge |
-| Mobile | Emulation only | Native emulation |
-| Speed | Sekinroq | Tezroq |
-| Debugging | Excellent | Very Good |
-| Component Testing | Yes | Yes |
-| API Testing | Yes | Yes |
-
-## Testing Best Practices
-
-### 1. Test Naming Convention
-
-```javascript
-// Bad
-test('test1', () => {})
-
-// Good - describes behavior
-test('validateEmail invalid email uchun false qaytaradi', () => {})
-
-// Better - BDD style
-describe('validateEmail', () => {
-  it('valid email uchun true qaytaradi', () => {})
-  it('@ belgisi yo\'q bo\'lsa false qaytaradi', () => {})
-  it('domain yo\'q bo\'lsa false qaytaradi', () => {})
-})
-```
-
-### 2. Arrange-Act-Assert (AAA)
-
-```javascript
-test('Cart item qo\'shganda total yangilanadi', () => {
-  // Arrange
-  const cart = new ShoppingCart()
-  const product = { id: 1, price: 100 }
-
-  // Act
-  cart.addItem(product, 2)
-
-  // Assert
-  expect(cart.total).toBe(200)
-  expect(cart.itemCount).toBe(2)
-})
-```
-
-### 3. Test Isolation
-
-```javascript
-// Bad - tests share state
-let counter = 0
-test('test 1', () => { counter++ })
-test('test 2', () => { expect(counter).toBe(0) }) // Fails!
-
-// Good - isolated tests
-describe('Counter', () => {
-  let counter
-
-  beforeEach(() => {
-    counter = 0
-  })
-
-  test('increment', () => {
-    counter++
-    expect(counter).toBe(1)
-  })
-
-  test('starts at zero', () => {
-    expect(counter).toBe(0)
-  })
-})
-```
-
-### 4. Avoid Implementation Details
-
-```javascript
-// Bad - testing implementation
-test('button click handler', () => {
-  const component = mount(Button)
-  expect(component.vm.handleClick).toBeDefined()
-})
-
-// Good - testing behavior
-test('button click shows modal', async () => {
-  const component = mount(Button)
-  await component.find('button').trigger('click')
-  expect(component.find('.modal').exists()).toBe(true)
-})
-```
-
-## Testing in CI/CD
-
-### GitHub Actions Example
+### CI/CD da Testlar (GitHub Actions)
+Katta loyihalarda hech kim testlarni o'zining kompyuterida tekshirib (run) o'tirmaydi. Har gal kod Main (Master) ga qo'shilganda server (CI) o'zi barcha testlarni yurgizadi va qizil yonib tursa kiritmaydi.
 
 ```yaml
-name: Tests
-
+# .github/workflows/test.yml
+name: Tizimni Testlash
 on: [push, pull_request]
 
 jobs:
@@ -230,110 +100,40 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - run: npm ci
-      - run: npm run test:unit -- --coverage
-
-      - uses: codecov/codecov-action@v4
-        with:
-          files: ./coverage/lcov.info
-
+      - run: npm install
+      # Barcha Unit testlarni ishga tushirish (Vitest)
+      - run: npm run test:unit
+      
   e2e-tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - run: npm ci
+      - run: npm install
+      # Playwright browserlarni tortib oladi va E2E ni tekshiradi
       - run: npx playwright install --with-deps
       - run: npm run test:e2e
-
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: playwright-report
-          path: playwright-report/
 ```
 
-## Real-World Testing Strategy
+### Intervyu Savoli
+**"Test coverage 100% bo'lsa, dasturda umuman bug yo'q deb aytish mumkinmi?"**
+*Javob:* 
+Aslo yo'q. Test Coverage bu — kodingizdagi jami qatorlarning (lines of code) necha foizi Test fayllari tomonidan hech bo'lmasa 1 marta o'qib (run qilib) chiqilganini anglatadi, xolos. U koddagi logikani yoki Race-conditionlarni (ikkita zapros birdan kelib qolishi) baholamaydi. Kodingizni 100% o'qigan taqdirda ham, Edge Case lar (kamdan-kam uchraydigan stsenariylar) tekshirilmagan bo'lsa, xato albatta chiqadi. 100% coverage - bu fanatizm. Asosiy maqsad 80% atrofida ushlab, qolgan vaqtni E2E larga sarflashdir.
 
-### E-commerce Loyiha Misoli
-
-```
-src/
-├── utils/
-│   └── __tests__/           # Unit tests
-│       ├── formatPrice.test.ts
-│       └── validateCard.test.ts
-├── composables/
-│   └── __tests__/           # Unit/Integration tests
-│       └── useCart.test.ts
-├── components/
-│   └── __tests__/           # Component tests
-│       └── ProductCard.test.ts
-├── services/
-│   └── __tests__/           # Integration tests
-│       └── OrderService.test.ts
-└── e2e/
-    ├── checkout.spec.ts     # E2E tests
-    ├── search.spec.ts
-    └── auth.spec.ts
-```
-
-### Test Priority Matrix
-
-| Scenario | Priority | Test Type |
-|----------|----------|-----------|
-| Payment processing | Critical | E2E + Integration |
-| User registration | High | E2E + Unit |
-| Product search | High | Integration |
-| Cart calculations | High | Unit |
-| Newsletter signup | Medium | Integration |
-| Theme switching | Low | Unit |
-
-## Interview Savollari
-
-1. **Unit test va integration test orasidagi farq nima?**
-   - Unit: isolated, bir unit, mocked dependencies
-   - Integration: multiple units together, real dependencies
-
-2. **Mock va stub orasidagi farq?**
-   - Stub: predefined return values
-   - Mock: expectations on calls + verification
-
-3. **Testing pyramid nima va nima uchun muhim?**
-   - Base: ko'p unit tests (tez, isolated)
-   - Middle: kam integration tests
-   - Top: juda kam E2E tests (sekin, brittle)
-
-4. **Test coverage 100% bo'lsa, bug yo'q deb aytish mumkinmi?**
-   - Yo'q, coverage faqat kod execute bo'lganini ko'rsatadi
-   - Edge cases, integration issues, race conditions coverage'da ko'rinmaydi
-
-5. **Flaky test nima va qanday oldini olish mumkin?**
-   - Vaqti-vaqti bilan fail bo'ladigan test
-   - Sabablari: timing issues, shared state, external dependencies
-   - Yechim: isolation, proper waits, deterministic data
+---
 
 ## Eng Yaxshi Amaliyotlar (Best Practices)
 
 1. **"100% Coverage" afsonasi**: Barcha fayllarni qamrab olish (100% coverage) shart emas. Business-critical joylarga (to'lov, savat, ro'yxatdan o'tish) urg'u bering. UI dagi matn rangi uchun test yozish vaqtni o'ldirishdir.
-2. **Kodni buzishdan oldin yozing (TDD)**: Testlarni kod yoqmasdan oldin yozish (Test Driven Development) sizga interfeys haqida aniqroq o'ylash imkonini beradi.
-3. **Piramida qoidasini asrang**: O'ylagan har bir kodingizni avval Unit test bilan yoping. E2E testlarni faqat eng katta, umumlashgan foydalanuvchi "sayohati" (masalan "mahsulot topish va sotib olish") uchungina ishlating.
+2. **Kodni buzishdan oldin yozing (TDD)**: Testlarni kod yozmasdan oldin yozish (Test Driven Development) sizga interfeys haqida aniqroq o'ylash imkonini beradi. "Bu funksiyam qanday parametrlarni qabul qiladi?" deb oldindan poydevor qurib olasiz.
+3. **Piramida qoidasini asrang**: O'ylagan har bir kodingizni avval Unit test bilan yoping. E2E testlarni faqat eng katta, umumlashgan foydalanuvchi "sayohati" (masalan "mahsulot topish va sotib olish") uchungina ishlating. Chunki ularni sozlash va yurgizish (CI da) qimmatga tushadi.
 
 ---
 
-## Foydali Resurslar
+## Xulosa
 
-- [Testing JavaScript](https://testingjavascript.com/) - Kent C. Dodds kursi
-- [Vitest Documentation](https://vitest.dev/)
-- [Playwright Documentation](https://playwright.dev/)
-- [Cypress Documentation](https://docs.cypress.io/)
-- [Testing Library](https://testing-library.com/)
+Yodingizda tuting: "Test yozilmagan kod - bu boshidanoq eskirgan koddir".
+| Test turi | Xususiyati | Asbob (Tool) |
+| --- | --- | --- |
+| **Unit** | Bitta g'ishtni tekshirish | Vitest, Jest |
+| **Integration** | G'ishtlar birikib devor bo'lganini tekshirish | Vitest, MSW, RTL |
+| **E2E** | Devorlar butun bir uy bo'lganini va foydalanuvchi yashay olishini tekshirish | Playwright, Cypress |

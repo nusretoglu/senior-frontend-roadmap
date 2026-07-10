@@ -1,967 +1,137 @@
 # Watchers va Computed Properties - Reaktiv Hisoblashlar
 
-## Kirish
-
 > [!IMPORTANT]
 > **Nima uchun muhim?**  
 > Dasturlashda ko'pincha bitta ma'lumotning o'zgarishi boshqalariga ham ta'sir qilishi kerak bo'ladi. Agar hisob-kitoblarni oddiy metodlar orqali qilsangiz, ular keraksiz marta qayta ishlayveradi (performance muammosi). `computed` va `watch` - bu qachon va qanday qilib o'zgarishlarga reaksiya bildirishni aniq boshqarishga imkon beradigan eng kuchli qurollardir.
 
+## 🟢 Junior (Asoslar va Tushunchalar)
+
+### Terminologiya
+**Computed** (Hisoblanuvchi) — Mavjud o'zgaruvchilar ustida qandaydir hisob-kitob bajarib, o'zidan bitta tayyor qiymat qaytaradigan quti.
+**Watch** (Kuzatuvchi) — Qaysidir o'zgaruvchi o'zgarsa, uyg'onib ketib biror ish (funksiya) bajarib yuboradigan poyloqchi.
+
 > [!NOTE]
-> **Real-hayot analogiyasi: "Soliqchi va Jurnalist"**  
-> - **Computed (Soliqchi):** U faqat sizning sof daromadingiz (dependency) o'zgarsagina soliqlaringizni qayta hisoblab chiqadi. Agar ismingiz o'zgarsa, u soliqlarni qayta hisoblamaydi (keshlanadi). Hisoblash oxirida doim yangi qiymat (summa) qaytaradi.
-> - **Watch (Jurnalist):** Sizning har bir harakatingizni kuzatib turadi. Agar siz mashina sotib olsangiz, u salkam doston yozib yuboradi, API chaqiradi yoki boshqa "side-effect" larni bajaradi. U albatta qiymat qaytarishi shart emas.
-
-```mermaid
-graph LR
-    A[Data 1] --> C(Computed Property)
-    B[Data 2] --> C
-    C -->|Keshlanadi| D((Template))
-    
-    E[Data 3] -->|Kuzatiladi| W(Watcher)
-    W -.->|Side effect| F[API Call / LocalStorage]
-```
-
-## Computed Properties
-
-### Asosiy Tushuncha
-
-Computed properties - bu boshqa reaktiv ma'lumotlarga asoslangan, keshlanadigan qiymatlar. Ular faqat dependency o'zgarganda qayta hisoblanadi.
-
-```javascript
-// Options API
-export default {
-  data() {
-    return {
-      firstName: 'Ali',
-      lastName: 'Valiyev',
-      items: [
-        { name: 'Olma', price: 5000, quantity: 3 },
-        { name: 'Nok', price: 7000, quantity: 2 }
-      ]
-    }
-  },
-
-  computed: {
-    // Oddiy computed
-    fullName() {
-      console.log('fullName computed')
-      return `${this.firstName} ${this.lastName}`
-    },
-
-    // Array bilan ishlash
-    totalPrice() {
-      return this.items.reduce((sum, item) => {
-        return sum + (item.price * item.quantity)
-      }, 0)
-    },
-
-    // Formatlangan qiymat
-    formattedTotal() {
-      return new Intl.NumberFormat('uz-UZ', {
-        style: 'currency',
-        currency: 'UZS'
-      }).format(this.totalPrice)
-    },
-
-    // Filtered array
-    expensiveItems() {
-      return this.items.filter(item => item.price > 5000)
-    },
-
-    // Sorted array
-    sortedItems() {
-      // MUHIM: original array'ni mutate qilmaymiz
-      return [...this.items].sort((a, b) => b.price - a.price)
-    }
-  }
-}
-```
-
-```vue
-<script setup>
-import { ref, computed } from 'vue'
-
-const firstName = ref('Ali')
-const lastName = ref('Valiyev')
-const items = ref([
-  { name: 'Olma', price: 5000, quantity: 3 },
-  { name: 'Nok', price: 7000, quantity: 2 }
-])
-
-// Computed
-const fullName = computed(() => {
-  console.log('fullName computed')
-  return `${firstName.value} ${lastName.value}`
-})
-
-const totalPrice = computed(() => {
-  return items.value.reduce((sum, item) => {
-    return sum + (item.price * item.quantity)
-  }, 0)
-})
-
-const expensiveItems = computed(() => {
-  return items.value.filter(item => item.price > 5000)
-})
-</script>
-```
-
-### Getter va Setter
-
-```javascript
-// Options API
-export default {
-  data() {
-    return {
-      firstName: 'Ali',
-      lastName: 'Valiyev'
-    }
-  },
-
-  computed: {
-    fullName: {
-      get() {
-        return `${this.firstName} ${this.lastName}`
-      },
-      set(newValue) {
-        const [first, ...rest] = newValue.split(' ')
-        this.firstName = first
-        this.lastName = rest.join(' ')
-      }
-    }
-  }
-}
-
-// Composition API
-const firstName = ref('Ali')
-const lastName = ref('Valiyev')
-
-const fullName = computed({
-  get() {
-    return `${firstName.value} ${lastName.value}`
-  },
-  set(newValue) {
-    const [first, ...rest] = newValue.split(' ')
-    firstName.value = first
-    lastName.value = rest.join(' ')
-  }
-})
-
-// Ishlatish
-fullName.value = 'Vali Karimov'
-console.log(firstName.value) // 'Vali'
-console.log(lastName.value)  // 'Karimov'
-```
-
-### Computed Caching
-
-```javascript
-const count = ref(0)
-const random = ref(Math.random())
-
-// CACHED - count o'zgarmasa qayta hisoblanmaydi
-const doubled = computed(() => {
-  console.log('doubled computed') // 1 marta
-  return count.value * 2
-})
-
-// NOT CACHED - method har chaqiruvda ishlaydi
-function getDoubled() {
-  console.log('getDoubled called') // Har safar
-  return count.value * 2
-}
-```
-
-```vue
-<template>
-  <!-- 3 marta chiqariladi, lekin computed 1 marta hisoblanadi -->
-  <p>{{ doubled }}</p>
-  <p>{{ doubled }}</p>
-  <p>{{ doubled }}</p>
-
-  <!-- 3 marta method chaqiriladi! -->
-  <p>{{ getDoubled() }}</p>
-  <p>{{ getDoubled() }}</p>
-  <p>{{ getDoubled() }}</p>
-</template>
-```
-
-### Computed Best Practices
-
-```javascript
-// TO'G'RI - Pure function, side effect yo'q
-const fullName = computed(() => {
-  return `${firstName.value} ${lastName.value}`
-})
-
-// NOTO'G'RI - Side effect (API call)
-const userData = computed(async () => {
-  // Bu ishlamaydi! Computed async bo'lmasligi kerak
-  return await api.getUser(userId.value)
-})
-
-// NOTO'G'RI - DOM manipulation
-const element = computed(() => {
-  document.title = 'New Title' // Side effect!
-  return someValue.value
-})
-
-// NOTO'G'RI - Original array'ni mutate qilish
-const sorted = computed(() => {
-  return items.value.sort() // Original array o'zgaradi!
-})
-
-// TO'G'RI - Yangi array yaratish
-const sorted = computed(() => {
-  return [...items.value].sort()
-})
-```
-
-## Watchers
-
-### Basic Watch
-
-```javascript
-// Options API
-export default {
-  data() {
-    return {
-      query: '',
-      userId: 1
-    }
-  },
-
-  watch: {
-    // Basic watcher
-    query(newValue, oldValue) {
-      console.log(`Query: ${oldValue} -> ${newValue}`)
-      this.search(newValue)
-    },
-
-    // Method name
-    userId: 'fetchUser'
-  },
-
-  methods: {
-    search(query) { /* ... */ },
-    fetchUser() { /* ... */ }
-  }
-}
-```
-
-```vue
-<script setup>
-import { ref, watch } from 'vue'
-
-const query = ref('')
-const userId = ref(1)
-
-// Basic watch
-watch(query, (newValue, oldValue) => {
-  console.log(`Query: ${oldValue} -> ${newValue}`)
-  search(newValue)
-})
-
-// Immediate - darhol chaqiriladi
-watch(userId, (newValue) => {
-  fetchUser(newValue)
-}, { immediate: true })
-</script>
-```
-
-### Watch Options
-
-```javascript
-// Options API
-export default {
-  data() {
-    return {
-      user: {
-        name: 'Ali',
-        profile: {
-          age: 25,
-          city: 'Toshkent'
-        }
-      },
-      items: []
-    }
-  },
-
-  watch: {
-    // immediate - komponent yaratilganda ham chaqiriladi
-    userId: {
-      handler: 'fetchUser',
-      immediate: true
-    },
-
-    // deep - nested o'zgarishlarni kuzatadi
-    user: {
-      handler(newVal, oldVal) {
-        console.log('User changed:', newVal)
-      },
-      deep: true
-    },
-
-    // Nested path
-    'user.profile.city'(newVal) {
-      console.log('City changed:', newVal)
-    },
-
-    // flush - DOM yangilanishidan keyin
-    items: {
-      handler() {
-        // DOM yangilangandan keyin scroll qilish
-        this.$nextTick(() => {
-          this.scrollToBottom()
-        })
-      },
-      flush: 'post'
-    }
-  }
-}
-```
-
-```vue
-<script setup>
-import { ref, reactive, watch } from 'vue'
-
-const user = reactive({
-  name: 'Ali',
-  profile: {
-    age: 25,
-    city: 'Toshkent'
-  }
-})
-
-// Deep watch
-watch(user, (newVal, oldVal) => {
-  // ESLATMA: reactive object uchun newVal === oldVal
-  console.log('User changed')
-}, { deep: true })
-
-// Nested property
-watch(
-  () => user.profile.city,
-  (newCity) => {
-    console.log('City changed:', newCity)
-  }
-)
-
-// flush: 'post' - DOM update'dan keyin
-watch(source, callback, { flush: 'post' })
-
-// flush: 'sync' - sinxron (ehtiyot bo'ling!)
-watch(source, callback, { flush: 'sync' })
-</script>
-```
-
-### Watching Multiple Sources
-
-```javascript
-import { ref, watch } from 'vue'
-
-const firstName = ref('Ali')
-const lastName = ref('Valiyev')
-const age = ref(25)
-
-// Array of sources
-watch([firstName, lastName], ([newFirst, newLast], [oldFirst, oldLast]) => {
-  console.log(`Name: ${oldFirst} ${oldLast} -> ${newFirst} ${newLast}`)
-})
-
-// Getter functions
-watch(
-  [() => user.name, () => user.age],
-  ([newName, newAge]) => {
-    console.log(`${newName}, ${newAge}`)
-  }
-)
-```
-
-### watchEffect
-
-```javascript
-import { ref, watchEffect, watchPostEffect, watchSyncEffect } from 'vue'
-
-const count = ref(0)
-const name = ref('Ali')
-
-// watchEffect - avtomatik dependency tracking
-watchEffect(() => {
-  // count va name ikkalasi ham track qilinadi
-  console.log(`Count: ${count.value}, Name: ${name.value}`)
-})
-
-// watchPostEffect - DOM update'dan keyin (flush: 'post')
-watchPostEffect(() => {
-  // DOM bilan ishlash
-  console.log(document.querySelector('#count').textContent)
-})
-
-// watchSyncEffect - sinxron (flush: 'sync')
-watchSyncEffect(() => {
-  console.log(count.value) // Darhol chaqiriladi
-})
-```
-
-### watchEffect vs watch
-
-```javascript
-const userId = ref(1)
-const userData = ref(null)
-
-// watch - aniq dependency, old value
-watch(userId, async (newId, oldId) => {
-  console.log(`User changed: ${oldId} -> ${newId}`)
-  userData.value = await fetchUser(newId)
-})
-
-// watchEffect - avtomatik tracking, immediate
-watchEffect(async () => {
-  // userId.value ishlatilsa, avtomatik track
-  userData.value = await fetchUser(userId.value)
-})
-```
-
-| Jihat | watch | watchEffect |
-|-------|-------|-------------|
-| Dependencies | Manual (aniq ko'rsatish) | Automatic (ishlatilganlar) |
-| Old value | Bor | Yo'q |
-| Immediate | `{ immediate: true }` kerak | Default immediate |
-| Conditional logic | Qo'llab-quvvatlamaydi | Qo'llab-quvvatlaydi |
-| Lazy | Ha (default) | Yo'q |
-
-### Watch Cleanup
-
-```javascript
-import { ref, watch, watchEffect } from 'vue'
-
-const searchQuery = ref('')
-
-// watch bilan cleanup
-watch(searchQuery, async (newQuery, oldQuery, onCleanup) => {
-  const controller = new AbortController()
-
-  // Keyingi watch chaqirilganda yoki unmount da
-  onCleanup(() => {
-    controller.abort()
-  })
-
-  try {
-    const results = await fetch(`/api/search?q=${newQuery}`, {
-      signal: controller.signal
-    })
-    // ...
-  } catch (e) {
-    if (e.name === 'AbortError') {
-      console.log('Request cancelled')
-    }
-  }
-})
-
-// watchEffect bilan cleanup
-watchEffect((onCleanup) => {
-  const timer = setInterval(() => {
-    console.log('tick')
-  }, 1000)
-
-  onCleanup(() => {
-    clearInterval(timer)
-  })
-})
-```
-
-### Stopping Watchers
-
-```javascript
-import { ref, watch, watchEffect } from 'vue'
-
-const count = ref(0)
-
-// watch qaytargan stop function
-const stopWatch = watch(count, (newVal) => {
-  console.log('Count:', newVal)
-
-  // 10 ga yetganda to'xtatish
-  if (newVal >= 10) {
-    stopWatch()
-  }
-})
-
-// watchEffect
-const stopEffect = watchEffect(() => {
-  console.log('Count:', count.value)
-})
-
-// Manual stop
-setTimeout(() => {
-  stopWatch()
-  stopEffect()
-}, 5000)
-```
-
-## Real-World Patterns
-
-### Debounced Search
-
-```vue
-<script setup>
-import { ref, watch } from 'vue'
-import { useDebounceFn } from '@vueuse/core'
-
-const query = ref('')
-const results = ref([])
-const loading = ref(false)
-
-// Debounced search function
-const debouncedSearch = useDebounceFn(async (searchQuery) => {
-  if (!searchQuery) {
-    results.value = []
-    return
-  }
-
-  loading.value = true
-  try {
-    results.value = await api.search(searchQuery)
-  } finally {
-    loading.value = false
-  }
-}, 300)
-
-// Watch query changes
-watch(query, (newQuery) => {
-  debouncedSearch(newQuery)
-})
-</script>
-```
-
-### Form Validation
-
-```vue
-<script setup>
-import { reactive, computed, watch } from 'vue'
-
-const form = reactive({
-  email: '',
-  password: '',
-  confirmPassword: ''
-})
-
-const errors = reactive({
-  email: '',
-  password: '',
-  confirmPassword: ''
-})
-
-// Email validation
-watch(() => form.email, (email) => {
-  if (!email) {
-    errors.email = 'Email majburiy'
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    errors.email = "Noto'g'ri email format"
-  } else {
-    errors.email = ''
-  }
-})
-
-// Password validation
-watch(() => form.password, (password) => {
-  if (!password) {
-    errors.password = 'Parol majburiy'
-  } else if (password.length < 8) {
-    errors.password = 'Parol kamida 8 ta belgi'
-  } else {
-    errors.password = ''
-  }
-
-  // Confirm password ham tekshirish
-  if (form.confirmPassword && password !== form.confirmPassword) {
-    errors.confirmPassword = 'Parollar mos emas'
-  }
-})
-
-// Confirm password
-watch(() => form.confirmPassword, (confirm) => {
-  if (confirm !== form.password) {
-    errors.confirmPassword = 'Parollar mos emas'
-  } else {
-    errors.confirmPassword = ''
-  }
-})
-
-// Form valid computed
-const isFormValid = computed(() => {
-  return !errors.email && !errors.password && !errors.confirmPassword &&
-         form.email && form.password && form.confirmPassword
-})
-</script>
-```
-
-### Auto-save Feature
-
-```vue
-<script setup>
-import { ref, watch } from 'vue'
-import { useDebounceFn } from '@vueuse/core'
-
-const content = ref('')
-const isSaving = ref(false)
-const lastSaved = ref(null)
-
-// Auto-save funksiyasi
-const autoSave = useDebounceFn(async (newContent) => {
-  isSaving.value = true
-  try {
-    await api.saveDocument({ content: newContent })
-    lastSaved.value = new Date()
-  } catch (e) {
-    console.error('Save failed:', e)
-  } finally {
-    isSaving.value = false
-  }
-}, 2000)
-
-// Content o'zgarganda auto-save
-watch(content, (newContent) => {
-  autoSave(newContent)
-})
-</script>
-
-<template>
-  <div>
-    <textarea v-model="content"></textarea>
-    <div class="status">
-      <span v-if="isSaving">Saving...</span>
-      <span v-else-if="lastSaved">
-        Last saved: {{ lastSaved.toLocaleTimeString() }}
-      </span>
-    </div>
-  </div>
-</template>
-```
-
-### URL State Sync
-
+> **Hayotiy o'xshatish: "Soliqchi va Jurnalist"**  
+> - **Computed (Soliqchi):** U faqat sizning sof daromadingiz (unga kerakli ma'lumot) o'zgarsagina soliqlaringizni qayta hisoblab chiqadi. Agar ismingiz o'zgarsa, u soliqlarni qayta hisoblamaydi. Hisoblash oxirida doim yangi qiymat (summa) qaytaradi.
+> - **Watch (Jurnalist):** Sizning har bir harakatingizni kuzatib turadi. Agar siz mashina sotib olsangiz, u salkam doston yozib yuboradi, yangiliklar tarqatadi (API chaqiradi) yoki boshqa "side-effect" larni bajaradi. U albatta qandaydir qat'iy qiymat qaytarishi shart emas.
+
+### Sodda Misol
 ```vue
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 
-const route = useRoute()
-const router = useRouter()
+const ism = ref("Ali")
+const familiya = ref("Valiyev")
+const til = ref("uz")
 
-// URL dan state olish
-const page = ref(parseInt(route.query.page) || 1)
-const search = ref(route.query.q || '')
-const sort = ref(route.query.sort || 'date')
-
-// URL params computed
-const queryParams = computed(() => ({
-  page: page.value > 1 ? page.value : undefined,
-  q: search.value || undefined,
-  sort: sort.value !== 'date' ? sort.value : undefined
-}))
-
-// State o'zgarganda URL yangilash
-watch(queryParams, (params) => {
-  router.replace({ query: params })
-}, { deep: true })
-
-// URL o'zgarganda state yangilash
-watch(
-  () => route.query,
-  (query) => {
-    page.value = parseInt(query.page) || 1
-    search.value = query.q || ''
-    sort.value = query.sort || 'date'
-  }
-)
-</script>
-```
-
-### Computed with Async (workaround)
-
-```vue
-<script setup>
-import { ref, watchEffect, computed } from 'vue'
-
-const userId = ref(1)
-const userData = ref(null)
-const loading = ref(false)
-const error = ref(null)
-
-// Async data fetching with watchEffect
-watchEffect(async (onCleanup) => {
-  const controller = new AbortController()
-  onCleanup(() => controller.abort())
-
-  loading.value = true
-  error.value = null
-
-  try {
-    const response = await fetch(`/api/users/${userId.value}`, {
-      signal: controller.signal
-    })
-    userData.value = await response.json()
-  } catch (e) {
-    if (e.name !== 'AbortError') {
-      error.value = e
-    }
-  } finally {
-    loading.value = false
-  }
+// COMPUTED: Ism va Familiyani qo'shib yaxlit qaytaradi
+const toliqIsm = computed(() => {
+  return `${ism.value} ${familiya.value}`
 })
 
-// Computed qiymatlar userData asosida
-const fullName = computed(() => {
-  return userData.value
-    ? `${userData.value.firstName} ${userData.value.lastName}`
-    : ''
+// WATCH: "til" o'zgaruvchisini kuzatamiz
+watch(til, (yangiTil) => {
+  console.log(`Foydalanuvchi tilni o'zgartirdi: ${yangiTil}`)
+  // Backendga so'rov jo'natamiz
 })
 </script>
+
+<template>
+  <h1>{{ toliqIsm }}</h1>
+</template>
 ```
-
-## Vue 2 vs Vue 3 Farqlari
-
-### Watch Syntax
-
-```javascript
-// Vue 2 - Options API
-export default {
-  watch: {
-    query: {
-      handler(newVal, oldVal) {
-        this.search(newVal)
-      },
-      immediate: true,
-      deep: true
-    }
-  }
-}
-
-// Vue 2 - $watch API
-export default {
-  created() {
-    this.$watch('query', (newVal) => {
-      this.search(newVal)
-    }, { immediate: true })
-  }
-}
-
-// Vue 3 - Composition API
-import { watch, watchEffect } from 'vue'
-
-watch(query, (newVal, oldVal) => {
-  search(newVal)
-}, { immediate: true, deep: true })
-
-// watchEffect - Vue 3 yangi
-watchEffect(() => {
-  search(query.value)
-})
-```
-
-### Deep Watch Behavior
-
-```javascript
-// Vue 2 - reactive object uchun deep: true kerak
-watch: {
-  user: {
-    handler(newVal) { /* ... */ },
-    deep: true
-  }
-}
-
-// Vue 3 - reactive() avtomatik deep
-const user = reactive({ name: 'Ali' })
-
-// Avtomatik deep watch
-watch(user, (newVal) => {
-  console.log('User changed')
-})
-
-// ref() uchun deep: true kerak
-const userRef = ref({ name: 'Ali' })
-
-watch(userRef, (newVal) => {
-  console.log('User changed')
-}, { deep: true })
-```
-
-## Interview Savollari
-
-### 1. Computed va watch farqi nima? Qachon qaysi birini ishlatish kerak?
-
-**Javob:**
-
-| Jihat | Computed | Watch |
-|-------|----------|-------|
-| Maqsad | Qiymat hisoblash | Side effect bajarish |
-| Return | Qiymat qaytaradi | Void |
-| Caching | Ha | Yo'q |
-| Async | Yo'q | Ha |
-| Dependencies | Avtomatik | Manual/Auto |
-
-**Computed ishlatish:**
-- Yangi qiymat hisoblash kerak bo'lganda
-- Keshlanishi kerak bo'lganda
-- Template da ko'rsatish uchun
-
-**Watch ishlatish:**
-- API call qilish
-- localStorage yangilash
-- DOM manipulation
-- Async operations
-- Logging/analytics
-
-```javascript
-// Computed - filtering
-const activeUsers = computed(() => users.value.filter(u => u.active))
-
-// Watch - API call
-watch(userId, async (id) => {
-  userData.value = await fetchUser(id)
-})
-```
-
-### 2. watchEffect va watch farqi nima?
-
-**Javob:**
-
-```javascript
-// watch - manual dependencies, lazy
-watch(count, (newVal, oldVal) => {
-  console.log(`${oldVal} -> ${newVal}`)
-})
-
-// watchEffect - auto dependencies, immediate
-watchEffect(() => {
-  console.log(`Count is ${count.value}`)
-})
-```
-
-| Jihat | watch | watchEffect |
-|-------|-------|-------------|
-| Dependencies | Manual belgilash | Avtomatik |
-| Immediate | Yo'q (default) | Ha |
-| Old value | Bor | Yo'q |
-| Multiple sources | Array sintaksis | Ichida ishlatish |
-
-**watchEffect** yaxshi:
-- Dependencies ko'p bo'lganda
-- Old value kerak emasganda
-- Immediate behavior kerak bo'lganda
-
-### 3. Computed property'ni async qilish mumkinmi?
-
-**Javob:**
-Yo'q, computed property sinxron bo'lishi KERAK. Async logic uchun workaround:
-
-```javascript
-// NOTO'G'RI
-const data = computed(async () => {
-  return await fetchData() // Ishlamaydi!
-})
-
-// TO'G'RI - watchEffect + ref
-const data = ref(null)
-const loading = ref(false)
-
-watchEffect(async () => {
-  loading.value = true
-  data.value = await fetchData(id.value)
-  loading.value = false
-})
-
-// TO'G'RI - VueUse computedAsync
-import { computedAsync } from '@vueuse/core'
-
-const data = computedAsync(async () => {
-  return await fetchData(id.value)
-}, null) // default value
-```
-
-### 4. Deep watch performance muammolari va yechimlari?
-
-**Javob:**
-
-Deep watch katta ob'ektlarda sekin bo'lishi mumkin:
-
-```javascript
-// MUAMMO - katta ob'ekt
-watch(bigObject, callback, { deep: true })
-// Har bir nested property recursive tekshiriladi
-
-// YECHIM 1 - Specific path
-watch(() => bigObject.specific.path, callback)
-
-// YECHIM 2 - Computed intermediate
-const relevantData = computed(() => ({
-  a: bigObject.value.a,
-  b: bigObject.value.nested.b
-}))
-watch(relevantData, callback)
-
-// YECHIM 3 - Shallow comparison
-watch(
-  () => JSON.stringify(bigObject.value),
-  callback
-)
-```
-
-### 5. Watch cleanup qachon va qanday ishlatiladi?
-
-**Javob:**
-
-Cleanup async operatsiyalarni cancel qilish uchun:
-
-```javascript
-watch(id, async (newId, oldId, onCleanup) => {
-  const controller = new AbortController()
-
-  // Keyingi watch yoki unmount da chaqiriladi
-  onCleanup(() => {
-    controller.abort()
-  })
-
-  const data = await fetch(`/api/${newId}`, {
-    signal: controller.signal
-  })
-})
-
-watchEffect((onCleanup) => {
-  const timer = setInterval(() => {
-    console.log('tick')
-  }, 1000)
-
-  onCleanup(() => clearInterval(timer))
-})
-```
-
-**Kerak bo'ladigan holatlar:**
-- Fetch requests (AbortController)
-- Timers (clearInterval/clearTimeout)
-- WebSocket connections
-- Event listeners
-- Subscriptions
 
 ---
 
-## Eng Yaxshi Amaliyotlar (Best Practices)
+## 🟡 Middle (Amaliyot va Detallar)
 
-1. **Computed property'larni sof (pure) saqlang:** `computed` ichida API call qilish, original ma'lumotlarni o'zgartirish (mutate) aslo mumkin emas. U faqat mavjud datadan yangi data yasab berishi kerak xolos.
-2. **Imkon boricha Computed ishlating:** Ba'zan o'zgaruvchini kuzatib (`watch` qilib) unga bog'liq boshqa o'zgaruvchini yangilab qo'yamiz. Lekin buning o'rniga to'g'ridan-to'g'ri `computed` ishlatsa, kod qisqa va bug'larsiz bo'ladi.
-3. **`watch` dagi ob'ektlarga ehtiyot bo'ling:** `deep: true` yirik ob'ektlar bilan ishlaganda tizimni qotirib qo'yishi mumkin. Iloji boricha ob'ektning aynan kerakli xossasini o'zini kuzating: `watch(() => obj.name, ...)`.
+### Keshlanish mo'jizasi (Caching)
+Nima uchun template da `filterlanganObyektlar()` deb oddiy metodni ishlatsak bo'lmaydimi?
+Bo'ladi. Lekin sahifada masalan "yosh" o'zgaruvchisi +1 ga oshsa, sahifa qayta render bo'ladi va `filterlanganObyektlar()` qanaqadir yirik massiv ichidan o'ziga umuman tegishli bo'lmasa ham qaytadan filterlash ishlarini bajaradi. `computed` ishlatsangiz, Vue uni ichidagi datalar (items.value) ga qarab, o'zgarmaganini sezib tayyor eski natijani qaytarib beradi. Bu dasturni million marta tezlashtiradi.
+
+### Getter va Setter
+Computed faqat nimanidir o'qib beruvchi emas, qiymat qabul qiluvchi o'zgaruvchiga aylanishi ham mumkin. Buni v-model da ishlatsa bo'ladi.
+```javascript
+const narxDollar = ref(10)
+
+const narxSom = computed({
+  get() { // O'qish (Dollar -> So'm)
+    return narxDollar.value * 12500
+  },
+  set(yangiSom) { // Yozish (So'm -> Dollar)
+    narxDollar.value = yangiSom / 12500
+  }
+})
+```
+
+### Ko'p uchraydigan xatolar (Pitfalls)
+**Computed ichida "Side Effect" yaratish**
+Computed ichida API ga zapros jo'natish, LocalStorage ga narsa yozish yoki qanaqadir arrayni teskari qilib (reverse qilib originalini buzib qo'yish) QATIYAN TAqiqlanadi! Computed mutloqo "Toza" (Pure function) bo'lishi kerak.
+```javascript
+// YOMON
+const yoshlar = computed(() => {
+  return array.value.sort() // Mutatsiyaga uchradi!
+})
+
+// YAXSHI
+const yoshlar = computed(() => {
+  return [...array.value].sort() // Yangi massivga ko'chirib oldik
+})
+```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+1. **Imkon boricha Computed ishlating:** Ko'pchilik o'zgaruvchini kuzatib (`watch` qilib) unga qarab boshqa o'zgaruvchiga ma'lumot yozib qo'yishni odat qilgan. Buning o'rniga to'g'ridan-to'g'ri `computed` ishlatsa, kod qisqa va bug'larsiz bo'ladi.
+2. **Watch dagi "Immediate" xossasi:** Sahifa ochilishi bilanoq ham `watch` ning ichidagi mantiq 1 marta darhol ishlab ketishi uchun ungacha qiyin yo'llar qidirmasdan `{ immediate: true }` opsiyasini yozib yuborish kifoya.
+
+---
+
+## 🔴 Senior (Arxitektura va Optimallashtirish)
+
+### Avtomatik kuzatuvchi (`watchEffect`)
+Vue 3 da oddiy `watch` bilan bir qatorda `watchEffect` kiritildi. Qaysi o'zgaruvchini kuzatayotganingizni aniq aytishingiz kerak bo'lgan `watch` dan farqli o'laroq, `watchEffect` ning ichiga yozilgan har qanday reaktiv o'zgaruvchini Vue avtomatik tarzda o'zi ulap oladi va kuzatishni boshlaydi. Shuningdek, u har doim Immediate (sahifa yuklanganda) ishlaydi. Bu React dagi `useEffect` ga juda o'xshaydi, lekin Dependency Array larsiz (xavfsizroq)!
+
+```javascript
+import { ref, watchEffect } from 'vue'
+const poytaxt = ref("Toshkent")
+
+watchEffect(() => {
+  // Vue avtomatik tarzda bu blok "poytaxt"ga tobe ekanini sezadi
+  // Uni alohida ko'rsatish shart emas
+  fetch(`/api/weather?city=${poytaxt.value}`)
+})
+```
+
+### Katta ob'ektlar bilan muammo (Deep Watch)
+Aytaylik, sizda xotirasida minglab ma'lumoti bor "Obyekt" (Dictionary kabi) bor. Siz uni `watch(() => bigObject, callback, { deep: true })` qilsangiz, Vue ob'ektning minglab parametrlariga bittadan rekursiv tarzda kirib kuzatuv o'rnatib chiqadi. Bu esa Brauzerni tamomlaydi.
+Yechim: Faqat aniq yo'lni (path) kuzating.
+```javascript
+// SENIOR YONDASHUV
+watch(() => bigObject.value.settings.theme, (theme) => {
+  console.log("Faqat tema o'zgarganda ishlaydi")
+})
+```
+
+### Intervyu Savollari (Qiyin daraja)
+**1. `watchEffect` qachon ishlaydi: DOM yangilanishidan oldinmi yoki keyinmi (`flush` opsiyasi nima)?**
+*Javob:* Odatda, `watchEffect` ham, `watch` ham Vue da DOM yangilanishidan (render) **oldin** ishga tushadi. Agar siz ichida sahifadagi qaysidir `<div>` ning kengligini o'lchamoqchi bo'lsangiz, u hali DOM da chizilmagani uchun xato olasiz. Shunday paytda Vue sizga uchinchi parametr `flush: 'post'` ni taklif qiladi (yoki tayyor `watchPostEffect` dan foydalansa ham bo'ladi).
+
+**2. Asinxron amaliyotlarda (API call lar ulanib ketsa) qanday qilib yig'ishtirib olish (Cleanup) amalga oshiriladi?**
+*Javob:* Odamlar qidiruv (Search) yozayotganda tez-tez xarflarni terishadi. Har bir harfda watch ishga tushib API ga so'rov jo'nataveradi (Race Condition muammosi yuzaga keladi - oxirgi jo'natilgan so'rov emas, serverdan eng sekin kelgan xato javob birinchi bo'lib qoladi). 
+Buning uchun `watch` da `onCleanup` funksiyasi qabul qilinadi. Har gal yangi watch yurganda u eskisini o'ldiradi. Backendga jo'natilgan so'rovlarni abort qilish uchun `AbortController` o'sha `onCleanup` orqali ulap qo'yiladi.
+```javascript
+watch(query, async (yangi, eski, onCleanup) => {
+  const tormoz = new AbortController()
+  onCleanup(() => tormoz.abort()) // Keyingi watch kelsa oldingisini o'ldir
+  await fetch(`.../?q=${yangi}`, { signal: tormoz.signal })
+})
+```
 
 ---
 
 ## Xulosa
 
-| Xususiyat | Nimaga javobgar? | Qachon ishlatiladi? |
-|-----------|------------------|---------------------|
-| **Computed** | Mavjud qiymatlardan yangi qiymat hisoblaydi (keshlanadi). | Template'da bir xil mantiqni ko'p takrorlashdan qochish uchun (masalan, ro'yxatni filterlash). |
-| **Watch** | Belgilangan o'zgaruvchini kuzatadi va o'zgarganda ishlaydi. | Side-effect'lar kerak bo'lganda (API call, `localStorage` ga yozish, animatsiya boshlash). |
-| **watchEffect** | Ichidagi barcha reaktiv qiymatlarni avtomat kuzatadi va boshida darrov ishlaydi. | Logika qaysi datalarga qaramligini avtomatik aniqlab berishni xohlasangiz (deps array yo'q React `useEffect` kabi). |
-| **watchPostEffect**| DOM yangilanib bo'lgandan keyin ishlaydi. | Kuzatilayotgan o'zgarish DOM dagi element (masalan, grafika) o'lchamlarini o'zgartirsa va uni hisoblash kerak bo'lsa. |
-
-Eng muhim qoida: Agar natija template'da ko'rsatilishi kerak bo'lsa `computed` ishlating, agar natija tizimda nimadir o'zgartirishi kerak bo'lsa `watch` ishlating.
+| Vosita | Nima u o'zi? | Qachon ishlatiladi? | Asosiy cheklovlar |
+|--------|--------------|---------------------|-------------------|
+| **Computed** | Hisoblab tayyor qiymat beruvchi quti | Template da nimanidir tozalab, filterlab ekranga chiqarishda | Ichida ma'lumotni o'zgartirmang (mutatsiya va Side-effect mumkin emas). |
+| **Watch** | Kuzatuvchi poyloqchi | O'zgaruvchi o'zgarganda logikani yurgizish (API chaqirish, local storage'ga yozish) | Array yoki Obyektlarning ichini kuzatish uchun `deep: true` yoqilishi shart. |
+| **watchEffect**| Avtomatik kuzatuvchi poyloqchi | Kichik va murakkab logikalarda, kuzatilishi kerak bo'lgan datalar soni ko'p bo'lsa | Eski (oldValue) qiymatni bilish imkonsiz, u darhol (immediate) ishlaydi. |

@@ -62,23 +62,40 @@ graph TD
 
 ---
 
-## Asosiy Tushunchalar
+## 🟢 Junior (Asoslar va Tushunchalar)
 
-### 1. State (Holat)
-Ilovaning joriy holati - foydalanuvchi ma'lumotlari, UI holati, cache va boshqalar.
+### Asosiy Tushunchalar
 
-### 2. Mutations/Actions
-State'ni o'zgartirish usullari - sinxron va asinxron operatsiyalar.
+**1. State (Holat)**
+Ilovaning joriy holati - foydalanuvchi ma'lumotlari, ochiq/yopiq menyular kabi UI holati, mahsulotlar ro'yxati va boshqalar. Bu shunchaki markazdagi o'zgaruvchilar bazasi.
 
-### 3. Getters/Computed
-State'dan hisoblangan qiymatlar - filtrlangan ro'yxatlar, statistika.
+**2. Mutations/Actions**
+State'ni o'zgartirish usullari. **Mutations** - ma'lumotni to'g'ridan-to'g'ri o'zgartiradigan sinxron funksiyalar (Vuex'da ishlatiladi). **Actions** - ichida asinxron jarayonlarni (masalan API dan data yuklash) bajarib so'ng State ni yangilaydigan operatsiyalar.
 
-### 4. Reactivity
-State o'zgarganda UI avtomatik yangilanishi.
+**3. Getters/Computed**
+State'dan olingan (hisoblangan) qiymatlar. Masalan, savatdagi (State.items) barcha narsalarning umumiy summasi - Getter orqali hisoblanadi.
+
+**4. Reactivity**
+State o'zgarganda UIning o'zi avtomatik tarzda yangilanishi. Buni siz qilmaysiz, Vue avtomatik bajaradi.
 
 ---
 
-## Vue.js State Management Evolyutsiyasi
+## 🟡 Middle (Amaliyot va Detallar)
+
+### Qachon State Management Kerak?
+
+**Kerak BO'LMAGAN holatlar:**
+- Kichik ilovalar (5-10 komponent).
+- Faqatgina ota-bola (parent-child) aloqasi (props/emits) yetarli bo'lganda.
+- Component faqat o'ziga tegishli (Local) statelari bor bo'lganda (masalan, dropdown menu ochiq yoki yopiqligi).
+
+**Kerak BO'LGAN holatlar:**
+- Katta ilovalar (50+ komponent).
+- Chuqur nested (ichi-ichiga kirgan) komponentlar.
+- Ko'p joyda bir xil ma'lumot kerak bo'lganda (User Profile, Shopping Cart).
+- Murakkab asinxron operatsiyalar.
+
+### Vue.js State Management Evolyutsiyasi
 
 ```
 Vue 1.x ──► Vue 2.x ──► Vue 3.x
@@ -87,65 +104,48 @@ Vue 1.x ──► Vue 2.x ──► Vue 3.x
   Vuex 1    Vuex 3-4    Pinia (rasmiy)
 ```
 
-### Vuex (2015-2022)
-- Vue 2 uchun standart
-- Flux arxitekturasi
-- Strict mutations qoidalari
-- Module tizimi
+**Vuex (2015-2022)**
+Vue 2 uchun standart. Unda "Strict mutations" degan qattiq qoida bor edi, unga ko'ra holatni o'zgartirish uchun albatta mutation ishlatish shart edi. Modullari bor, lekin ishlatish biroz murakkab.
 
-### Pinia (2021-hozir)
-- Vue 3 uchun rasmiy kutubxona
-- Composition API integratsiyasi
-- TypeScript first-class qo'llab-quvvatlash
-- Mutations yo'q - soddalashtirilgan
+**Pinia (2021-hozir)**
+Vue 3 uchun rasmiy kutubxona. U Vuex ning muammolarini yechgan: Mutations olib tashlangan, TypeScript ni mukammal darajada (First-class) qo'llab-quvvatlaydi.
 
 ---
 
-## Qachon State Management Kerak?
+## 🔴 Senior (Arxitektura va Optimizatsiya)
 
-### Kerak BO'LMAGAN holatlar
-- Kichik ilovalar (5-10 komponent)
-- Faqat props/emits yetarli bo'lganda
-- Server-side rendering (SSR) bilan sodda ilovalar
+### Arxitektura Prinsiplari
 
-### Kerak BO'LGAN holatlar
-- Katta ilovalar (50+ komponent)
-- Chuqur nested komponentlar
-- Ko'p joyda bir xil ma'lumot kerak
-- Murakkab asinxron operatsiyalar
-- Time-travel debugging kerak
-
----
-
-## Arxitektura Prinsiplari
-
-### Single Source of Truth
+**1. Single Source of Truth (Yagona haqiqat manbai)**
+Xuddi ma'lumotlar bazasi bitta bo'lgani kabi, muhim ma'lumotlar ilovaning barcha qismiga faqat va faqat bitta joydan tarqalishi kerak. 
 ```javascript
-// YAXSHI - bitta manba
+// YAXSHI - bitta manba (Hamma uni Store dan o'qiydi)
 const store = {
   user: { name: 'John', role: 'admin' }
 }
 
-// YOMON - ko'p manba
+// YOMON - ko'p manba (Ikkita komponent datani alohida olib keldi, endi chalkashlik bo'ladi)
 componentA.user = { name: 'John' }
 componentB.user = { name: 'John' }
 ```
 
-### Predictable State Changes
+**2. Predictable State Changes (Kutilgan o'zgarishlar)**
+Har qanday o'zgarish Store da maxsus usulda qilinishi kerak (Action yoki Store.$patch orqali).
 ```javascript
 // YAXSHI - aniq o'zgarish
-store.commit('SET_USER', newUser)
+store.updateUser(newUser)
 
-// YOMON - to'g'ridan o'zgartirish
+// YOMON - to'g'ridan o'zgartirish (Component ichida mutation qilyapti)
 store.state.user = newUser
 ```
 
-### Unidirectional Data Flow
+**3. Unidirectional Data Flow (Bir tomonlama ma'lumot oqimi)**
+State -> UI ni render qiladi. UI (masalan Button Click) -> Action ni chaqiradi. Action -> State ni yangilaydi. Sikl shu tarzda faqat bitta yo'nalishda davom etadi.
 ```mermaid
 graph LR
-    Action -->|commit/update| State
+    Action -->|update| State
     State -->|render| View
-    View -->|dispatch/call| Action
+    View -->|call| Action
     
     style Action fill:#f9f9f9,stroke:#333
     style State fill:#e1f5fe,stroke:#03a9f4
@@ -173,32 +173,3 @@ graph LR
 | **Pinia (Modern)** | Vue 3 ning rasmiy, yengil va tiplangan State menejeri. | Barcha yangi Vue 3 loyihalari uchun standart. |
 
 State Management - bu loyihangizning "Miyagi". Qachon oddiy (Local) xotirani va qachon umumiy (Global) miyani ishlatishni bilish arxitekturangiz poydevorini belgilaydi.
-
----
-
-## O'rganish Tartibi
-
-1. **Boshlang'ich**: Vuex/Pinia asoslarini o'rganing
-2. **O'rta**: Global vs Local state farqini tushuning
-3. **Ilg'or**: Caching va reactive patternlarni qo'llang
-4. **Ekspert**: Arxitektura qarorlarini mustaqil qabul qiling
-
----
-
-## Foydali Resurslar
-
-- [Vuex Rasmiy Docs](https://vuex.vuejs.org/)
-- [Pinia Rasmiy Docs](https://pinia.vuejs.org/)
-- [Vue.js State Management Guide](https://vuejs.org/guide/scaling-up/state-management.html)
-
----
-
-## Eslatma
-
-Bu materiallar senior-level tushunish uchun mo'ljallangan. Har bir mavzuda:
-- Nazariy tushuntirish
-- To'g'ri va noto'g'ri kod misollari
-- Real loyiha tajribalari
-- Interview savollari
-
-bor.

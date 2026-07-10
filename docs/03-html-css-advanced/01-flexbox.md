@@ -1,1008 +1,115 @@
-# Flexbox - Flexible Box Layout
+# Flexbox (Flexible Box Layout)
 
 > [!IMPORTANT]
 > **Nima uchun muhim?**  
-> Flexbox veb-sahifalarda elementlarni bir o'lchovda (qator yoki ustun) joylashtirish, tekislash va bo'sh joylarni taqsimlashning eng kuchli va zamonaviy usulidir. Eski `float` va table-layout usullaridan butunlay voz kechib, responsiv (moslashuvchan) dizaynlarni osongina yaratish imkonini beradi.
+> Flexbox veb-sahifalarda elementlarni bir o'lchovda (qator yoki ustun) joylashtirish, tekislash va bo'sh joylarni taqsimlashning eng kuchli va zamonaviy usulidir. Eski `float` va `table-layout` usullaridan butunlay voz kechib, responsiv (moslashuvchan) dizaynlarni osongina yaratish imkonini beradi. Har qanday web dasturchi Flexbox ni suvdek bilishi shart!
+
+## 🟢 Junior (Asoslar va Tushunchalar)
+
+### Terminologiya
+**Flexbox** — bu sahifadagi qutilarni (elementlarni) elastik va egiluvchan qilish xususiyati. Unda asosiy "Ona quti" (Container) va ichida "Bola qutilar" (Items) bo'ladi.
 
 > [!NOTE]
-> **Real-hayot analogiyasi: "Poyezd vagonlari"**  
-> Flexbox'ni poyezd vagonlariga o'xshatish mumkin. Agar vagonlar (items) sig'masa, ular keyingi yo'lga o'tishi mumkin (flex-wrap). Agar vagonlar orasida bo'sh joy qolsa, bu joyni teng bo'lib olishlari mumkin (justify-content: space-between). Yo'lovchilar vagonda qanday joylashishi esa align-items orqali boshqariladi.
-## Mundarija
+> **Hayotiy o'xshatish: "Poyezd vagonlari"**  
+> Flexbox'ni poyezd vagonlariga o'xshatish mumkin. Agar relsda (qator) vagonlar (items) sig'masa, ular keyingi yo'lga o'tishi mumkin (`flex-wrap`). Agar vagonlar orasida ortiqcha bo'sh joy qolsa, bu joyni teng bo'lib olishlari mumkin (`justify-content: space-between`). Yo'lovchilar vagonda qanday joylashishi esa `align-items` orqali boshqariladi.
 
-1. [Asosiy tushunchalar](#asosiy-tushunchalar)
-2. [Container xususiyatlari](#container-xususiyatlari)
-3. [Item xususiyatlari](#item-xususiyatlari)
-4. [Real-world patterns](#real-world-patterns)
-5. [Mobile va Responsive](#mobile-va-responsive)
-6. [Xatolar va to'g'ri yechimlar](#xatolar-va-togri-yechimlar)
-7. [Interview savollari](#interview-savollari)
-8. [Best Practices](#best-practices)
-
----
-
-## Asosiy tushunchalar
-
-### Flex Container va Flex Items
+### Sodda Misol
+Flexbox har doim ota elementga (Container) yoziladi. Va u avtomatik tarzda ichidagi barcha bolalarni bir qatorga terib beradi.
 
 ```html
-<div class="container">  <!-- Flex Container -->
-  <div class="item">1</div>  <!-- Flex Item -->
-  <div class="item">2</div>  <!-- Flex Item -->
-  <div class="item">3</div>  <!-- Flex Item -->
+<div class="ota-quti">
+  <div class="bola">1</div>
+  <div class="bola">2</div>
+  <div class="bola">3</div>
 </div>
 ```
 
 ```css
-.container {
-  display: flex; /* yoki inline-flex */
+.ota-quti {
+  display: flex; /* Barcha bolalar bir qatorga o'tadi! */
+  justify-content: center; /* Bolalarni o'rtaga yig'adi */
+  align-items: center; /* Tepadan va pastdan o'rtaga qo'yadi */
+  gap: 20px; /* Bolalar orasida 20px bo'shliq ochadi */
 }
 ```
 
-### Axis (O'qlar)
+---
 
-Flexbox ikki o'qda ishlaydi:
+## 🟡 Middle (Amaliyot va Detallar)
+
+### Asosiy O'qlar (Axis) qoidasi
+Flexbox da 2 ta o'q bor:
+1. **Main Axis (Asosiy o'q):** Odatda chapdan o'ngga qarab yotadi (`flex-direction: row`). Buni har doim `justify-content` boshqaradi.
+2. **Cross Axis (Kesib o'tuvchi o'q):** Odatda tepadan pastga yotadi. Buni har doim `align-items` boshqaradi.
+
+Agar siz `flex-direction: column` qilib qo'ysangiz, o'qlar o'z o'rnini almashtiradi! Endi `justify-content` tepadan pastga qarab boshqaradi.
 
 ```mermaid
 graph TD
     subgraph Row_Direction [flex-direction: row]
     direction LR
-    A1[Item] --> B1[Item] --> C1[Item]
+    A1[Item 1] --> B1[Item 2] --> C1[Item 3]
     end
     
     subgraph Column_Direction [flex-direction: column]
     direction TB
-    A2[Item] --> B2[Item] --> C2[Item]
+    A2[Item 1] --> B2[Item 2] --> C2[Item 3]
     end
     
     classDef default fill:#f9f9f9,stroke:#333,stroke-width:2px;
 ```
 
-**Muhim:** `justify-content` Main Axis bo'ylab, `align-items` Cross Axis bo'ylab ishlaydi.
+### Muhim Xususiyatlar (Itemlar uchun)
+Bolalarning o'lchamini CSS dagi oddiy `width` o'rniga Flexbox ni o'ziga xos 3 ta kuchi bilan boshqarish to'g'riroq:
+
+- `flex-grow: 1` -> "Bo'sh qolgan joyni o'zingga qamrab ol!"
+- `flex-shrink: 0` -> "Ekran qisqarsa ham sen aslo siqilma!"
+- `flex-basis: 200px` -> "Boshlang'ich ening 200px bo'lsin"
+
+**Qisqartma (Shorthand):** `flex: 1` deb yozish aslida — o'sishga ruxsat, siqilishga ruxsat va boshlang'ich joy yo'q (`flex: 1 1 0`) deganidir. Bu barcha qutilar bir xil o'lchamga kelishini ta'minlaydi.
+
+### Ko'p uchraydigan xatolar va muammolar (Pitfalls)
+**Matn toshib ketishi (Overflow)**
+Agar `flex: 1` berilgan quti ichiga juda uzun so'z yozsangiz, quti boshqa qutilarni siqib, chegaradan toshib ketadi. Chunki flex qutilarning eng minimal o'lchami uning ichidagi matnga tengdir (`min-width: auto`).
+*Yechimi:* O'sha qutiga `min-width: 0` berish kerak!
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+- **Margin o'rniga Gap ishlating:** Flex bolalari orasini ochish uchun har doim `gap: 20px;` ishlating. Eski maktabdagi `margin-right` berib keyin oxirgisidan `last-child` yordamida marginni olib tashlash shart emas.
+- **RTL ni hisobga oling:** Joylashuvlarni to'g'ri qilish uchun `margin-left` emas, balki `margin-inline-start` kabi mantiqiy (logical) CSS property larini qo'llang.
+- **Markazlashtirish hiylasi:** Biror div ni qo'q o'rtaga qo'ymoqchi bo'lsangiz `display: flex; place-items: center;` ishlating. Bu `justify-content` va `align-items` ning qisqartmasidir.
 
 ---
 
-## Container xususiyatlari
-
-### 1. display
-
-```css
-.container {
-  display: flex;        /* Block-level flex container */
-  display: inline-flex; /* Inline-level flex container */
-}
-```
-
-### 2. flex-direction
-
-Elementlar qaysi yo'nalishda joylashadi:
-
-```css
-.container {
-  flex-direction: row;            /* → Chapdan o'ngga (default) */
-  flex-direction: row-reverse;    /* ← O'ngdan chapga */
-  flex-direction: column;         /* ↓ Yuqoridan pastga */
-  flex-direction: column-reverse; /* ↑ Pastdan yuqoriga */
-}
-```
-
-**Visual:**
-```
-row:            row-reverse:     column:         column-reverse:
-┌───┬───┬───┐   ┌───┬───┬───┐   ┌───┐           ┌───┐
-│ 1 │ 2 │ 3 │   │ 3 │ 2 │ 1 │   │ 1 │           │ 3 │
-└───┴───┴───┘   └───┴───┴───┘   ├───┤           ├───┤
-                                │ 2 │           │ 2 │
-                                ├───┤           ├───┤
-                                │ 3 │           │ 1 │
-                                └───┘           └───┘
-```
-
-### 3. flex-wrap
-
-Elementlar bir qatorga sig'masa nima bo'ladi:
-
-```css
-.container {
-  flex-wrap: nowrap;       /* Sig'diradi (default) - shrink */
-  flex-wrap: wrap;         /* Keyingi qatorga o'tadi */
-  flex-wrap: wrap-reverse; /* Teskari wrap */
-}
-```
-
-**Visual:**
-```
-nowrap (default):          wrap:                    wrap-reverse:
-┌───┬───┬───┬───┬───┐     ┌───┬───┬───┐            ┌───┬───┐
-│ 1 │ 2 │ 3 │ 4 │ 5 │     │ 1 │ 2 │ 3 │            │ 4 │ 5 │
-└───┴───┴───┴───┴───┘     ├───┼───┼───┘            ├───┼───┼───┐
-(siqiladi)                │ 4 │ 5 │                │ 1 │ 2 │ 3 │
-                          └───┴───┘                └───┴───┴───┘
-```
-
-### 4. flex-flow (shorthand)
-
-```css
-/* flex-direction va flex-wrap birgalikda */
-.container {
-  flex-flow: row wrap;
-  /* flex-direction: row; flex-wrap: wrap; */
-}
-```
-
-### 5. justify-content
-
-Main axis bo'ylab alignment:
-
-```css
-.container {
-  justify-content: flex-start;    /* Boshiga (default) */
-  justify-content: flex-end;      /* Oxiriga */
-  justify-content: center;        /* Markazga */
-  justify-content: space-between; /* Orasida teng bo'shliq */
-  justify-content: space-around;  /* Atrofida teng bo'shliq */
-  justify-content: space-evenly;  /* Butunlay teng bo'shliq */
-}
-```
-
-**Visual (row direction):**
-```
-flex-start:         flex-end:           center:
-┌───┬───┬───┐       ┌───────┬───┬───┐   ┌───┬───┬───┐
-│ 1 │ 2 │ 3 │       │       │ 1 │ 2 │ 3 │   │ 1 │ 2 │ 3 │
-└───┴───┴───┘       └───────┴───┴───┘   └───┴───┴───┘
-
-space-between:      space-around:       space-evenly:
-┌───┬───────┬───┐   ┌─┬───┬──┬───┬─┐   ┌──┬───┬──┬───┬──┐
-│ 1 │       │ 3 │   │ │ 1 │  │ 2 │ │   │  │ 1 │  │ 2 │  │
-│   │   2   │   │   │ └───┘  └───┘ │   │  └───┘  └───┘  │
-└───┴───────┴───┘   └─────────────┘   └────────────────┘
-```
-
-### 6. align-items
-
-Cross axis bo'ylab alignment (bitta qator):
-
-```css
-.container {
-  align-items: stretch;    /* To'liq cho'ziladi (default) */
-  align-items: flex-start; /* Boshiga */
-  align-items: flex-end;   /* Oxiriga */
-  align-items: center;     /* Markazga */
-  align-items: baseline;   /* Matn baseline bo'yicha */
-}
-```
-
-**Visual (row direction):**
-```
-stretch:            flex-start:         center:             flex-end:
-┌───────────────┐   ┌───────────────┐   ┌───────────────┐   ┌───────────────┐
-│┌───┬───┬───┐  │   │┌───┬───┬───┐  │   │               │   │               │
-││ 1 │ 2 │ 3 │  │   ││ 1 │ 2 │ 3 │  │   │┌───┬───┬───┐  │   │               │
-││   │   │   │  │   │└───┴───┴───┘  │   ││ 1 │ 2 │ 3 │  │   │┌───┬───┬───┐  │
-│└───┴───┴───┘  │   │               │   │└───┴───┴───┘  │   ││ 1 │ 2 │ 3 │  │
-└───────────────┘   └───────────────┘   └───────────────┘   │└───┴───┴───┘  │
-                                                            └───────────────┘
-```
-
-### 7. align-content
-
-Ko'p qator bo'lganda qatorlarni align qilish:
-
-```css
-.container {
-  flex-wrap: wrap; /* Bu kerak! */
-  align-content: flex-start;
-  align-content: flex-end;
-  align-content: center;
-  align-content: space-between;
-  align-content: space-around;
-  align-content: stretch; /* default */
-}
-```
-
-### 8. gap
-
-Elementlar orasidagi bo'shliq:
-
-```css
-.container {
-  gap: 20px;           /* row-gap va column-gap ikkalasi */
-  gap: 20px 10px;      /* row-gap: 20px, column-gap: 10px */
-  row-gap: 20px;       /* Qatorlar orasida */
-  column-gap: 10px;    /* Ustunlar orasida */
-}
-```
-
-**Noto'g'ri:**
-```css
-/* Eski yondashuv - margin bilan */
-.item {
-  margin: 10px;
-}
-.item:first-child {
-  margin-left: 0;
-}
-.item:last-child {
-  margin-right: 0;
-}
-```
-
-**To'g'ri:**
-```css
-/* Zamonaviy yondashuv - gap bilan */
-.container {
-  display: flex;
-  gap: 20px;
-}
-```
-
----
-
-## Item xususiyatlari
-
-### 1. order
-
-Elementlarning vizual tartibi (DOM tartibini o'zgartirmaydi):
-
-```css
-.item {
-  order: 0; /* default */
-}
-
-.item:nth-child(1) { order: 3; }
-.item:nth-child(2) { order: 1; }
-.item:nth-child(3) { order: 2; }
-
-/* Natija: 2, 3, 1 ko'rinishda */
-```
-
-**Ogohlantirish:** `order` accessibility muammolarga olib kelishi mumkin (screen reader DOM tartibida o'qiydi).
-
-### 2. flex-grow
-
-Bo'sh joyni qanday taqsimlash:
-
-```css
-.item {
-  flex-grow: 0; /* Bo'sh joyni olmaydi (default) */
-  flex-grow: 1; /* Bo'sh joyni oladi */
-}
-```
-
-**Visual:**
-```
-flex-grow: 0 (default):     flex-grow: 1 (all items):
-┌───┬───┬───┬─────────┐     ┌─────────┬─────────┬─────────┐
-│ 1 │ 2 │ 3 │ bo'sh   │     │    1    │    2    │    3    │
-└───┴───┴───┴─────────┘     └─────────┴─────────┴─────────┘
-
-Item 2 da flex-grow: 2:
-┌─────┬───────────┬─────┐
-│  1  │     2     │  3  │
-└─────┴───────────┴─────┘
-(2 ikki hissa ko'p bo'sh joy oladi)
-```
-
-### 3. flex-shrink
-
-Joy yetmasa qanday siqiladi:
-
-```css
-.item {
-  flex-shrink: 1; /* Siqiladi (default) */
-  flex-shrink: 0; /* Siqilmaydi */
-}
-```
-
-**Masalan:**
-```css
-/* Sidebar siqilmasin */
-.sidebar {
-  flex-shrink: 0;
-  width: 250px;
-}
-
-/* Content siqilishi mumkin */
-.content {
-  flex-shrink: 1;
-}
-```
-
-### 4. flex-basis
-
-Elementning boshlang'ich o'lchami:
-
-```css
-.item {
-  flex-basis: auto; /* width/height ga qaraydi (default) */
-  flex-basis: 200px; /* Aniq o'lcham */
-  flex-basis: 25%; /* Foiz */
-  flex-basis: 0; /* flex-grow asosida hisoblaydi */
-}
-```
-
-**flex-basis vs width:**
-```css
-/* flex-basis Main Axis bo'ylab ishlaydi */
-.container { flex-direction: row; }
-.item { flex-basis: 200px; } /* width kabi */
-
-.container { flex-direction: column; }
-.item { flex-basis: 200px; } /* height kabi */
-```
-
-### 5. flex (shorthand)
-
-```css
-.item {
-  flex: 0 1 auto; /* default: grow shrink basis */
-  flex: 1;        /* flex: 1 1 0 */
-  flex: auto;     /* flex: 1 1 auto */
-  flex: none;     /* flex: 0 0 auto */
-  flex: 2;        /* flex: 2 1 0 */
-}
-```
-
-**Eng ko'p ishlatiladigan:**
-```css
-/* Teng bo'linadi */
-.item { flex: 1; }
-
-/* Siqilmaydi, o'z o'lchami */
-.item { flex: none; }
-
-/* 2:1 ratio */
-.item-large { flex: 2; }
-.item-small { flex: 1; }
-```
-
-### 6. align-self
-
-Individual item alignment (align-items ni override qiladi):
-
-```css
-.item {
-  align-self: auto;       /* container dan meros (default) */
-  align-self: flex-start;
-  align-self: flex-end;
-  align-self: center;
-  align-self: baseline;
-  align-self: stretch;
-}
-```
-
----
-
-## Real-world patterns
-
-### 1. Navbar
-
-```html
-<nav class="navbar">
-  <div class="logo">Logo</div>
-  <ul class="nav-links">
-    <li><a href="#">Home</a></li>
-    <li><a href="#">About</a></li>
-    <li><a href="#">Contact</a></li>
-  </ul>
-  <button class="cta-button">Sign Up</button>
-</nav>
-```
-
-```css
-.navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 2rem;
-  background: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.nav-links {
-  display: flex;
-  gap: 2rem;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-/* Mobile */
-@media (max-width: 768px) {
-  .navbar {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .nav-links {
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-  }
-}
-```
-
-### 2. Card Layout
-
-```html
-<div class="card">
-  <img src="image.jpg" alt="Card image" class="card-image">
-  <div class="card-content">
-    <h3 class="card-title">Card Title</h3>
-    <p class="card-text">Some description text here...</p>
-    <button class="card-button">Read More</button>
-  </div>
-</div>
-```
-
-```css
-.card {
-  display: flex;
-  flex-direction: column;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.card-content {
-  display: flex;
-  flex-direction: column;
-  flex: 1; /* Karta teng balandlikda bo'lishi uchun */
-  padding: 1.5rem;
-}
-
-.card-text {
-  flex: 1; /* Matn joyni egallaydi */
-}
-
-.card-button {
-  margin-top: auto; /* Button har doim pastda */
-}
-```
-
-### 3. Sidebar Layout
-
-```html
-<div class="app-layout">
-  <aside class="sidebar">Sidebar</aside>
-  <main class="main-content">Main Content</main>
-</div>
-```
-
-```css
-.app-layout {
-  display: flex;
-  min-height: 100vh;
-}
-
-.sidebar {
-  flex: 0 0 250px; /* Siqilmaydi, 250px */
-  background: #1a1a2e;
-  color: #fff;
-}
-
-.main-content {
-  flex: 1; /* Qolgan joyni oladi */
-  padding: 2rem;
-  overflow-y: auto;
-}
-
-/* Mobile - Sidebar yuqorida */
-@media (max-width: 768px) {
-  .app-layout {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    flex-basis: auto;
-  }
-}
-```
-
-### 4. Centered Content (Holy Grail)
-
-```css
-/* Vertikal va gorizontal markazlashtirish */
-.centered-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-}
-
-/* Yoki shorthand */
-.centered-container {
-  display: flex;
-  place-items: center; /* align-items + justify-items */
-  min-height: 100vh;
-}
-```
-
-### 5. Equal Height Cards
-
-```html
-<div class="cards-grid">
-  <div class="card">Short content</div>
-  <div class="card">Much longer content that takes more space</div>
-  <div class="card">Medium content</div>
-</div>
-```
-
-```css
-.cards-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-}
-
-.card {
-  flex: 1 1 300px; /* Min 300px, keyin o'sadi */
-  display: flex;
-  flex-direction: column;
-}
-```
-
-### 6. Input with Button
-
-```html
-<div class="search-box">
-  <input type="text" class="search-input" placeholder="Search...">
-  <button class="search-button">Search</button>
-</div>
-```
-
-```css
-.search-box {
-  display: flex;
-  max-width: 500px;
-}
-
-.search-input {
-  flex: 1;
-  padding: 0.75rem 1rem;
-  border: 2px solid #e0e0e0;
-  border-right: none;
-  border-radius: 4px 0 0 4px;
-}
-
-.search-button {
-  flex-shrink: 0;
-  padding: 0.75rem 1.5rem;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 0 4px 4px 0;
-  cursor: pointer;
-}
-```
-
----
-
-## Mobile va Responsive
-
-### Mobile-First Approach
-
-```css
-/* Mobile (default) */
-.container {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-/* Tablet */
-@media (min-width: 768px) {
-  .container {
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-
-  .item {
-    flex: 1 1 calc(50% - 0.5rem);
-  }
-}
-
-/* Desktop */
-@media (min-width: 1024px) {
-  .item {
-    flex: 1 1 calc(33.333% - 0.67rem);
-  }
-}
-```
-
-### Touch-Friendly Spacing
-
-```css
-/* Mobile da kattaroq touch targets */
-.nav-links {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.nav-links a {
-  padding: 0.5rem 1rem;
-}
-
-@media (max-width: 768px) {
-  .nav-links {
-    flex-direction: column;
-  }
-
-  .nav-links a {
-    padding: 1rem; /* 44px minimum touch target */
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-  }
-}
-```
-
-### Dark Mode Support
-
-```css
-:root {
-  --bg-primary: #ffffff;
-  --text-primary: #1a1a1a;
-  --border-color: #e0e0e0;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg-primary: #1a1a1a;
-    --text-primary: #ffffff;
-    --border-color: #333333;
-  }
-}
-
-.card {
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-}
-```
-
----
-
-## Xatolar va to'g'ri yechimlar
-
-### Xato 1: min-width: 0 unutish
-
-```css
-/* NOTO'G'RI - Matn overflow bo'ladi */
-.container {
-  display: flex;
-}
-.item {
-  flex: 1;
-}
-.item p {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* TO'G'RI - min-width: 0 qo'shish */
-.item {
-  flex: 1;
-  min-width: 0; /* Flex item'ning default min-width: auto ni bekor qiladi */
-}
-```
-
-### Xato 2: 100% height ishlamaydi
-
-```css
-/* NOTO'G'RI */
-.container {
-  display: flex;
-  height: 100%; /* Parent height yo'q */
-}
-
-/* TO'G'RI */
-html, body {
-  height: 100%;
-  margin: 0;
-}
-.container {
-  display: flex;
-  min-height: 100vh; /* yoki height: 100% */
-}
-```
-
-### Xato 3: margin: auto tushunmaslik
-
-```css
-/* Flexda margin: auto bo'sh joyni oladi */
-.container {
-  display: flex;
-}
-
-/* Oxirgi item o'ngga */
-.item:last-child {
-  margin-left: auto;
-}
-
-/* Birinchi item chapga, qolganlari o'ngga */
-.item:first-child {
-  margin-right: auto;
-}
-
-/* Markazga */
-.item {
-  margin: auto;
-}
-```
-
-### Xato 4: flex-shrink: 0 qo'ymaslik
-
-```css
-/* NOTO'G'RI - Rasm siqiladi */
-.card {
-  display: flex;
-}
-.card-image {
-  width: 200px;
-}
-
-/* TO'G'RI */
-.card-image {
-  flex-shrink: 0;
-  width: 200px;
-}
-```
-
-### Xato 5: height va flex-basis aralashishi
-
-```css
-/* NOTO'G'RI - column da height ishlamaydi */
-.container {
-  display: flex;
-  flex-direction: column;
-}
-.item {
-  height: 100px; /* flex-basis: auto bo'lgani uchun ishlaydi, lekin... */
-}
-
-/* TO'G'RI - flex-basis ishlatish */
-.item {
-  flex-basis: 100px;
-  flex-shrink: 0; /* Agar siqilmasin desangiz */
-}
-```
-
----
-
-## Interview savollari
-
-### 1. Flexbox va Grid farqi nima? Qachon qaysi birini ishlatish kerak?
-
-**Javob:**
-
-| Xususiyat | Flexbox | Grid |
-|-----------|---------|------|
-| O'lcham | 1D (row YOKI column) | 2D (row VA column) |
-| Use case | Component layout | Page layout |
-| Content-based | Ha (flex-grow/shrink) | Yo'q (aniq cell) |
-| Gap support | Ha | Ha |
-
-**Qachon Flexbox:**
-- Navbar, buttons row
-- Card content
-- Centering
-- Dynamic content sizes
-
-**Qachon Grid:**
-- Page layouts
-- Image galleries
-- Dashboard
-- Form layouts
-
-### 2. `flex: 1` nimani anglatadi?
-
-**Javob:**
-```css
-flex: 1;
-/* Quyidagiga teng: */
-flex-grow: 1;   /* Bo'sh joyni oladi */
-flex-shrink: 1; /* Siqilishi mumkin */
-flex-basis: 0;  /* Boshlang'ich o'lchami 0 */
-```
-
-`flex-basis: 0` muhim - bu elementlar teng bo'linishini ta'minlaydi.
-
-```css
-flex: auto;
-/* Quyidagiga teng: */
-flex: 1 1 auto; /* Boshlang'ich o'lcham: content size */
-```
-
-### 3. `align-items` va `align-content` farqi?
-
-**Javob:**
-
-- **align-items:** Bir qatordagi elementlarni align qiladi
-- **align-content:** Ko'p qator bo'lganda qatorlarni align qiladi (flex-wrap: wrap kerak)
-
-```css
-/* align-items - har bir item */
-.container {
-  align-items: center; /* Har item qator ichida center */
-}
-
-/* align-content - qatorlar */
-.container {
-  flex-wrap: wrap;
-  align-content: center; /* Barcha qatorlar container ichida center */
-}
-```
-
-### 4. Flexbox da element overflow bo'lsa nima qilish kerak?
-
-**Javob:**
-
-```css
-.flex-item {
-  /* 1. min-width ni reset qilish */
-  min-width: 0;
-
-  /* 2. overflow ni handle qilish */
-  overflow: hidden;
-
-  /* 3. Text uchun */
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-```
-
-**Sabab:** Flex items default `min-width: auto` - content dan kichik bo'la olmaydi.
-
-### 5. `order` property accessibility muammolari bormi?
-
-**Javob:**
-
-Ha, `order` faqat vizual tartibni o'zgartiradi:
-- Screen readers DOM tartibida o'qiydi
-- Keyboard navigation DOM tartibida ishlaydi
-
-```css
-/* Visual: 2, 3, 1 */
-.item:nth-child(1) { order: 3; }
-.item:nth-child(2) { order: 1; }
-.item:nth-child(3) { order: 2; }
-
-/* Screen reader: 1, 2, 3 */
-/* Tab order: 1, 2, 3 */
-```
-
-**Yechim:** Imkon qadar DOM tartibini o'zgartiring, `order` faqat vizual dekoratsiya uchun ishlating.
-
----
-
-## Best Practices
-
-### 1. Semantic class names
-
-```css
-/* NOTO'G'RI */
-.flex-center {
-  display: flex;
-  justify-content: center;
-}
-
-/* TO'G'RI */
-.hero-content {
-  display: flex;
-  justify-content: center;
-}
-```
-
-### 2. Gap ishlatish
-
-```css
-/* NOTO'G'RI - margin bilan */
-.item {
-  margin-right: 20px;
-}
-.item:last-child {
-  margin-right: 0;
-}
-
-/* TO'G'RI - gap bilan */
-.container {
-  display: flex;
-  gap: 20px;
-}
-```
-
-### 3. flex shorthand
-
-```css
-/* NOTO'G'RI - alohida */
-.item {
-  flex-grow: 1;
-  flex-shrink: 1;
-  flex-basis: 0;
-}
-
-/* TO'G'RI - shorthand */
-.item {
-  flex: 1;
-}
-```
-
-### 4. min-width: 0 esdan chiqarmaslik
-
-```css
-.flex-item {
-  flex: 1;
-  min-width: 0; /* Text truncation ishlashi uchun */
-}
-```
-
-### 5. Logical properties (RTL support)
-
-```css
-/* NOTO'G'RI - faqat LTR */
-.item {
-  margin-right: auto;
-}
-
-/* TO'G'RI - RTL ham ishlaydi */
-.item {
-  margin-inline-end: auto;
-}
-```
-
-### 6. Mobile-first media queries
-
-```css
-/* Mobile (default) */
-.container {
-  flex-direction: column;
-}
-
-/* Tablet+ */
-@media (min-width: 768px) {
-  .container {
-    flex-direction: row;
-  }
-}
-```
-
-### 7. DevTools ishlatish
-
-Chrome DevTools da:
-1. Element inspect
-2. `display: flex` yonida flexbox icon
-3. Click - visual flexbox overlay
-4. Container va item properties editor
+## 🔴 Senior (Arxitektura va Optimallashtirish)
+
+### "Under the hood" (Qopqoq ostida nimalar ro'y beradi)
+Flexbox algoritmi qanday ishlaydi?
+Brauzer `display: flex` ni ko'rganda, u quyidagi bosqichlarni bajaradi:
+1. **Hypothetical Size (Faraziy o'lcham) hisoblash:** Brauzer barcha bolalarni "xuddi cheksiz joy bor" deb tasavvur qilib o'lchab chiqadi (`flex-basis` yoki content hajmiga qarab).
+2. **Deficit / Surplus (Kamomad yoki Ortiqcha joy) aniqlash:** Container enidan faraziy o'lchamlarni ayirib chiqadi.
+3. **Distribyutsiya:** Agar ortiqcha joy qolsa, u `flex-grow` ga ega elementlarga ulashiladi. Agar kamomad bo'lsa (joy yetmasa), brauzer `flex-shrink` parametriga qarab elementlarni qisqartirib chiqadi.
+4. **Main Axis / Cross Axis Alignment:** Eng oxirida `justify-content` va `align-items` orqali elementlarni surib tekislaydi.
+
+Shu sababli, Flexbox sahifa yuklanayotganda `float` ga nisbatan CPU ni ko'proq hisoblashga majbur qiladi (lekin Grid dan tezroq).
+
+### Flexbox va Grid ziddiyati (Performance & Use Cases)
+Katta sahifaning arxitekturasini (Skeletini) Flexbox da qurmang!
+- **Grid** = Sahifa maketlari (Page layout) va 2 o'lchamli qat'iy vizuallar uchun yaratilgan. (Maketni tepadan (ota) boshqaradi).
+- **Flexbox** = Komponentlar ichidagi mayda detallar (Navbar, Card content, Buttonlar qatori) uchun va 1 o'lchamli kontentga qarab o'zgaradigan elementlar uchun yaratilgan. (Maketni bolalar boshqaradi).
+
+### Intervyu Savollari (Qiyin daraja)
+**1. Flexbox da `margin: auto` qanday mo'jiza yaratadi?**
+*Javob:* Flexbox ichida elementga `margin-left: auto;` bersangiz, brauzer o'sha tomonda qolgan BARCHA bo'sh joyni aynan shu margin uchun ishlatib yuboradi. Natijada qolgan qutilar chapda, shu qutining o'zi esa eng o'ng chekkaga (space-between o'rnida) taqab qo'yiladi. Bu Navbar yasashda juda asqotadi.
+
+**2. Nima uchun Flexbox da ba'zida rasmlar pachoqlanib (ezilib) qoladi?**
+*Javob:* Chunki rasmlar ham flex item hisoblanadi va ularning default `flex-shrink` qiymati `1` ga teng. Joy torayganda brauzer ularni qisadi. Bunga yo'l qo'ymaslik uchun rasmga doimo `flex-shrink: 0` (qisqarishni taqiqlash) qo'shib qo'yish shart.
 
 ---
 
 ## Xulosa
 
-| Xususiyat | Kimga qo'llaniladi? | Nima ish qiladi? |
-|-----------|--------------------|------------------|
-| `display: flex` | Container | Flexbox kontekstini yaratadi |
-| `justify-content` | Container | Main axis (asosiy o'q) bo'ylab tekislaydi |
-| `align-items` | Container | Cross axis (ko'ndalang o'q) bo'ylab tekislaydi |
-| `flex-direction` | Container | Asosiy o'q yo'nalishini belgilaydi (qator/ustun) |
-| `flex-wrap` | Container | Elementlar sig'masa keyingi qatorga o'tishini belgilaydi |
-| `flex-grow` | Item | Bo'sh joyni egallash proporsiyasi |
-| `flex-shrink` | Item | Joy yetishmasa qisqarish proporsiyasi |
-| `align-self` | Item | Bitta elementni cross axis bo'ylab tekislash (align-items'ni bekor qiladi) |
-
----
-
-## Qo'shimcha resurslar
-
-- [A Complete Guide to Flexbox](https://css-tricks.com/snippets/css/a-guide-to-flexbox/)
-- [Flexbox Froggy](https://flexboxfroggy.com/) - O'yin
-- [MDN Flexbox](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout)
-
----
-
-## Keyingi mavzu
-
-CSS Grid bilan tanishing: [02-grid.md](./02-grid.md)
+| Daraja | Yondashuv va Fokus | Nimalarga qodir bo'lish kerak? |
+| --- | --- | --- |
+| **Junior** | **Mantiq:** `display: flex` orqali elementlarni bir qatorga qo'yadi. | Qutilarni o'rtaga (Center) keltira oladi, `gap` ishlata oladi. |
+| **Middle** | **Qo'llash:** Shrink, Grow va Basis larni erkin boshqaradi. | `min-width: 0` xatosini biladi. Rasmlarning ezilib qolishini oldini oladi. Responsive navbar qila oladi. |
+| **Senior** | **Arxitektura & V8:** Brauzerning layout chizish algoritmini tushunadi. | Flexbox vs Grid chegaralarini aniq bilib, sahifa arxitekturasini to'g'ri tanlaydi. Layout qotib qolmasligini (Performance) ta'minlaydi. |

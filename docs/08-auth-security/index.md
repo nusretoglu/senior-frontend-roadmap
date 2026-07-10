@@ -14,33 +14,29 @@
 
 ---
 
-## Bo'lim Tarkibi
+## 🟢 Junior (Asoslar va Tushunchalar)
+
+Frontend developer sifatida biz **Application Security** (Ilova Xavfsizligi) qatlamiga mas'ulmiz. Biz qila oladigan eng asosiy ishlar:
+1. Inputlarni tekshirish (Foydalanuvchi kiritgan ma'lumotga ishonmaslik).
+2. Xavfsiz Login qildirish (Auth tokenlarni to'g'ri saqlash).
+3. Ekranga chiqarayotganda zararli kodlarni tozalash.
+
+### Bo'lim Tarkibi
+
+Ushbu bo'limda siz eng ko'p uchrashi mumkin bo'lgan xavfsizlik muammolari va texnologiyalarini o'rganasiz:
 
 | # | Mavzu | Tavsif |
 |---|-------|--------|
-| 01 | [JWT (JSON Web Tokens)](./01-jwt.md) | Token struktura, signing, verification, refresh token pattern |
-| 02 | [Cookies](./02-cookies.md) | Cookie attributes, secure flags, SameSite, session management |
-| 03 | [LocalStorage Risks](./03-localstorage-risks.md) | Storage xavflari, token saqlash strategiyalari, alternativlar |
-| 04 | [XSS (Cross-Site Scripting)](./04-xss.md) | XSS turlari, attack vectors, sanitization, CSP |
-| 05 | [CSRF (Cross-Site Request Forgery)](./05-csrf.md) | CSRF mexanizmi, token patterns, SameSite cookies |
-| 06 | [CORS (Cross-Origin Resource Sharing)](./06-cors.md) | Same-origin policy, preflight requests, headers configuration |
-| 07 | [Best Practices](./07-best-practices.md) | Defense in depth, security checklist, audit metodlari |
+| 01 | [JWT (JSON Web Tokens)](./01-jwt.md) | Zamonaviy va holatsiz (stateless) login tizimi siri. Tokenlar va ularni ishlatish. |
+| 02 | [XSS (Cross-Site Scripting)](./04-xss.md) | Saytingizga begona (Hacker) JavaScript kodi qanday kirib keladi va nima ziyon yetkazadi. |
+| 03 | [CORS (Cross-Origin Resource Sharing)](./06-cors.md) | Serverga so'rov yuborganda hammamizni qiynaydigan "Qizil Xato" siri va uni yengish. |
 
-## Nima Uchun Security Muhim?
+---
 
-### Real Statistika
-- 2023-yilda XSS hujumlar web zaifliklarning **40%** ni tashkil etdi
-- CSRF orqali yirik kompaniyalar millionlab dollar yo'qotdi
-- JWT noto'g'ri ishlatilganda data breach'lar ro'y berdi
+## 🟡 Middle (Amaliyot va Detallar)
 
-### Interview'da Security Savollari
-Senior pozitsiyalar uchun security bilimi **majburiy**:
-- JWT vs Session-based auth
-- XSS prevention strategiyalari
-- CORS muammolarini hal qilish
-- Secure cookie configuration
-
-## Xavfsizlik Piramidasi (Security Pyramid)
+### Xavfsizlik Piramidasi (Security Pyramid)
+Tizim himoyasi faqat bir joyda emas, qatlamlarda quriladi:
 
 ```mermaid
 graph TD
@@ -58,53 +54,28 @@ graph TD
     style Net fill:#e3f2fd,stroke:#1565c0
 ```
 
-Frontend developer sifatida biz **Application Security** qatlamiga mas'ulmiz:
-- Input validation
-- Output encoding
-- Authentication/Authorization
-- Secure data storage
-- API security
+Biz yozgan React/Vue kodimiz qanchalik xavfsiz bo'lmasin, agar u yomon sozlangan server (HTTP) yoki xavfli tarmoq ustida ishlasa, himoyaning qadr-qimmati tushib ketadi.
 
-## Asosiy Tushunchalar
-
-### Authentication vs Authorization
+### Asosiy Tushunchalar
 ```
 Authentication (AuthN): KIM sen?
 ├── Login/Password
-├── OAuth/OIDC
-├── Biometric
-└── MFA
+├── OAuth (Google/Github orqali kirish)
+├── Biometric (Barmoq izi/FaceID)
+└── MFA (Ikki bosqichli tasdiqlash)
 
 Authorization (AuthZ): NIMA qila olasan?
-├── Role-based (RBAC)
-├── Permission-based
-├── Attribute-based (ABAC)
-└── Resource-based
+├── Role-based (RBAC) (Masalan: Admin, User, Guest)
+├── Permission-based (Masalan: O'qishga ruxsat, Yozishga ruxsat)
+└── Resource-based (Masalan: Faqat o'zining postlarini tahrirlash)
 ```
 
-### Security Headers
-```http
-Content-Security-Policy: default-src 'self'
-X-Content-Type-Options: nosniff
-X-Frame-Options: DENY
-X-XSS-Protection: 1; mode=block
-Strict-Transport-Security: max-age=31536000
-Referrer-Policy: strict-origin-when-cross-origin
-```
+---
 
-## O'rganish Tartibi
+## 🔴 Senior (Arxitektura va Optimizatsiya)
 
-1. **JWT** - zamonaviy authentication asosi
-2. **Cookies** - session management va secure storage
-3. **LocalStorage Risks** - nima uchun localStorage xavfli
-4. **XSS** - eng keng tarqalgan web zaiflik
-5. **CSRF** - state-changing request hujumlari
-6. **CORS** - cross-origin muammolar va yechimlar
-7. **Best Practices** - barcha bilimlarni birlashtirish
-
-## Defense in Depth
-
-Xavfsizlik bir qatlamda emas, ko'p qatlamda ta'minlanadi:
+### Defense in Depth (Chuqur Himoya)
+Katta loyihalarda xavfsizlik "Bitta qulf qo'yish" emas, balki qulf ketidan qulf qo'yish (Defense in depth) hisoblanadi. Agar bitta himoya o'pirilsa (Masalan WAF teshilsa), navbatdagi himoya (Input validation) o'z so'zini aytishi kerak.
 
 ```
 ┌────────────────────────────────────────────────────┐
@@ -126,27 +97,16 @@ Xavfsizlik bir qatlamda emas, ko'p qatlamda ta'minlanadi:
 └────────────────────────────────────────────────────┘
 ```
 
-## Praktik Mashqlar
-
-Har bir bo'limda:
-- **Zaif kod** - xato qanday ko'rinishini tushunish
-- **Xavfsiz kod** - to'g'ri implementatsiya
-- **Attack scenarios** - real hujum usullari
-- **Prevention** - himoya strategiyalari
-
-## Foydali Resurslar
-
-### OWASP
-- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
-- [OWASP Cheat Sheets](https://cheatsheetseries.owasp.org/)
-- [OWASP Testing Guide](https://owasp.org/www-project-web-security-testing-guide/)
-
-### Tools
-- [Burp Suite](https://portswigger.net/burp) - security testing
-- [OWASP ZAP](https://www.zaproxy.org/) - automated scanner
-- [jwt.io](https://jwt.io/) - JWT debugging
-
-**Eslatma:** Security bilimini faqat himoya va o'rganish maqsadida ishlating. Ethical hacking (oq xakerlik) va mas'uliyatli xabar berish (responsible disclosure) prinsiplarini hurmat qiling.
+### Security Headers (Himoya Sarlavhalari)
+Server qaytarayotgan har bir javobda brauzerni cheklovchi xavfsizlik sarlavhalari bo'lishi shart. Agar Server/DevOps buni unutgan bo'lsa, Senior Frontendchi sifatida buni talab qilishingiz kerak:
+```http
+Content-Security-Policy: default-src 'self'
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block
+Strict-Transport-Security: max-age=31536000
+Referrer-Policy: strict-origin-when-cross-origin
+```
 
 ---
 
@@ -168,3 +128,8 @@ Ushbu xavfsizlik bo'limining yakuniy xulosasi:
 | **CSRF (Request Forgery)** | Foydalanuvchi nomidan soxta so'rov yuboriladi | SameSite Cookie, CSRF Token |
 | **LocalStorage zaifligi** | XSS orqali JWT va maxfiy ma'lumotlar o'g'irlanadi| JWT ni faqat HttpOnly secure cookieda saqlash |
 | **CORS muammolari** | Begona domenlardan resurslarga ruxsat berish | Originlarni to'g'ri whitelist qilish |
+
+O'rganish uchun Foydali Resurslar:
+- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
+- [jwt.io](https://jwt.io/) - JWT debugging
+- Burp Suite, OWASP ZAP (Security testing vositalari)

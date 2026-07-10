@@ -18,7 +18,9 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "vitepress": "^1.6.4"
+    "mermaid": "^10.9.1",
+    "vitepress": "^1.6.4",
+    "vitepress-plugin-mermaid": "^2.0.17"
   },
   "dependencies": {
     "lucide-vue-next": "^1.0.0"

@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitepress'
+import { withMermaid } from 'vitepress-plugin-mermaid'
 
-export default defineConfig({
+export default withMermaid(defineConfig({
   title: "Senior Frontend Roadmap",
   description: "JavaScript va Vue.js ekosistemasi bo'yicha chuqurlashtirilgan qo'llanma",
   lang: 'uz-UZ',
@@ -359,5 +360,18 @@ export default defineConfig({
       light: 'github-light',
       dark: 'github-dark'
     }
+  },
+  
+  mermaid: {
+    theme: 'base',
+    themeVariables: {
+      fontFamily: 'Inter, sans-serif',
+      primaryColor: '#e2e8f0',
+      primaryTextColor: '#1e293b',
+      primaryBorderColor: '#94a3b8',
+      lineColor: '#64748b',
+      secondaryColor: '#f1f5f9',
+      tertiaryColor: '#f8fafc'
+    }
   }
-})
+}))

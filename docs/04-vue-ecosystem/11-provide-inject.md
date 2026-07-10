@@ -4,243 +4,146 @@
 
 > [!IMPORTANT]
 > **Nima uchun muhim?**  
-> Dasturlashda ota komponentdan bolaga ma'lumot uzatish oddiy ish (Props orqali). Ammo nabiraga yoki nevaraga o'tkazish kerak bo'lsa, har bir oraliq qatlamga ma'lumotni berib o'tish "Prop Drilling" (Prop teshilishi) muammosini keltirib chiqaradi. Bu oraliq qatlamlar aslida bu ma'lumotga mutlaqo qiziqmasligi mumkin! Provide/Inject orqali biz ota-bobodan to'g'ridan-to'g'ri nevaraga aloqa o'rnatamiz.
+> Dasturlashda ota komponentdan bolaga ma'lumot uzatish oddiy ish (Props orqali). Ammo nabiraga yoki yanada uzoqroq nevaraga o'tkazish kerak bo'lsa, har bir oraliq qatlamga ma'lumotni berib o'tish "Prop Drilling" (Prop teshilishi) muammosini keltirib chiqaradi. Bu oraliq qatlamlar aslida bu ma'lumotga mutlaqo qiziqmasligi mumkin! Provide/Inject orqali biz ota-bobodan to'g'ridan-to'g'ri nevaraga aloqa o'rnatamiz.
+
+## 🟢 Junior (Asoslar va Tushunchalar)
+
+### Terminologiya
+**Prop Drilling** — Ma'lumotni (Propni) tepadan eng pastga yetkazish uchun o'rtadagi barcha beayb komponentlardan o'tkazish muammosi.
+**Provide** (Ta'minlash) — Ota komponent ma'lumotni barcha vorislar uchun umumiy "havoga" uzatishi.
+**Inject** (Qabul qilish) — Nevara komponent o'sha "havodagi" ma'lumotni ushlab olib ishlatishi.
 
 > [!NOTE]
 > **Real-hayot analogiyasi: "Quduq va Quvur"**  
 > Tasavvur qiling siz tog'ning tepasida (GrandParent) suvingiz bor. Pastdagi uchinchi uyga (Child) suv kerak. Uni 1-uyga, undan 2-uyga paqirda tashib kelish (Prop drilling) juda noqulay va be'mani. Buning o'rniga siz tog'dan to'g'ridan-to'g'ri o'sha 3-uyga suv quvuri (Provide/Inject) tortasiz. Oraliqdagi uylar bu suvdan bexabar qolaveradi.
 
-## Asosiy Tushuncha
-
-```mermaid
-graph TD
-    A[GrandParent<br>provide: 'theme'] -->|Prop Drilling| B[Parent]
-    B -->|Prop Drilling| C[Child]
-    C -->|Prop Drilling| D[GrandChild]
-    
-    A -.->|To'g'ridan-to'g'ri<br>inject: 'theme'| D
-    
-    style A fill:#e1bee7,stroke:#8e24aa
-    style D fill:#c8e6c9,stroke:#388e3c
-```
-
-## Basic Usage
-
-### Options API
-
-```javascript
-// GrandParent.vue - provide
-export default {
-  provide() {
-    return {
-      theme: 'dark',
-      appName: 'MyApp'
-    }
-  }
-}
-
-// GrandChild.vue - inject
-export default {
-  inject: ['theme', 'appName'],
-
-  mounted() {
-    console.log(this.theme)   // 'dark'
-    console.log(this.appName) // 'MyApp'
-  }
-}
-```
-
-### Composition API
+### Sodda Misol
+Bizda Tema (dark/light) ma'lumoti bor. Uni eng pastdagi tugmaga (Button.vue) yetkazmoqchimiz.
 
 ```vue
-<!-- GrandParent.vue -->
+<!-- BoboKomponent.vue -->
 <script setup>
-import { provide, ref, readonly } from 'vue'
-
-const theme = ref('dark')
-const appName = 'MyApp'
-
-provide('theme', readonly(theme))
-provide('appName', appName)
-</script>
-
-<!-- GrandChild.vue -->
-<script setup>
-import { inject } from 'vue'
-
-const theme = inject('theme')
-const appName = inject('appName')
-
-console.log(theme.value) // 'dark'
-console.log(appName)     // 'MyApp'
-</script>
-```
-
-## Reactive Provide
-
-### Reactivity O'tkazish
-
-```vue
-<!-- Provider.vue -->
-<script setup>
-import { provide, ref, reactive, computed, readonly } from 'vue'
-
-// Reactive state
-const user = ref({
-  name: 'Ali',
-  role: 'admin'
-})
-
-// Computed
-const isAdmin = computed(() => user.value.role === 'admin')
-
-// Methods
-function updateUser(newData) {
-  Object.assign(user.value, newData)
-}
-
-// Provide reactive values
-provide('user', readonly(user))         // Readonly reactive
-provide('isAdmin', isAdmin)              // Computed
-provide('updateUser', updateUser)        // Method
-</script>
-
-<!-- Consumer.vue -->
-<script setup>
-import { inject, watch } from 'vue'
-
-const user = inject('user')
-const isAdmin = inject('isAdmin')
-const updateUser = inject('updateUser')
-
-// Watch ishlaydi!
-watch(user, (newUser) => {
-  console.log('User changed:', newUser)
-}, { deep: true })
-
-// Method chaqirish
-function handleUpdate() {
-  updateUser({ name: 'Vali' })
-}
-</script>
-```
-
-### Mutation Restriction
-
-```vue
-<!-- Provider.vue -->
-<script setup>
-import { provide, ref, readonly } from 'vue'
-
-const count = ref(0)
-
-// YAXSHI: readonly bilan - consumer o'zgartira olmaydi
-provide('count', readonly(count))
-
-// Method orqali o'zgartirish
-provide('increment', () => count.value++)
-</script>
-
-<!-- Consumer.vue -->
-<script setup>
-import { inject } from 'vue'
-
-const count = inject('count')
-const increment = inject('increment')
-
-// count.value = 10 // Warning: readonly!
-increment() // OK - method orqali
-</script>
-```
-
-## Symbol Keys
-
-### Collision Prevention
-
-```javascript
-// injection-keys.js
-export const ThemeKey = Symbol('theme')
-export const UserKey = Symbol('user')
-export const AuthKey = Symbol('auth')
-
-// Provider.vue
 import { provide } from 'vue'
-import { ThemeKey, UserKey } from './injection-keys'
 
-provide(ThemeKey, theme)
-provide(UserKey, user)
+// 1. Provide ("theme" degan nom bilan "dark" ni uzatdik)
+provide('theme', 'dark')
+</script>
 
-// Consumer.vue
-import { inject } from 'vue'
-import { ThemeKey, UserKey } from './injection-keys'
-
-const theme = inject(ThemeKey)
-const user = inject(UserKey)
+<template>
+  <OtaKomponent /> <!-- Ota hech narsa qabul qilmaydi -->
+</template>
 ```
 
-### TypeScript bilan
-
-```typescript
-// injection-keys.ts
-import { InjectionKey, Ref } from 'vue'
-
-interface User {
-  name: string
-  email: string
-  role: 'admin' | 'user'
-}
-
-interface AuthContext {
-  user: Ref<User | null>
-  isAuthenticated: Ref<boolean>
-  login: (credentials: { email: string; password: string }) => Promise<void>
-  logout: () => void
-}
-
-export const AuthKey: InjectionKey<AuthContext> = Symbol('auth')
-
-// Provider.vue
-import { provide, ref, computed } from 'vue'
-import { AuthKey } from './injection-keys'
-
-const user = ref<User | null>(null)
-const isAuthenticated = computed(() => !!user.value)
-
-provide(AuthKey, {
-  user,
-  isAuthenticated,
-  async login(credentials) { /* ... */ },
-  logout() { /* ... */ }
-})
-
-// Consumer.vue
+```vue
+<!-- NevaraButton.vue (Otaning ichidagi ichidagi komponent) -->
+<script setup>
 import { inject } from 'vue'
-import { AuthKey } from './injection-keys'
 
-const auth = inject(AuthKey)
-// auth is fully typed!
+// 2. Inject (Yuqorida "theme" nomi bilan berilgan ma'lumotni ushlaymiz)
+const temaRangi = inject('theme') // 'dark' ni oladi
+</script>
+
+<template>
+  <button :class="temaRangi">Tugma</button>
+</template>
 ```
 
-## Default Values
+---
+
+## 🟡 Middle (Amaliyot va Detallar)
+
+### Reaktivlikni o'tkazish (Reactive Provide)
+Yuqoridagi misolda ma'lumot statik (o'zgarmas) edi. Agar `theme` nomi o'zgarsa, pastdagilar qanday xabar topadi? Buning uchun ma'lumotni `ref` qilib uzatamiz.
+
+```vue
+<!-- BoboKomponent.vue -->
+<script setup>
+import { provide, ref } from 'vue'
+
+const joriyTema = ref('light')
+
+// Reaktiv holatni (ref) o'zini uzatamiz
+provide('theme', joriyTema)
+
+const temaniOzgartir = () => {
+  joriyTema.value = 'dark' // Buni o'zgartirsak...
+}
+</script>
+```
+
+```vue
+<!-- NevaraButton.vue -->
+<script setup>
+import { inject } from 'vue'
+
+const temaRangi = inject('theme') 
+// ...pastda (temaRangi) ham avtomatik o'zgaradi!
+</script>
+```
+
+### Mutatsiyani Taqiqlash (Readonly himoyasi)
+Biror yomon Nevara komponent uzatilgan `inject('theme')` ni o'ziga olib uni `temaRangi.value = 'red'` qilib o'zgartirib qo'yishi mumkin! Bu arxitekturani buzadi. Shu sababli Bobo ma'lumotni uzatayotganda uni qulflab (readonly qilib) qo'yishi shart!
+
+```vue
+<!-- BoboKomponent.vue -->
+<script setup>
+import { provide, ref, readonly } from 'vue'
+
+const joriyTema = ref('light')
+
+function temaniAlmashtirish() {
+  joriyTema.value = 'dark'
+}
+
+// 1. Data ni o'zgartirib bo'lmas qilib (readonly) jo'natish
+provide('theme', readonly(joriyTema))
+// 2. Uni o'zgartirmoqchi bo'lganlar uchun maxsus funksiyani jo'natish
+provide('toggleTheme', temaniAlmashtirish)
+</script>
+```
+
+Endi Nevara uni o'zgartirmoqchi bo'lsa, xatoga uchraydi. O'zgartirishi uchun u `toggleTheme` funksiyasini chaqirishga majbur bo'ladi.
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+1. **Reaktivlikni nazorat qiling:** `provide` orqali yuborilayotgan ma'lumotni nevaralar o'zboshimchalik bilan o'zgartirib qo'yishini oldini oling. Uning yagona yechimi State ni `readonly()` bilan o'rab yuborishdir.
+2. **Keng qo'llanilmang:** Provide/Inject'ni har qadamda ishlatish dastur arxitekturasini tushunarsiz qiladi (Data qayerdan kelayotganini topish do'zaxga aylanadi). Katta loyihalardagi global ma'lumotlar uchun **Pinia** ishlating. Provide/Inject faqatgina tayyor komponentlar kutubxonasi (Masalan `<Tabs>` ichida `<Tab>` lar ishlashi kabi) yaratish uchungina yaxshi.
+
+---
+
+## 🔴 Senior (Arxitektura va Optimallashtirish)
+
+### Symbol Kalitlardan Foydalanish (Collisions)
+Agar ilovada bir xil nomli 2 ta Provide bo'lib qolsachi? Masalan siz uchinchi tomon kutubxonasini o'rnatdingiz, u ham o'zining ichida `provide('theme', 'blue')` ishlatgan, siz ham loyihangizda `provide('theme', 'dark')` yozdingiz. Ikkalasi bir-biriga qo'shilib ishlamay qoladi.
+Buning oldini olish uchun String o'rniga JavaScript ning Unikal (takrorlanmas) tipi — `Symbol` dan foydalaniladi.
 
 ```javascript
-// Default value bilan inject
-const theme = inject('theme', 'light') // 'light' default
-
-// Factory function (lazy evaluation)
-const expensiveDefault = inject('data', () => {
-  // Faqat provide yo'q bo'lsa chaqiriladi
-  return computeExpensiveDefault()
-})
-
-// Required injection (default yo'q)
-const required = inject('required')
-if (!required) {
-  throw new Error('required injection missing')
-}
+// keys.js (Alohida faylda kalitlarni saqlaymiz)
+export const TemaKaliti = Symbol('theme')
 ```
 
-## App-Level Provide
+```vue
+<!-- Provider -->
+<script setup>
+import { provide } from 'vue'
+import { TemaKaliti } from './keys.js'
+
+provide(TemaKaliti, 'dark') // Endi String ('theme') emas
+</script>
+```
+
+```vue
+<!-- Injector -->
+<script setup>
+import { inject } from 'vue'
+import { TemaKaliti } from './keys.js'
+
+const theme = inject(TemaKaliti)
+</script>
+```
+Shunda nomlar aynan bir xil bo'lsa ham kompyuter xotirasida ular butunlay ikki xil manzilda yotgani uchun adashmaydi. (TypeScript bilan Types kiritish uchun aynan shu usul qo'llaniladi - `InjectionKey`)
+
+### App-Level (Global) Provide
+Loyiha miqyosidagi bir xil narsalarni (Masalan, tarjima API si yoki global konfiglarni) eng asosiy `main.js` dan turib butun loyihaga e'lon qilish mumkin.
 
 ```javascript
 // main.js
@@ -249,632 +152,35 @@ import App from './App.vue'
 
 const app = createApp(App)
 
-// Global provide
-app.provide('globalMessage', 'Hello from app!')
-app.provide('api', apiService)
-app.provide('config', {
-  apiUrl: import.meta.env.VITE_API_URL,
-  debug: import.meta.env.DEV
+// Endi loyihadagi BAAARCHA komponentlar inject('globalConfig') qila oladi!
+app.provide('globalConfig', {
+  apiUrl: 'https://api.mysite.com',
+  isDev: true
 })
 
 app.mount('#app')
-
-// Har qanday komponentda inject qilish mumkin
-const globalMessage = inject('globalMessage')
-const api = inject('api')
-const config = inject('config')
 ```
 
-## Real-World Patterns
-
-### Theme Provider
-
-```vue
-<!-- ThemeProvider.vue -->
-<script setup>
-import { provide, ref, computed, readonly } from 'vue'
-
-const ThemeKey = Symbol('theme')
-
-const currentTheme = ref('light')
-
-const theme = computed(() => ({
-  name: currentTheme.value,
-  colors: currentTheme.value === 'dark'
-    ? {
-        background: '#1a1a1a',
-        text: '#ffffff',
-        primary: '#3b82f6'
-      }
-    : {
-        background: '#ffffff',
-        text: '#000000',
-        primary: '#2563eb'
-      }
-}))
-
-function setTheme(newTheme) {
-  currentTheme.value = newTheme
-}
-
-function toggleTheme() {
-  currentTheme.value = currentTheme.value === 'light' ? 'dark' : 'light'
-}
-
-provide(ThemeKey, {
-  theme: readonly(theme),
-  setTheme,
-  toggleTheme
-})
-
-// Export for consumers
-export { ThemeKey }
-</script>
-
-<template>
-  <div
-    :class="`theme-${theme.name}`"
-    :style="{
-      backgroundColor: theme.colors.background,
-      color: theme.colors.text
-    }"
-  >
-    <slot />
-  </div>
-</template>
-
-<!-- Consumer: useTheme.js -->
-import { inject } from 'vue'
-import { ThemeKey } from '@/providers/ThemeProvider.vue'
-
-export function useTheme() {
-  const context = inject(ThemeKey)
-
-  if (!context) {
-    throw new Error('useTheme must be used within ThemeProvider')
-  }
-
-  return context
-}
-
-<!-- Usage -->
-<script setup>
-import { useTheme } from '@/composables/useTheme'
-
-const { theme, toggleTheme } = useTheme()
-</script>
-```
-
-### Auth Provider
-
-```vue
-<!-- AuthProvider.vue -->
-<script setup>
-import { provide, ref, computed, readonly, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import api from '@/services/api'
-
-const AuthKey = Symbol('auth')
-
-const user = ref(null)
-const token = ref(localStorage.getItem('token'))
-const loading = ref(false)
-const error = ref(null)
-
-const isAuthenticated = computed(() => !!token.value)
-const isAdmin = computed(() => user.value?.role === 'admin')
-
-async function login(credentials) {
-  loading.value = true
-  error.value = null
-
-  try {
-    const response = await api.post('/auth/login', credentials)
-    token.value = response.token
-    user.value = response.user
-    localStorage.setItem('token', response.token)
-    return response
-  } catch (e) {
-    error.value = e.message
-    throw e
-  } finally {
-    loading.value = false
-  }
-}
-
-async function logout() {
-  const router = useRouter()
-
-  try {
-    await api.post('/auth/logout')
-  } finally {
-    token.value = null
-    user.value = null
-    localStorage.removeItem('token')
-    router.push('/login')
-  }
-}
-
-async function fetchUser() {
-  if (!token.value) return
-
-  loading.value = true
-  try {
-    user.value = await api.get('/auth/me')
-  } catch {
-    await logout()
-  } finally {
-    loading.value = false
-  }
-}
-
-// Initial fetch
-onMounted(fetchUser)
-
-provide(AuthKey, {
-  user: readonly(user),
-  token: readonly(token),
-  loading: readonly(loading),
-  error: readonly(error),
-  isAuthenticated,
-  isAdmin,
-  login,
-  logout,
-  fetchUser
-})
-
-export { AuthKey }
-</script>
-
-<template>
-  <slot v-if="!loading || isAuthenticated" />
-  <LoadingScreen v-else />
-</template>
-```
-
-### Notification System
-
-```vue
-<!-- NotificationProvider.vue -->
-<script setup>
-import { provide, ref, readonly } from 'vue'
-
-const NotificationKey = Symbol('notification')
-
-const notifications = ref([])
-let nextId = 0
-
-function show(options) {
-  const notification = {
-    id: nextId++,
-    type: 'info',
-    duration: 5000,
-    ...options
-  }
-
-  notifications.value.push(notification)
-
-  if (notification.duration > 0) {
-    setTimeout(() => {
-      dismiss(notification.id)
-    }, notification.duration)
-  }
-
-  return notification.id
-}
-
-function dismiss(id) {
-  const index = notifications.value.findIndex(n => n.id === id)
-  if (index > -1) {
-    notifications.value.splice(index, 1)
-  }
-}
-
-function dismissAll() {
-  notifications.value = []
-}
-
-// Convenience methods
-const success = (message, options = {}) =>
-  show({ type: 'success', message, ...options })
-
-const error = (message, options = {}) =>
-  show({ type: 'error', message, duration: 0, ...options })
-
-const warning = (message, options = {}) =>
-  show({ type: 'warning', message, ...options })
-
-const info = (message, options = {}) =>
-  show({ type: 'info', message, ...options })
-
-provide(NotificationKey, {
-  notifications: readonly(notifications),
-  show,
-  dismiss,
-  dismissAll,
-  success,
-  error,
-  warning,
-  info
-})
-
-export { NotificationKey }
-</script>
-
-<template>
-  <slot />
-
-  <Teleport to="body">
-    <div class="notification-container">
-      <TransitionGroup name="notification">
-        <div
-          v-for="notification in notifications"
-          :key="notification.id"
-          :class="['notification', `notification-${notification.type}`]"
-        >
-          <p>{{ notification.message }}</p>
-          <button @click="dismiss(notification.id)">×</button>
-        </div>
-      </TransitionGroup>
-    </div>
-  </Teleport>
-</template>
-
-<!-- useNotification.js -->
-import { inject } from 'vue'
-import { NotificationKey } from '@/providers/NotificationProvider.vue'
-
-export function useNotification() {
-  const context = inject(NotificationKey)
-
-  if (!context) {
-    throw new Error('useNotification must be used within NotificationProvider')
-  }
-
-  return context
-}
-
-<!-- Usage -->
-<script setup>
-import { useNotification } from '@/composables/useNotification'
-
-const { success, error } = useNotification()
-
-async function handleSave() {
-  try {
-    await api.save(data)
-    success('Saved successfully!')
-  } catch (e) {
-    error(e.message)
-  }
-}
-</script>
-```
-
-### Form Context
-
-```vue
-<!-- FormProvider.vue -->
-<script setup>
-import { provide, reactive, computed, readonly } from 'vue'
-
-const FormKey = Symbol('form')
-
-const props = defineProps({
-  initialValues: {
-    type: Object,
-    default: () => ({})
-  },
-  validationSchema: {
-    type: Object,
-    default: () => ({})
-  }
-})
-
-const emit = defineEmits(['submit'])
-
-const values = reactive({ ...props.initialValues })
-const errors = reactive({})
-const touched = reactive({})
-
-const isValid = computed(() =>
-  Object.keys(errors).every(key => !errors[key])
-)
-
-const isDirty = computed(() =>
-  Object.keys(props.initialValues).some(
-    key => values[key] !== props.initialValues[key]
-  )
-)
-
-function setFieldValue(field, value) {
-  values[field] = value
-  if (touched[field]) {
-    validateField(field)
-  }
-}
-
-function setFieldTouched(field) {
-  touched[field] = true
-  validateField(field)
-}
-
-function validateField(field) {
-  const rules = props.validationSchema[field]
-  if (!rules) return true
-
-  for (const rule of rules) {
-    const result = rule(values[field], values)
-    if (result !== true) {
-      errors[field] = result
-      return false
-    }
-  }
-
-  errors[field] = null
-  return true
-}
-
-function validateAll() {
-  let valid = true
-  for (const field of Object.keys(props.validationSchema)) {
-    if (!validateField(field)) {
-      valid = false
-    }
-  }
-  return valid
-}
-
-function handleSubmit() {
-  Object.keys(values).forEach(setFieldTouched)
-
-  if (validateAll()) {
-    emit('submit', values)
-  }
-}
-
-function reset() {
-  Object.assign(values, props.initialValues)
-  Object.keys(errors).forEach(key => delete errors[key])
-  Object.keys(touched).forEach(key => delete touched[key])
-}
-
-provide(FormKey, {
-  values: readonly(values),
-  errors: readonly(errors),
-  touched: readonly(touched),
-  isValid,
-  isDirty,
-  setFieldValue,
-  setFieldTouched,
-  handleSubmit,
-  reset
-})
-
-export { FormKey }
-</script>
-
-<template>
-  <form @submit.prevent="handleSubmit">
-    <slot />
-  </form>
-</template>
-
-<!-- FormField.vue -->
-<script setup>
-import { inject, computed } from 'vue'
-import { FormKey } from './FormProvider.vue'
-
-const props = defineProps({
-  name: String,
-  label: String
-})
-
-const form = inject(FormKey)
-
-const value = computed(() => form.values[props.name])
-const error = computed(() => form.errors[props.name])
-const isTouched = computed(() => form.touched[props.name])
-const showError = computed(() => isTouched.value && error.value)
-</script>
-
-<template>
-  <div :class="['form-field', { 'has-error': showError }]">
-    <label>{{ label }}</label>
-    <input
-      :value="value"
-      @input="form.setFieldValue(name, $event.target.value)"
-      @blur="form.setFieldTouched(name)"
-    />
-    <span v-if="showError" class="error">{{ error }}</span>
-  </div>
-</template>
-```
-
-## Vue 2 vs Vue 3
-
-### Options API Differences
-
+### Intervyu Savollari (Qiyin daraja)
+**1. Provide/Inject va Pinia (Store) ning farqi nimada va qachon qay birini ishlatish kerak?**
+*Javob:* Ikkalasi ham "Prop Drilling" muammosini hal qiladi. Lekin Provide/Inject asosan Parent-Child strukturasining muayyan bo'lagida (lokal kontekstda) ishlaydi (Masalan Modal komponenti o'zining ichidagi mittigina qismlariga data tarqatishda). Pinia esa loyihadagi hamma komponentlarga Global tarzda xizmat qiladi, uning ichida Maxsus DevTools bor, u holatlarni vaqt bo'yicha ko'rishga imkon beradi. Xulosa: Bitta izolyatsiya qilingan (boshqalarga daxli yo'q) UI to'plami yasash uchun Provide/Inject oling, qolgan barcha biznes logika uchun Pinia ishlating.
+
+**2. Inject ni komponent default qiymat bilan kutib olishi mumkinmi?**
+*Javob:* Ha, agar yuqoridagi Ota komponentlarda Provide e'lon qilinmagan bo'lsa, dastur xato bermasligi uchun Inject ning ikkinchi parametriga default qiymat beriladi.
 ```javascript
-// Vue 2
-export default {
-  // Object syntax
-  provide: {
-    theme: 'dark'
-  },
-
-  // Function syntax (this access)
-  provide() {
-    return {
-      theme: this.theme
-    }
-  },
-
-  inject: ['theme'],
-
-  // With options
-  inject: {
-    theme: {
-      from: 'theme',
-      default: 'light'
-    }
-  }
-}
-
-// Vue 3 - same Options API, plus Composition API
-export default {
-  provide() {
-    return {
-      theme: computed(() => this.theme) // reactive!
-    }
-  }
-}
+// Agar tepadagilar 'theme' bermagan bo'lsa, avtomat 'light' bo'ladi
+const theme = inject('theme', 'light') 
 ```
-
-### Reactivity
-
-```javascript
-// Vue 2 - reactive emas (default)
-provide() {
-  return {
-    user: this.user // Reaktiv emas!
-  }
-}
-
-// Vue 2 - reactive qilish (workaround)
-provide() {
-  return {
-    getUser: () => this.user // Getter function
-  }
-}
-
-// Vue 3 - to'g'ridan-to'g'ri reactive
-provide('user', readonly(user)) // ref yoki reactive
-```
-
-## Interview Savollari
-
-### 1. Provide/Inject qachon ishlatiladi?
-
-**Javob:**
-
-1. **Prop drilling oldini olish** - Chuqur nested komponentlar
-2. **Plugin/Library development** - Global state
-3. **Theme/Config** - App-wide settings
-4. **Auth context** - User state
-5. **Form context** - Nested form fields
-
-```javascript
-// Props bilan (prop drilling)
-<Parent :user="user">
-  <Child :user="user">
-    <GrandChild :user="user" />
-  </Child>
-</Parent>
-
-// Provide/Inject bilan
-<Parent> <!-- provide('user', user) -->
-  <Child>
-    <GrandChild /> <!-- inject('user') -->
-  </Child>
-</Parent>
-```
-
-### 2. Provide/Inject vs Props/Emits farqi?
-
-**Javob:**
-
-| Jihat | Props/Emits | Provide/Inject |
-|-------|-------------|----------------|
-| Bog'lanish | Parent-child | Har qanday ancestor |
-| Explicit | Ha | Yo'q |
-| Reactivity | Ha | Manual qilish kerak |
-| TypeScript | Oson | Symbol kerak |
-| Use case | Direct children | Deep nesting |
-
-### 3. Reactive provide qanday qilinadi?
-
-**Javob:**
-
-```javascript
-// ref yoki reactive ishlatish
-const user = ref({ name: 'Ali' })
-provide('user', user)
-
-// readonly bilan himoya qilish
-provide('user', readonly(user))
-
-// computed bilan
-provide('fullName', computed(() =>
-  `${user.value.firstName} ${user.value.lastName}`
-))
-```
-
-### 4. Provide/Inject TypeScript bilan qanday ishlatiladi?
-
-**Javob:**
-
-```typescript
-// InjectionKey ishlatish
-import { InjectionKey, Ref } from 'vue'
-
-interface User {
-  name: string
-  role: string
-}
-
-export const UserKey: InjectionKey<Ref<User>> = Symbol('user')
-
-// Provide
-provide(UserKey, user)
-
-// Inject - to'liq typed
-const user = inject(UserKey)
-// user: Ref<User> | undefined
-```
-
-### 5. Symbol key nima uchun kerak?
-
-**Javob:**
-
-String key'lar collision xavfi bor:
-
-```javascript
-// Library A
-provide('config', libAConfig)
-
-// Library B
-provide('config', libBConfig) // CONFLICT!
-
-// Symbol bilan
-const LibAConfigKey = Symbol('lib-a-config')
-const LibBConfigKey = Symbol('lib-b-config')
-
-provide(LibAConfigKey, libAConfig) // Safe
-provide(LibBConfigKey, libBConfig) // Safe
-```
-
-Symbol'lar unique va global namespace'ni ifloslantirmaydi.
 
 ---
-
-## Eng Yaxshi Amaliyotlar (Best Practices)
-
-1. **Reaktivlikni nazorat qiling:** `provide` orqali yuborilayotgan ma'lumotni nevaralar ham bilmasdan o'zgartirib qo'yishi mumkin (bu esa state pachoqlanishiga olib keladi). State buzilmasligi uchun uni `readonly()` bilan o'rab yuboring va o'zgartiradigan metodni ham yuboring.
-2. **Keng qo'llanilmang:** Provide/Inject'ni har qadamda ishlatish (Ayniqsa global ma'lumotlar uchun) dastur arxitekturasini tushunarsiz qiladi, chunki bu ma'lumot qayerdan kelganini qidirish qiyin. Agar hamma joyga ma'lumot uzatayotgan bo'lsangiz, `Pinia` (Global Store) ishlatgan ma'qul.
-3. **Symbol ishlating:** Har xil kutubxonalar bilan nomlashlar (masalan: `provide('user', ...)` ikkita joyda) to'qnash kelib qolmasligi uchun unikal (takrorlanmas) `Symbol()` klitlaridan foydalaning.
-
----
-
-## Xulosa
 
 ## Xulosa
 
 | Tushuncha | Nima qiladi? | Qachon ishlatiladi? |
 |-----------|--------------|---------------------|
-| **Prop Drilling (Muammo)** | Ma'lumotni Ota `->` Bola `->` Nevara qilib zanjir kabi uzatish. | Qochish kerak bo'lgan yomon pattern (Loyiha murakkablashadi). |
-| **`provide()`** | Yuqoridagi Ota komponent ma'lumotni "havoga (kontekstga) otadi". | Ota komponent ichidagi o'nlab chuqur komponentlarga bir ma'lumotni berish kerak bo'lganda (Masalan, Tema: Light/Dark). |
-| **`inject()`** | Ixtiyoriy nevara komponent o'sha "havodagi" ma'lumotni ushlab oladi. | Chuqurda joylashgan komponent ma'lumotni (faqat o'qish uchun) ishlatishi kerak bo'lganda. |
-| **`readonly()` bilan himoya** | Nevara uzatilgan ma'lumotni o'zgartira olmasligini (mutate) ta'minlaydi. | Doim qilinishi kerak bo'lgan `Best Practice`. |
+| **Prop Drilling (Muammo)** | Ma'lumotni Ota `->` Bola `->` Nevara qilib zanjir kabi uzatish. | Qochish kerak bo'lgan yomon pattern (Loyiha keraksiz dataga botib ketadi). |
+| **`provide()`** | Yuqoridagi Ota komponent ma'lumotni "havoga (kontekstga) otadi". | Ota komponent ichidagi o'nlab chuqur qatlamli komponentlarga bir ma'lumotni berish kerak bo'lganda. |
+| **`inject()`** | Ixtiyoriy nevara komponent o'sha "havodagi" ma'lumotni ushlab oladi. | Chuqurda joylashgan komponent ma'lumotni to'g'ridan to'g'ri (faqat o'qish uchun) ishlatishi kerak bo'lganda. |
+| **`readonly()` bilan himoya** | Nevara uzatilgan ma'lumotni o'zgartira olmasligini (mutate) kafolatlaydi. | Doim qilinishi kerak bo'lgan eng muhim `Best Practice`. |
 
-Provide/Inject kichik ko'lamli holatlar uchun (masalan, bitta Murakkab Komponent qutisi ichida qismlar aloqasi uchun) ideal. Lekin butun loyiha (App) miqyosida holatni boshqarish uchun **Pinia** ancha kuchli va mosroqdir.
+Provide/Inject kichik ko'lamli holatlar uchun (masalan, izolyatsiya qilingan Form/Tab UI qutilari uchun) ideal. Lekin butun loyiha (App) miqyosida holatni boshqarish uchun **Pinia** ancha kuchli va mosroqdir.

@@ -1,20 +1,6 @@
 # Nuxt.js Ecosystem
 
-Bu bo'lim Nuxt.js framework'ini chuqur o'rganishga bag'ishlangan. SSR, SSG, CSR farqlaridan tortib, deployment strategiyalarigacha barcha muhim mavzular qamrab olingan.
-
-## Bo'lim Tarkibi
-
-| # | Mavzu | Tavsif |
-|---|-------|--------|
-| 01 | [SSR vs SSG vs CSR](./01-ssr-ssg-csr.md) | Rendering strategiyalari, farqlari, qachon qaysi birini tanlash |
-| 02 | [Hydration](./02-hydration.md) | Hydration mexanizmi, muammolar va yechimlar |
-| 03 | [Middleware](./03-middleware.md) | Route middleware, server middleware, global middleware |
-| 04 | [Routing](./04-routing.md) | File-based routing, dynamic routes, nested routes |
-| 05 | [Plugins](./05-plugins.md) | Plugin yaratish, lifecycle, client/server plugins |
-| 06 | [Modules](./06-modules.md) | Module system, custom module yaratish |
-| 07 | [Deployment](./07-deployment.md) | Turli platformalarga deploy qilish |
-
-## Nima Uchun Nuxt.js?
+## Kirish
 
 > [!IMPORTANT]
 > **Nima uchun muhim?**  
@@ -24,6 +10,13 @@ Bu bo'lim Nuxt.js framework'ini chuqur o'rganishga bag'ishlangan. SSR, SSG, CSR 
 > **Real-hayot analogiyasi: "IKEA Mebellari vs Tayyor Mebellar"**  
 > - **Vue.js (SPA):** IKEA dan mebel sotib oldingiz. Uyga qutini olib kelasiz (HTML), u ichida bo'laklar va yig'ish qo'llanmasi (JavaScript) bor. Uni o'zingiz yig'ib chiqishingiz kerak (Sahifa sekin chiziladi).
 > - **Nuxt.js (SSR):** Do'konga tayyor yig'ilgan mebel buyurtma qildingiz. Uyingizga shundoq tayyor holda keladi (Tez va darhol foydalanishga tayyor HTML).
+
+---
+
+## 🟢 Junior (Asoslar va Tushunchalar)
+
+### Nuxt.js nima o'zi?
+Nuxt.js - bu Vue.js ustiga qurilgan, veb-dasturlarni yaratishni qulaylashtiruvchi freymvork. U asosan serverda render qilish (SSR) va static saytlar (SSG) yaratish uchun ishlatiladi. Vue.js da siz hamma narsani (router, vuex/pinia, webpack) o'zingiz sozlab chiqishingiz kerak bo'lsa, Nuxt.js bularning hammasini avtomatik sozlab, "qutidan tayyor" (out of the box) holatda beradi.
 
 ### Vue.js vs Nuxt.js
 
@@ -35,15 +28,37 @@ Bu bo'lim Nuxt.js framework'ini chuqur o'rganishga bag'ishlangan. SSR, SSG, CSR 
 | **Code Splitting** | Qo'lda optimizatsiya qilinadi | Avtomatik optimizatsiya |
 | **Backend API** | Server mantiqlari yo'q (Faqat Frontend) | Server routelar / API mavjud |
 
-### Nuxt.js Asosiy Afzalliklari
+### Papkalar Strukturasi (Folder Structure)
+Nuxt 3 o'zining maxsus papkalar tuzilishiga ega. Har bir papka o'z vazifasini bajaradi:
 
-1. **SEO-friendly** - SSR/SSG orqali to'liq indexlash
-2. **Performance** - Automatic code splitting, lazy loading
-3. **Developer Experience** - Auto-imports, file-based routing
-4. **Flexibility** - SSR, SSG, CSR, ISR - kerakli strategiyani tanlash
-5. **Full-stack** - Server routes orqali backend API
+```
+my-nuxt-app/
+├── components/            # Vue komponentlar (Avtomatik import bo'ladi)
+├── composables/           # Umumiy funksiyalar va hooklar (Avtomatik import)
+├── layouts/               # Umumiy sahifa qoliplari (Header, Footer)
+├── pages/                 # Har bir Vue fayl avtomatik URL manzilga aylanadi
+├── plugins/               # Ilova yuklanishidan oldin ishlaydigan kodlar (Masalan, Analytics)
+├── public/                # Rasm, font va statik fayllar (Build jarayonidan o'tmaydi)
+├── server/                # Backend API yozish uchun (Nuxt ichidagi backend)
+├── nuxt.config.ts         # Butun loyihaning sozlamalari
+└── app.vue                # Dasturning asosiy komponenti
+```
 
-## Nuxt 3 Arxitekturasi
+---
+
+## 🟡 Middle (Amaliyot va Detallar)
+
+### Rendering Strategiyalari
+Loyihaning maqsadiga qarab turli xil qurish turlarini tanlashingiz mumkin:
+
+| Strategiya | Qurish (Build) Vaqtidagi Jarayon | Ishlash (Runtime) Vaqtidagi Jarayon |
+| --- | --- | --- |
+| **SSG (Static)** | Barcha sahifalar HTML ga aylantiriladi | Server kerak emas (CDN orqali uzatiladi) |
+| **SSR (Server)** | Bajarilmaydi | Har bir so'rov uchun HTML serverda generatsiya qilinadi |
+| **CSR (Client)** | Bo'sh HTML va JS fayllar | JavaScript brauzerda sahifani shakllantiradi |
+| **ISR (Incremental)**| Boshlang'ich HTML generatsiya qilinadi | Belgilangan o'sha HTML fayl ma'lum vaqtdan so'ng (interval) fonda yangilanadi |
+
+### Nuxt 3 Arxitekturasi (Qanday ishlaydi?)
 
 ```mermaid
 graph TD
@@ -63,154 +78,65 @@ graph TD
     style H3 fill:#e3f2fd,stroke:#2196f3
 ```
 
-## Rendering Strategiyalari Overview
+Nuxt orqa fonda **Nitro** nomli kuchli dvigateldan foydalanadi. Nitro o'z navbatida H3 deb ataluvchi juda yengil va tezkor HTTP serverga tayanadi. Bularning bari siz yozgan kodni nafaqat Node.js da, balki Vercel, Cloudflare Workers kabi istalgan muhitda ishlashiga sharoit yaratadi.
 
-| Strategiya | Qurish (Build) Vaqtidagi Jarayon | Ishlash (Runtime) Vaqtidagi Jarayon |
-| --- | --- | --- |
-| **SSG (Static)** | Barcha sahifalar HTML ga aylantiriladi | Server kerak emas (CDN orqali uzatiladi) |
-| **SSR (Server)** | - | Har bir so'rov uchun HTML serverda generatsiya qilinadi |
-| **CSR (Client)** | Bo'sh HTML va JS fayllar | JavaScript brauzerda sahifani shakllantiradi |
-| **ISR (Incremental)**| Boshlang'ich HTML generatsiya qilinadi | Belgilangan vaqtdan so'ng (interval) orqa fonda yangilanadi |
-| **SWR (Stale-While)**| Keshlangan eski HTML beriladi | Sahifa darhol beriladi va orqa fonda yangilab qo'yiladi |
+### Auto-Imports (Avtomatik Yuklash)
+Siz Vue da har doim `import { ref } from 'vue'` yoki `import MyButton from './MyButton.vue'` qilishingiz kerak. Nuxt 3 da bularning bari avtomatlashtirilgan.
+- Barcha Vue composition API lari (`ref`, `computed`, `watch`) o'zi keladi.
+- `components/` ichidagi hamma komponentlar o'zi keladi.
+- `composables/` ichidagi funksiyalar o'zi keladi.
 
-## Nuxt 3 Folder Structure
+```vue
+<!-- components/MyButton.vue bor deb faraz qilamiz -->
+<template>
+  <MyButton /> <!-- Hech qanday import shart emas! -->
+</template>
 
-```
-my-nuxt-app/
-├── .nuxt/                 # Build output (gitignore)
-├── .output/               # Production build
-├── assets/                # Uncompiled assets (SCSS, images)
-├── components/            # Auto-imported Vue components
-│   ├── base/              # BaseButton.vue, BaseInput.vue
-│   ├── feature/           # Feature-specific components
-│   └── layout/            # Header.vue, Footer.vue
-├── composables/           # Auto-imported composables
-│   ├── useAuth.ts
-│   └── useApi.ts
-├── content/               # Markdown content (Nuxt Content)
-├── layouts/               # Page layouts
-│   ├── default.vue
-│   └── admin.vue
-├── middleware/            # Route middleware
-│   ├── auth.ts
-│   └── admin.ts
-├── modules/               # Local Nuxt modules
-├── pages/                 # File-based routing
-│   ├── index.vue          # /
-│   ├── about.vue          # /about
-│   └── users/
-│       ├── index.vue      # /users
-│       └── [id].vue       # /users/:id
-├── plugins/               # Nuxt plugins
-│   ├── api.ts
-│   └── sentry.client.ts
-├── public/                # Static files (robots.txt, favicon)
-├── server/                # Server-side code
-│   ├── api/               # API routes
-│   │   └── users.ts       # /api/users
-│   ├── middleware/        # Server middleware
-│   └── plugins/           # Server plugins
-├── utils/                 # Utility functions
-├── app.vue                # Root component
-├── app.config.ts          # Runtime app config
-├── nuxt.config.ts         # Nuxt configuration
-└── tsconfig.json          # TypeScript config
+<script setup>
+const count = ref(0) // ref() ni ham import qilish shart emas!
+</script>
 ```
 
-## O'rganish Tartibi
+---
 
-1. **SSR vs SSG vs CSR** - rendering farqlarini tushunish (asos)
-2. **Hydration** - server va client qanday birlashadi
-3. **Routing** - Nuxt routing systemasi
-4. **Middleware** - route protection va logic
-5. **Plugins** - functionality qo'shish
-6. **Modules** - Nuxt ecosystem kengaytirish
-7. **Deployment** - production'ga chiqarish
+## 🔴 Senior (Arxitektura va Optimizatsiya)
 
-## Nuxt 3 vs Nuxt 2 Farqlari
+### Real-World Use Cases (Qachon qaysi strategiya tanlanadi?)
 
-| Feature | Nuxt 2 | Nuxt 3 |
-|---------|--------|--------|
-| Vue version | Vue 2 | Vue 3 |
-| Build tool | Webpack | Vite/Webpack |
-| Server engine | Connect | Nitro (H3) |
-| TypeScript | Partial | First-class |
-| Composition API | Plugin | Native |
-| Auto-imports | Limited | Full |
-| Rendering modes | SSR/SSG | SSR/SSG/ISR/SWR |
-| State management | Vuex | Pinia (native) |
+**1. E-commerce (SSR + ISR)**
+- Product pages: ISR (Aytaylik narxlar tez-tez o'zgaradi, shunga 1 soatda 1 marta yangilansa yetadi)
+- Category pages: SSR (Juda ko'p filtrlar bor, real-time inventory kerak)
+- Static pages: SSG (Biz haqimizda, Kontaktlar kabi sahifalar o'zgarmaydi)
 
-## Real-World Use Cases
+**2. Dashboard / Admin Panel (CSR + SSR)**
+- Login sahifasi: SSR (Tezkor va SEO uchun ochiq)
+- Dashboard ichi: CSR (U yerni qidiruv tizimlari indekslamaydi. SPA behavior yaxshiroq)
 
-### E-commerce (SSR + ISR)
-- Product pages: ISR (yangilanishi kerak)
-- Category pages: SSR (real-time inventory)
-- Static pages: SSG (About, Contact)
+**3. Blog yoki Dokumentatsiya (SSG)**
+- Barcha sahifalar build vaqtida HTML qilinadi.
+- Hech qanday server kerak emas (Arzon va juda tez).
 
-### Blog/Marketing (SSG)
-- Barcha sahifalar build vaqtida
-- CDN orqali tez yuklash
-- Nuxt Content moduli
-
-### Dashboard (CSR + SSR)
-- Auth pages: SSR
-- Dashboard: CSR (SPA behavior)
-- Reports: SSR (SEO kerak emas)
-
-### News Portal (ISR)
-- Home page: ISR (5 daqiqada yangilash)
-- Article pages: ISR (1 soatda yangilash)
-- Breaking news: SSR (real-time)
-
-## Interview Tayyorgarlik
-
-Har bir faylda 3-5 ta interview savollari mavjud. Quyidagi mavzular eng ko'p so'raladi:
-
-1. SSR va SSG farqi nima?
-2. Hydration nima va qanday muammolar bo'lishi mumkin?
-3. Nuxt middleware va Vue navigation guard farqi?
-4. Nuxt modules qanday ishlaydi?
-5. Universal rendering qanday amalga oshiriladi?
-
-## Muhim Nuxt Composables
+### Muhim Nuxt Composables (Hooklar)
 
 ```typescript
-// Data fetching
-useFetch()      // Component-level data fetching
-useAsyncData()  // Custom async data
-$fetch()        // Direct HTTP requests
+// Ma'lumotlarni serverdan tortish uchun ishlatiladigan maxsus funksiyalar
+useFetch('/api/users') // Komponent yuklanganda ishlaydi, SSR da xavfsiz.
+useAsyncData('users', () => $fetch('/api/users')) // Key'ga asoslangan qiyin asinxron ishlarda
 
-// State
-useState()      // SSR-friendly reactive state
-useCookie()     // Cookie management
-
-// Routing
-useRoute()      // Current route info
-useRouter()     // Navigation
-navigateTo()    // Programmatic navigation
-
-// Head/SEO
-useHead()       // Meta tags
-useSeoMeta()    // SEO-specific meta
-
-// Runtime
-useRuntimeConfig() // Environment variables
-useAppConfig()     // App configuration
-
-// Error handling
-useError()      // Error state
-createError()   // Throw errors
-showError()     // Display error page
-clearError()    // Clear error
+// Davlat (State) bilan ishlash
+useState('counter', () => 0) // SSR da xavfsiz state (Server va Client bir xil ma'lumot ko'radi)
+useCookie('auth_token') // Cookie larni oson o'qish va yozish
 ```
 
-## Muhim Links
+### Intervyu Savollari (Qiyin daraja)
+**1. Nuxt dagi Auto-import jarayoni dasturning yakuniy hajmi (Bundle size) ni oshirib yubormaydimi?**
+*Javob:* Yo'q, oshirmaydi. Nuxt Tree-shaking (Qurib qolgan shoxlarni kesish) texnologiyasidan foydalanadi. U faqatgina fayl ichida aniq ishlatilgan komponent va funksiyalarnigina yakuniy kodga qoshib beradi.
 
-- [Nuxt 3 Documentation](https://nuxt.com/docs)
-- [Nuxt Modules](https://nuxt.com/modules)
-- [Nuxt Examples](https://nuxt.com/docs/examples/essentials/hello-world)
-- [UnJS Ecosystem](https://unjs.io/)
-- [Nitro Documentation](https://nitro.unjs.io/)
+**2. SSR va SSG ning farqi nimada va Hydration tushunchasi bularga qanday bog'lanadi?**
+*Javob:* SSR da har bir so'rov kelganida server qaytadan HTML tayyorlaydi. SSG da HTML lar bir marta qurish jarayonida tayyorlanadi va so'rov kelganda shunchaki uzatiladi xolos. Hydration esa o'sha "o'lik" tayyor HTML brauzerga borgandan so'ng, unga Vue reaktivligini va Event Listener larni "jonlantirib" (suv berib) qo'shish jarayonidir.
+
+**3. Nimaga brauzerning `window` yoki `document` obyektlarini Nuxt dagi `created` yoki ochiq `setup` hooklarida ishlatib bo'lmaydi?**
+*Javob:* Chunki Nuxt ularni birinchi bo'lib Serverda ishga tushiradi (SSR). Server - bu Node.js muhiti. Node.js da esa ekran (window) va sahifa (document) umuman mavjud emas. Ularni faqat sahifa brauzerga borib tushgandan so'ng, ya'ni `onMounted` ichida, yoki maxsus `<ClientOnly>` yordamida ishlatish mumkin.
 
 ---
 
@@ -219,6 +145,8 @@ clearError()    // Clear error
 1. **Auto-importlarga ishonish:** Nuxt da komponentlar, composables va plaginlarni har bir faylda `import` qilish shart emas. Nuxt buni o'zi amalga oshiradi. Bunga tezroq ko'nikish kodni toza va ixcham qiladi.
 2. **"To'g'ri Papka" qoidasi:** Har qanday mantiqni to'g'ri joyga joylashtiring. Kichik qismlar - `components/`, global logika - `composables/`, 3-tomon plaginlari - `plugins/`, backend - `server/`.
 3. **SSR va CSR ni farqlash:** Brauzer API laridan (`window`, `localStorage`) faqat SSR jarayoni yakunlangandan so'ng (`onMounted` da) foydalaning, yoki `<ClientOnly>` komponentidan foydalanib xatolarni oldini oling.
+
+---
 
 ## Xulosa
 
@@ -230,5 +158,3 @@ clearError()    // Clear error
 | **ISR / SWR** | Vaqti-vaqti bilan yangilanish | Ma'lumotlarni doimiy yangilab turish | Ob-havo, Birjalar, Yangiliklar bosh sahifasi |
 
 Nuxt.js Vue imkoniyatlarini Frontend doirasidan chiqarib, unga kuchli Full-Stack qobiliyatini qo'shadi. Agar loyihangiz SEO (Qidiruv tizimlari) va Dastlabki tezlikka muhtoj bo'lsa, Nuxt eng to'g'ri tanlovdir.
-
-**Eslatma:** Har bir mavzuni nazariy o'rganishdan tashqari, real loyihada qo'llash muhim. Kod misollarini local environment'da ishlatib ko'ring.

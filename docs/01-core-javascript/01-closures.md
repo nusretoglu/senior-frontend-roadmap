@@ -1,741 +1,221 @@
-# Closures
-
-## Nazariya
+# Closures (Yopilishlar)
 
 > [!IMPORTANT]
 > **Nima uchun muhim?**  
-> Dasturlash tillarida odatda funksiya o'z ishini tugatgach, uning ichidagi barcha o'zgaruvchilar xotiradan o'chirib yuboriladi (Garbage Collection). Lekin JavaScript'da Closure (Yopilish) xususiyati tufayli funksiyalar "o'zining eski uyini va undagi narsalarni" hech qachon unutmaydi. React'dagi `useState`, lodash'dagi `debounce`, API'larda xavfsizlik (Data Privacy) — bularning barchasi aynan Closure ustiga qurilgan. Uni tushunmaslik "stale closure" (eski qotib qolgan qiymat) kabi soatlab vaqtni oladigan bug'larga olib keladi.
+> Dasturlash tillarida odatda funksiya o'z ishini tugatgach, uning ichidagi barcha o'zgaruvchilar xotiradan (Call Stack) o'chirib yuboriladi (Garbage Collection). Lekin JavaScript'da Closure xususiyati tufayli funksiyalar "o'zining eski uyini va undagi narsalarni" hech qachon unutmaydi. React'dagi `useState`, lodash'dagi `debounce`, API'larda xavfsizlik (Data Privacy) — bularning barchasi aynan Closure ustiga qurilgan. Uni tushunmaslik "stale closure" kabi soatlab vaqtni oladigan bug'larga olib keladi.
+
+## 🟢 Junior (Asoslar va Tushunchalar)
+
+### Terminologiya
+**Closure (Yopilish)** — bu ichki funksiyaning o'zi yaratilgan tashqi funksiyaning muhitiga (o'zgaruvchilariga) kira olish qobiliyati. Yopilish funksiya yaratilayotgan vaqtdagi Leksik Muhit (Lexical Environment) ni eslab qolishidan hosil bo'ladi.
+
+### Nima uchun kerak?
+Closure asosan ma'lumotlarni tashqi tomondan ruxsatsiz o'zgartirilishidan himoya qilish (**Data Privacy**) va biror funksiyaning holatini uning ishi tugagandan keyin ham xotirada saqlab qolish uchun ishlatiladi.
 
 > [!NOTE]
-> **Real-hayot analogiyasi: "Sohil bo'yidagi Choyxona va Surati"**  
+> **Hayotiy o'xshatish: "Sohil bo'yidagi Choyxona va Surati"**  
 > Tasavvur qiling siz yoshligingizda bir qishloqda yashagansiz. U qishloqda bitta chiroyli "Choyxona" bor edi. Siz o'sha paytda u yerda suratga (funksiya) tushdingiz. Yillar o'tib qishloqdan katta shaharga ko'chib keldingiz. 
-> Endi qishloqqa qaytib bormasangiz ham, qo'lingizdagi o'sha suratga qarab, fondagi "Choyxona"ni qayerda bo'lishingizdan qat'iy nazar eslay olasiz va ko'ra olasiz. 
-> JavaScript funksiyalari ham shunday — ular qayerda yaratilgan bo'lsa (qishloq/outer function), o'sha yerdagi o'zgaruvchilarni (choyxona/variables) sumkasiga solib oladi va uni boshqa joyga (boshqa scope) olib ketsangiz ham eslab qolaveradi.
+> Endi qishloqqa qaytib bormasangiz ham, qo'lingizdagi o'sha suratga qarab, fondagi "Choyxona"ni qayerda bo'lishingizdan qat'iy nazar eslay olasiz. 
+> JavaScript funksiyalari ham xuddi shunday — ular qayerda yaratilgan bo'lsa (qishloq/tashqi funksiya), o'sha yerdagi o'zgaruvchilarni (choyxona/ma'lumotlar) o'ziga bog'lab oladi va uni boshqa joyga (boshqa fayl yoki scope) olib ketsangiz ham ularga yetib bora oladi.
 
-### Closure Nima?
+### Sodda Misol
 
-Closure — bu funksiya o'zining leksik muhitini (lexical environment) "eslab qoladigan" mexanizm. Boshqacha aytganda, funksiya yaratilgan joyidagi o'zgaruvchilarga keyinchalik ham murojaat qila oladi.
+```javascript
+function tashqiFunksiya() {
+  // Bu o'zgaruvchi tashqi muhitda yashaydi
+  const xabar = "Salom, Junior!"; 
 
+  function ichkiFunksiya() {
+    // Ichki funksiya tashqaridagi o'zgaruvchiga yetib boradi
+    console.log(xabar); 
+  }
+
+  return ichkiFunksiya;
+}
+
+const meningFunksiyam = tashqiFunksiya(); 
+// tashqiFunksiya o'z ishini tugatdi, lekin "xabar" xotirada qoldi
+
+meningFunksiyam(); // "Salom, Junior!" chiqadi
+```
+
+---
+
+## 🟡 Middle (Amaliyot va Detallar)
+
+### Qanday ishlaydi? (Scope Chain)
+Funksiya yaratilganda JavaScript uning ichida yashirin `[[Environment]]` xususiyatini saqlab qoladi. Bu xususiyat ushbu funksiya qaysi muhitda yaratilganiga ishora (reference) qiladi.
+
+```javascript
+function counterYaratish() {
+  let count = 0; // Private holat
+
+  return function() {
+    count++; // count ni Closure orqali topadi
+    return count;
+  };
+}
+
+const counter1 = counterYaratish();
+const counter2 = counterYaratish();
+
+console.log(counter1()); // 1
+console.log(counter1()); // 2
+console.log(counter2()); // 1 (Mutlaqo alohida xotira muhiti!)
+```
+> E'tibor bering: `counter1` va `counter2` o'zining alohida yopiq muhitlariga ega.
+
+### Keng tarqalgan real use-caselar
+
+**1. Module Pattern (Data Encapsulation)**
+Obyektga to'g'ridan-to'g'ri ulanishni cheklash uchun:
+```javascript
+const userModule = (function() {
+  let users = []; // Private
+  let nextId = 1;
+
+  return {
+    addUser(name) {
+      users.push({ id: nextId++, name });
+    },
+    getUserCount() {
+      return users.length;
+    }
+  };
+})();
+
+userModule.addUser('Ali');
+console.log(userModule.users); // undefined (Himoyalangan!)
+console.log(userModule.getUserCount()); // 1
+```
+
+**2. Memoization (Kesh kiritish)**
+Og'ir hisoblashlarni eslab qolish uchun:
+```javascript
+function memoize(fn) {
+  const cache = {}; // Kesh closure orqali saqlanadi
+  return function(args) {
+    if (cache[args]) return cache[args];
+    const result = fn(args);
+    cache[args] = result;
+    return result;
+  }
+}
+```
+
+### Ko'p uchraydigan xatolar va muammolar (Pitfalls)
+
+**1. Loop Variable Capture (Sikl ichidagi closure)**
+```javascript
+// XATO: var block-scoped emas. Natija 3, 3, 3 chiqadi.
+for (var i = 0; i < 3; i++) {
+  setTimeout(() => console.log(i), 100);
+}
+
+// TO'G'RI: let ishlating. U har bir sikl uchun yangi closure muhitini yaratadi.
+for (let i = 0; i < 3; i++) {
+  setTimeout(() => console.log(i), 100); // 0, 1, 2
+}
+```
+
+**2. Stale Closure (React'da Eskirgan yopilish)**
+```javascript
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      // count doim 0 bo'lib qoladi! (Stale closure)
+      setCount(count + 1); 
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []); // Bo'sh massiv - closure yaratilgandagi count(0) ga qotib qolgan.
+
+  // Yechim: setCount(prevCount => prevCount + 1)
+}
+```
+
+## Eng Yaxshi Amaliyotlar (Best Practices)
+- **Globalni ifloslantirmang:** Vaqtinchalik yoki o'zgaruvchan holatlarni (state) `window`ga yozgandan ko'ra closure yordamida yashiring.
+- **`var` ishlata ko'rmang:** Closure yaratadigan joylarda doim `let` yoki `const` foydalaning. Bu kutilmagan sikl xatolarining oldini oladi.
+- **Copy qaytaring:** Module pattern ichidan massiv yoki obyekt qaytarayotganda ularni spread `[...items]` orqali qaytaring, aks holda tashqaridan original ma'lumot mutatsiya qilinishi mumkin.
+
+---
+
+## 🔴 Senior (Arxitektura va Optimallashtirish)
+
+### "Under the hood" (Qopqoq ostida nimalar ro'y beradi)
+V8 dvigateli (JavaScript Engine) ishlash mexanizmida, funksiya tugashi bilan uning *Execution Context* (bajarilish konteksti) *Call Stack* dan (Chaqiruvlar steki) olib tashlanadi. Odatda funksiyaning o'zgaruvchilari ham xotiradan tozalanadi. 
+
+Lekin, dvigatel agar funksiya ichida boshqa bir funksiya qolganini (va qaytarilganini) ko'rsa, leksik analiz vaqtida closure kerak bo'lishini tushunadi. O'sha zudlik bilan kerakli o'zgaruvchilar **Stack xotirasidan o'chirilmasdan, Heap (uyum) xotirasiga o'tkaziladi.** Bu amaliyot *Variable Hoisting to Heap* deb ataladi. Shuning uchun ham closure'lar uzoq vaqt "tirik" qoladi.
+
+### Xotira (Memory) va Unumdorlik (Performance)
+Closure'larni ehtiyotsizlik bilan yaratish **Memory Leak** (Xotira sizishi) ga sabab bo'lishi mumkin. Chunki JavaScript'ning Garbage Collector'i (Musor yig'uvchi) closure reference qilib turgan ma'lumotlarni hech qachon o'chirmaydi.
+
+```javascript
+// Xavfli Memory Leak:
+function createHandler() {
+  const bigData = new Array(1000000).fill('Heavy Object');
+  
+  return function handler(event) {
+    // Agar bu handler butun dastur ishlashi davomida yashasa, 
+    // bigData hech qachon GC tomonidan tozalanmaydi.
+    console.log("Event tushdi!", bigData.length);
+  };
+}
+
+// Optimallashtirilgan yechim:
+function createHandlerOptimized() {
+  const bigData = new Array(1000000).fill('Heavy Object');
+  const sizeNeeded = bigData.length; // Faqat kerakli qiymatni ajratib olamiz
+  // V8 endi faqat 'sizeNeeded' ni Heap'da saqlaydi, 'bigData' ni o'chiradi.
+  return function handler(event) {
+    console.log("Event tushdi!", sizeNeeded);
+  };
+}
+```
+*Advanced Level yechimi:* Mod zamonaviy JS da **`WeakRef`** va **`FinalizationRegistry`** yordamida memory-safe closure'lar yozish mumkin. 
+
+### Arxitektura Patternlari (Intervyu tayyorgarligi)
+Katta masshtabli tizimlarda Closure'lar **Memoization**, **Currying (Funksional Dasturlash)** va **Event Emitter** yozishda asosiy rol o'ynaydi. Currying'ga misol:
+```javascript
+const apiConnect = (baseURL) => (endpoint) => (params) => {
+    return fetch(`${baseURL}/${endpoint}?${new URLSearchParams(params)}`);
+};
+const userAPI = apiConnect('https://api.com/v1')('users');
+userAPI({ id: 1 }).then(res => res.json()); // https://api.com/v1/users?id=1
+```
+
+### Vizualizatsiya (Leksik Zanjir)
 ```mermaid
 graph TD
-    subgraph Global [Global Scope]
-        G[const a = 10]
+    subgraph Global [Global Lexical Environment]
+        G[Global O'zgaruvchilar]
         
-        subgraph Outer [Outer Function Scope]
-            O[const b = 20]
+        subgraph Outer [Outer Function Environment - Heap'da qoladi]
+            O[count = 0]
             
-            subgraph Inner [Inner Function Scope]
-                I[return a + b]
+            subgraph Inner [Inner Function Execution Context]
+                I[return count++]
             end
         end
     end
 
-    I -->|Lexical Link orqali topadi| O
-    O -->|Lexical Link orqali topadi| G
+    I -->|Reference | O
+    O -.->|Garbage Collector bloklanadi| I
+    O -->|Reference| G
 
     style Global fill:#f5f5f5,stroke:#9e9e9e
     style Outer fill:#e3f2fd,stroke:#1565c0
     style Inner fill:#e8f5e9,stroke:#2e7d32
 ```
 
-```javascript
-function outer() {
-  const message = "Salom";
-
-  function inner() {
-    console.log(message); // outer funksiyaning o'zgaruvchisiga murojaat
-  }
-
-  return inner;
-}
-
-const greet = outer();
-greet(); // "Salom" - outer allaqachon tugagan bo'lsa ham!
-```
-
-### Leksik Muhit (Lexical Environment)
-
-JavaScript'da har bir funksiya yaratilganda, u o'zi yaratilgan muhitga reference saqlaydi:
-
-```javascript
-// Global Environment
-const globalVar = "global";
-
-function createCounter() {
-  // createCounter Environment <- Global Environment
-  let count = 0;
-
-  return function increment() {
-    // increment Environment <- createCounter Environment <- Global Environment
-    count++;
-    return count;
-  };
-}
-```
-
-**Muhim:** Closure reference saqlaydi, copy emas. Ya'ni o'zgaruvchi qiymati o'zgarsa, closure yangi qiymatni ko'radi.
-
-### Scope Chain
-
-```javascript
-const a = 1;
-
-function first() {
-  const b = 2;
-
-  function second() {
-    const c = 3;
-
-    function third() {
-      console.log(a, b, c); // 1, 2, 3 - barcha outer scope'larga kirish
-    }
-
-    return third;
-  }
-
-  return second;
-}
-
-const fn = first()();
-fn(); // 1, 2, 3
-```
-
 ---
 
-## Kod Misollari
-
-### To'g'ri: Counter Pattern
-
-```javascript
-function createCounter(initialValue = 0) {
-  let count = initialValue;
-
-  return {
-    increment() {
-      return ++count;
-    },
-    decrement() {
-      return --count;
-    },
-    getValue() {
-      return count;
-    },
-    reset() {
-      count = initialValue;
-      return count;
-    }
-  };
-}
-
-const counter = createCounter(10);
-console.log(counter.increment()); // 11
-console.log(counter.increment()); // 12
-console.log(counter.decrement()); // 11
-console.log(counter.getValue());  // 11
-console.log(counter.reset());     // 10
-
-// count o'zgaruvchisiga to'g'ridan-to'g'ri kirish imkoni yo'q
-// Bu data encapsulation!
-```
-
-### Noto'g'ri: Loop Variable Capture
-
-```javascript
-// XATO: Klassik closure muammo
-for (var i = 0; i < 3; i++) {
-  setTimeout(function() {
-    console.log(i); // 3, 3, 3 - hammasi 3!
-  }, 100);
-}
-
-// Nega? var function-scoped, loop tugaganda i = 3
-// Barcha callback'lar BIR XUD i ga reference qiladi
-```
-
-### To'g'ri: Loop Variable Capture Yechimi
-
-```javascript
-// Yechim 1: let ishlatish (block-scoped)
-for (let i = 0; i < 3; i++) {
-  setTimeout(function() {
-    console.log(i); // 0, 1, 2
-  }, 100);
-}
-
-// Yechim 2: IIFE bilan yangi scope yaratish
-for (var i = 0; i < 3; i++) {
-  (function(index) {
-    setTimeout(function() {
-      console.log(index); // 0, 1, 2
-    }, 100);
-  })(i);
-}
-
-// Yechim 3: forEach ishlatish
-[0, 1, 2].forEach(function(i) {
-  setTimeout(function() {
-    console.log(i); // 0, 1, 2
-  }, 100);
-});
-```
-
-### To'g'ri: Private Variables (Module Pattern)
-
-```javascript
-const userModule = (function() {
-  // Private
-  let users = [];
-  let nextId = 1;
-
-  function validateEmail(email) {
-    return email.includes('@');
-  }
-
-  // Public API
-  return {
-    addUser(name, email) {
-      if (!validateEmail(email)) {
-        throw new Error('Invalid email');
-      }
-      const user = { id: nextId++, name, email };
-      users.push(user);
-      return user;
-    },
-
-    getUser(id) {
-      return users.find(u => u.id === id);
-    },
-
-    getAllUsers() {
-      return [...users]; // Copy qaytarish, original emas
-    },
-
-    get userCount() {
-      return users.length;
-    }
-  };
-})();
-
-userModule.addUser('Ali', 'ali@example.com');
-console.log(userModule.userCount); // 1
-console.log(userModule.users);     // undefined - private!
-```
-
-### Noto'g'ri: Memory Leak
-
-```javascript
-// XATO: Closure katta object'ni ushlab turadi
-function createHandler() {
-  const hugeData = new Array(1000000).fill('x');
-
-  return function handler(event) {
-    // hugeData ishlatilmayapti, lekin closure uni ushlab turadi!
-    console.log(event.type);
-  };
-}
-
-const handler = createHandler();
-// hugeData memory'da qoladi!
-```
-
-### To'g'ri: Memory Leak Oldini Olish
-
-```javascript
-// TO'G'RI: Faqat kerakli ma'lumotni capture qilish
-function createHandler() {
-  const hugeData = new Array(1000000).fill('x');
-  const neededValue = hugeData.length; // Faqat kerakli qiymat
-
-  return function handler(event) {
-    console.log(`${event.type}, data size: ${neededValue}`);
-  };
-}
-
-// Yoki: WeakRef ishlatish (advanced)
-function createHandlerWithWeakRef() {
-  const hugeData = new Array(1000000).fill('x');
-  const weakRef = new WeakRef(hugeData);
-
-  return function handler(event) {
-    const data = weakRef.deref();
-    if (data) {
-      console.log(data.length);
-    }
-  };
-}
-```
-
----
-
-## Real-World Cases
-
-### 1. React Hooks (useState simulation)
-
-```javascript
-// React useState qanday ishlashini tushunish
-function createState(initialValue) {
-  let state = initialValue;
-  let listeners = [];
-
-  function getState() {
-    return state;
-  }
-
-  function setState(newValue) {
-    if (typeof newValue === 'function') {
-      state = newValue(state);
-    } else {
-      state = newValue;
-    }
-    listeners.forEach(listener => listener(state));
-  }
-
-  function subscribe(listener) {
-    listeners.push(listener);
-    return () => {
-      listeners = listeners.filter(l => l !== listener);
-    };
-  }
-
-  return [getState, setState, subscribe];
-}
-
-const [getCount, setCount, subscribe] = createState(0);
-subscribe(value => console.log('Count changed:', value));
-
-setCount(1);           // "Count changed: 1"
-setCount(prev => prev + 1); // "Count changed: 2"
-```
-
-### 2. Memoization / Caching
-
-```javascript
-function memoize(fn) {
-  const cache = new Map();
-
-  return function(...args) {
-    const key = JSON.stringify(args);
-
-    if (cache.has(key)) {
-      console.log('Cache hit');
-      return cache.get(key);
-    }
-
-    console.log('Computing...');
-    const result = fn.apply(this, args);
-    cache.set(key, result);
-    return result;
-  };
-}
-
-const expensiveCalculation = memoize((n) => {
-  // Og'ir hisoblash simulatsiyasi
-  let result = 0;
-  for (let i = 0; i < n * 1000000; i++) {
-    result += i;
-  }
-  return result;
-});
-
-console.log(expensiveCalculation(10)); // Computing... (sekin)
-console.log(expensiveCalculation(10)); // Cache hit (tez)
-console.log(expensiveCalculation(20)); // Computing... (sekin)
-```
-
-### 3. Event Handler with State
-
-```javascript
-function createClickTracker(element) {
-  let clickCount = 0;
-  let lastClickTime = null;
-
-  function handleClick(event) {
-    clickCount++;
-    const now = Date.now();
-    const timeSinceLastClick = lastClickTime
-      ? now - lastClickTime
-      : 0;
-
-    lastClickTime = now;
-
-    console.log(`Click #${clickCount}, interval: ${timeSinceLastClick}ms`);
-
-    // Double-click detection
-    if (timeSinceLastClick > 0 && timeSinceLastClick < 300) {
-      console.log('Double click detected!');
-    }
-  }
-
-  function getStats() {
-    return { clickCount, lastClickTime };
-  }
-
-  function reset() {
-    clickCount = 0;
-    lastClickTime = null;
-  }
-
-  element.addEventListener('click', handleClick);
-
-  return { getStats, reset };
-}
-
-// const tracker = createClickTracker(document.getElementById('btn'));
-```
-
-### 4. Currying va Partial Application
-
-```javascript
-// Currying
-function curry(fn) {
-  return function curried(...args) {
-    if (args.length >= fn.length) {
-      return fn.apply(this, args);
-    }
-    return function(...moreArgs) {
-      return curried.apply(this, args.concat(moreArgs));
-    };
-  };
-}
-
-const add = (a, b, c) => a + b + c;
-const curriedAdd = curry(add);
-
-console.log(curriedAdd(1)(2)(3));    // 6
-console.log(curriedAdd(1, 2)(3));    // 6
-console.log(curriedAdd(1)(2, 3));    // 6
-
-// Partial Application - real case
-const createAPIEndpoint = curry((baseURL, version, endpoint) => {
-  return `${baseURL}/api/${version}/${endpoint}`;
-});
-
-const myAPI = createAPIEndpoint('https://api.example.com');
-const v1API = myAPI('v1');
-const v2API = myAPI('v2');
-
-console.log(v1API('users'));    // https://api.example.com/api/v1/users
-console.log(v2API('products')); // https://api.example.com/api/v2/products
-```
-
-### 5. Function Factory
-
-```javascript
-function createValidator(rules) {
-  return function validate(data) {
-    const errors = [];
-
-    for (const [field, rule] of Object.entries(rules)) {
-      const value = data[field];
-
-      if (rule.required && !value) {
-        errors.push(`${field} is required`);
-        continue;
-      }
-
-      if (rule.minLength && value.length < rule.minLength) {
-        errors.push(`${field} must be at least ${rule.minLength} characters`);
-      }
-
-      if (rule.pattern && !rule.pattern.test(value)) {
-        errors.push(`${field} format is invalid`);
-      }
-    }
-
-    return {
-      isValid: errors.length === 0,
-      errors
-    };
-  };
-}
-
-const validateUser = createValidator({
-  username: { required: true, minLength: 3 },
-  email: { required: true, pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ },
-  password: { required: true, minLength: 8 }
-});
-
-console.log(validateUser({
-  username: 'ab',
-  email: 'invalid',
-  password: '123'
-}));
-// { isValid: false, errors: [...] }
-```
-
----
-
-## Interview Savollari
-
-### 1. Closure nima va qanday ishlaydi?
-
-**Javob:** Closure — bu funksiya o'zining leksik muhitini "eslab qoladigan" mexanizm. Funksiya yaratilganda, u o'zi yaratilgan scope'dagi o'zgaruvchilarga reference saqlaydi. Bu reference saqlanishi tufayli, tashqi funksiya tugagandan keyin ham ichki funksiya bu o'zgaruvchilarga murojaat qila oladi.
-
-```javascript
-function outer() {
-  let x = 10;
-  return function inner() {
-    return x; // x closure orqali "yashaydi"
-  };
-}
-const fn = outer();
-console.log(fn()); // 10
-```
-
-### 2. Bu kod nima chiqaradi va nima uchun?
-
-```javascript
-for (var i = 0; i < 3; i++) {
-  setTimeout(() => console.log(i), 0);
-}
-```
-
-**Javob:** `3, 3, 3` chiqadi. Sababi:
-1. `var` function-scoped, block-scoped emas
-2. Loop tugaganda `i = 3`
-3. setTimeout callback'lari keyinroq ishga tushadi
-4. Barcha callback'lar BIR XUD `i` ga reference qiladi
-
-**Yechim:** `let` ishlatish yoki IIFE.
-
-### 3. Private o'zgaruvchilarni closure bilan qanday yaratish mumkin?
-
-**Javob:**
-```javascript
-function createBankAccount(initialBalance) {
-  let balance = initialBalance; // Private
-
-  return {
-    deposit(amount) {
-      if (amount > 0) balance += amount;
-      return balance;
-    },
-    withdraw(amount) {
-      if (amount > 0 && amount <= balance) {
-        balance -= amount;
-      }
-      return balance;
-    },
-    getBalance() {
-      return balance;
-    }
-  };
-}
-
-const account = createBankAccount(100);
-account.deposit(50);  // 150
-account.balance;      // undefined - private!
-```
-
-### 4. Closure memory leak'ga olib kelishi mumkinmi?
-
-**Javob:** Ha. Closure o'zi reference qilgan barcha o'zgaruvchilarni memory'da ushlab turadi. Agar closure katta object'ni reference qilsa va closure uzoq vaqt yashasa, bu memory leak'ga olib keladi.
-
-```javascript
-// Muammo
-function createLeak() {
-  const huge = new Array(1000000);
-  return () => huge.length; // huge memory'da qoladi
-}
-
-// Yechim
-function noLeak() {
-  const huge = new Array(1000000);
-  const len = huge.length; // Faqat kerakli qiymat
-  return () => len;
-}
-```
-
-### 5. Quyidagi kod natijasini tushuntiring:
-
-```javascript
-function createFunctions() {
-  const funcs = [];
-  for (let i = 0; i < 3; i++) {
-    funcs.push(function() {
-      return i * 2;
-    });
-  }
-  return funcs;
-}
-
-const funcs = createFunctions();
-console.log(funcs[0](), funcs[1](), funcs[2]());
-```
-
-**Javob:** `0, 2, 4` chiqadi. `let` block-scoped bo'lgani uchun, har bir iteratsiyada yangi `i` o'zgaruvchisi yaratiladi. Har bir funksiya o'zining alohida `i` qiymatini closure orqali saqlaydi.
-
----
-
-## Xatolar va To'g'ri Yechim
-
-### Xato 1: this context yo'qolishi
-
-```javascript
-// XATO
-const obj = {
-  name: 'Ali',
-  greet() {
-    setTimeout(function() {
-      console.log(`Hello, ${this.name}`); // undefined!
-    }, 100);
-  }
-};
-
-// TO'G'RI: Arrow function
-const objFixed = {
-  name: 'Ali',
-  greet() {
-    setTimeout(() => {
-      console.log(`Hello, ${this.name}`); // "Hello, Ali"
-    }, 100);
-  }
-};
-
-// TO'G'RI: this ni closure bilan saqlash
-const objFixed2 = {
-  name: 'Ali',
-  greet() {
-    const self = this;
-    setTimeout(function() {
-      console.log(`Hello, ${self.name}`); // "Hello, Ali"
-    }, 100);
-  }
-};
-```
-
-### Xato 2: Stale Closure (React'da keng tarqalgan)
-
-```javascript
-// XATO: React useEffect'da stale closure
-function Counter() {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCount(count + 1); // XATO: count doim 0!
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []); // Bo'sh dependency array
-}
-
-// TO'G'RI: Functional update
-function CounterFixed() {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCount(prev => prev + 1); // TO'G'RI: prev doim actual
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-}
-```
-
-### Xato 3: Closure ichida mutation
-
-```javascript
-// XATO
-function createListManager() {
-  const items = [];
-
-  return {
-    add(item) {
-      items.push(item);
-    },
-    getItems() {
-      return items; // Xavfli! Tashqaridan o'zgartirish mumkin
-    }
-  };
-}
-
-const manager = createListManager();
-manager.add('a');
-const items = manager.getItems();
-items.push('hacked!'); // Original list o'zgaradi!
-
-// TO'G'RI
-function createListManagerSafe() {
-  const items = [];
-
-  return {
-    add(item) {
-      items.push(item);
-    },
-    getItems() {
-      return [...items]; // Copy qaytarish
-    }
-  };
-}
-```
-
-### Xato 4: Event listener'da closure
-
-```javascript
-// XATO: Har renderda yangi handler
-function addListeners() {
-  const buttons = document.querySelectorAll('button');
-
-  buttons.forEach((btn, index) => {
-    // XATO: Har safar yangi funksiya
-    btn.addEventListener('click', () => {
-      console.log(`Button ${index} clicked`);
-    });
-  });
-}
-// 10 marta addListeners() chaqirsak = 10 ta listener har buttonga!
-
-// TO'G'RI: Handler'larni saqlash va cleanup
-function addListenersSafe() {
-  const buttons = document.querySelectorAll('button');
-  const handlers = [];
-
-  buttons.forEach((btn, index) => {
-    const handler = () => console.log(`Button ${index} clicked`);
-    handlers.push({ btn, handler });
-    btn.addEventListener('click', handler);
-  });
-
-  // Cleanup funksiyasi
-  return function cleanup() {
-    handlers.forEach(({ btn, handler }) => {
-      btn.removeEventListener('click', handler);
-    });
-  };
-}
-```
-
-### Xato 5: Async loop'da closure
-
-```javascript
-// XATO
-async function fetchAllUsers(ids) {
-  const results = [];
-
-  for (var i = 0; i < ids.length; i++) {
-    const response = await fetch(`/api/users/${ids[i]}`);
-    results.push({ index: i, data: await response.json() });
-    // i qiymati to'g'ri bo'ladi, lekin var ishlatish xavfli
-  }
-
-  return results;
-}
-
-// TO'G'RI: let va modern patterns
-async function fetchAllUsersSafe(ids) {
-  const results = await Promise.all(
-    ids.map(async (id, index) => {
-      const response = await fetch(`/api/users/${id}`);
-      return { index, data: await response.json() };
-    })
-  );
-
-  return results;
-}
-```
-
-## Eng Yaxshi Amaliyotlar (Best Practices)
-
-1. **Xotirani tozalash (Memory Management):** Katta obyektlarni (DOM elementlari, massivlar) closure ichida keragidan ortiq ushlab turmang. Ularning ishi tugagach `null` ga tenglashtiring, aks holda *Memory Leak* (Xotira sizib chiqishi) yuz beradi.
-2. **Global o'zgaruvchilar o'rniga Closure:** Agar sizga funksiya chaqirilish sonini sanovchi yoki holatni saqlovchi o'zgaruvchi kerak bo'lsa, uni `window` (global) ga yozmang. Tashqi funksiya ochib, closure ichida saqlang (Xavfsizlik).
-3. **Loop'lar va Closure:** `for` tsikli ichida closure ishlatishda doim `let` ishlating. `var` ishlatsangiz, barcha iteratsiyalar eng oxirgi qiymatni ko'rib qoladi.
+## Xulosa
+
+| Daraja | Yondashuv va Fokus | Nimalarga qodir bo'lish kerak? |
+| --- | --- | --- |
+| **Junior** | **Mantiq:** Tashqi o'zgaruvchini funksiya ichida ishlatishni biladi. | Asosiy counter yaratish, HTML click handlerlarida tashqi o'zgaruvchilarni ko'rish. |
+| **Middle** | **Qo'llash:** Data privacy, React stale closures, Loop `var/let` muammolarini yaxshi farqlaydi. | React Hook'larida qotib qolgan statelarni tuzatish, Module pattern orqali private field'lar yozish. |
+| **Senior** | **Arxitektura & V8:** Heap va Stack mexanizmlari, Garbage Collection'ni bloklash va Memory leak'larni anglash. | Ilg'or Currying, Keshlashtirish, Event tizimlari qurish va katta datalarni WeakRef orqali optimallashtirish. |

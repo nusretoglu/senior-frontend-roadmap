@@ -4,1078 +4,162 @@
 
 > [!IMPORTANT]
 > **Nima uchun muhim?**  
-> An'anaviy veb-saytlar HTTP protokoli orqali ishlaydi, unda faqat kliyent so'rov yuborishi mumkin, server esa faqat javob beradi (Request-Response). Agar sizga chat ilovasi, live sport natijalari yoki birja narxlari kabi ma'lumotlarni soniya sayin yangilab turish kerak bo'lsa, har soniyada HTTP so'rov yuborish (Polling) serverni charchatib, tarmoqni to'ldirib yuboradi. **WebSocket** esa bir marta ulanish o'rnatilgach, server va brauzer orasida doimiy va ikki tomonlama (full-duplex) tezyurar yo'l ochadi. Endi server ham istalgan paytda yangi xabarni kliyentga push qila oladi.
+> An'anaviy veb-saytlar HTTP protokoli orqali ishlaydi, unda faqat kliyent (brauzer) so'rov yuborishi mumkin, server esa faqat javob beradi (Request-Response). Agar sizga chat ilovasi, live sport natijalari yoki birja narxlari kabi ma'lumotlarni soniya sayin yangilab turish kerak bo'lsa, har soniyada HTTP so'rov yuborish (Polling) serverni charchatib, tarmoqni to'ldirib yuboradi. **WebSocket** esa bir marta ulanish o'rnatilgach, server va brauzer orasida doimiy va ikki tomonlama (full-duplex) tezyurar yo'l ochadi. Endi server ham istalgan paytda yangi xabarni kliyentga push qila oladi.
 
 > [!NOTE]
 > **Real-hayot analogiyasi: "Pochta xati vs Telefon qo'ng'irog'i"**  
-> - **HTTP (Pochta xati):** Siz do'stingizga xat yozib yuborasiz (Request). U xatni olib o'qiydi va javob yozib yuboradi (Response). Agar siz yangi ma'lumot bor-yo'qligini bilmoqchi bo'lsangiz, yana qaytadan xat yuborishingiz kerak bo'ladi (Polling).
-> - **WebSocket (Telefon qo'ng'irog'i):** Siz do'stingizga telefon qilasiz va u go'shakni ko'taradi (Handshake). Go'shakni ikkala tomon ham qo'ymaydi (Persistent connection). Endi ikkalangiz ham istalgan paytda bir-biringizga gapirishingiz (Data frame) mumkin va bu juda tez amalga oshadi.
+> - **HTTP (Pochta xati):** Siz do'stingizga xat yozib yuborasiz (Request). U xatni olib o'qiydi va javob yozib pochtaga beradi (Response). Agar siz undan yana qandaydir ma'lumot bilmoqchi bo'lsangiz, yana qaytadan pochta orqali xat yuborishingiz kerak bo'ladi (Polling). Bu sekin.
+> - **WebSocket (Telefon qo'ng'irog'i):** Siz do'stingizga telefon qilasiz va u go'shakni ko'taradi (Handshake). Go'shakni ikkala tomon ham qo'ymaydi (Persistent connection). Endi ikkalangiz ham istalgan paytda bir-biringizga gapirishingiz mumkin (Full-duplex) va bu pochta xatiga qaraganda ancha tez.
 
 ---
 
-## WebSocket Protocol Anatomiyasi
+## 🟢 Junior (Asoslar va Tushunchalar)
 
-### HTTP Handshake (Ulanish)
+Junior dasturchi WebSocket qanday ulanishini va asosiy Event larni bilishi kerak.
 
-WebSocket ulanishi dastlab HTTP Upgrade so'rovi orqali boshlanib, muvaffaqiyatli bo'lgach WebSocket protokoliga o'tadi:
+### WebSocket Qanday Ishlaydi?
+WebSocket ulanishi oddiy HTTP so'rov orqali boshlanadi. Brauzer Serverga: *"Men HTTP orqali gaplashmoqchi emasman, kel WebSocket ga o'taylik (Upgrade)"* deb so'rov yuboradi. Server bunga rozi bo'lsa `101 Switching Protocols` javobini qaytaradi va HTTP ulanish uzilmasdan WebSocket deb nomlangan "doimiy quvur" ga aylanadi.
 
 ```mermaid
 sequenceDiagram
     participant Browser as Brauzer (Kliyent)
     participant Server as Server
     
-    Browser->>Server: GET /chat HTTP/1.1 (Upgrade: websocket)
+    Browser->>Server: HTTP/1.1 GET /chat (Upgrade: websocket)
     Server-->>Browser: HTTP/1.1 101 Switching Protocols
-    Note over Browser,Server: WebSocket aloqa kanali ochiq (WSS)
-    Browser->>Server: Bidirectional message (Text/Binary)
-    Server-->>Browser: Bidirectional message (Text/Binary)
+    Note over Browser,Server: 🟢 WebSocket quvuri ochildi (WSS)
+    Browser->>Server: "Salom Server" (Message)
+    Server-->>Browser: "Salom Kliyent, xabaringni oldim" (Message)
 ```
 
-### Frame Structure
-
-```
-      0                   1                   2                   3
-      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-     +-+-+-+-+-------+-+-------------+-------------------------------+
-     |F|R|R|R| opcode|M| Payload len |    Extended payload length    |
-     |I|S|S|S|  (4)  |A|     (7)     |             (16/64)           |
-     |N|V|V|V|       |S|             |   (if payload len==126/127)   |
-     | |1|2|3|       |K|             |                               |
-     +-+-+-+-+-------+-+-------------+ - - - - - - - - - - - - - - - +
-     |     Extended payload length continued, if payload len == 127  |
-     + - - - - - - - - - - - - - - - +-------------------------------+
-     |                               |Masking-key, if MASK set to 1  |
-     +-------------------------------+-------------------------------+
-     | Masking-key (continued)       |          Payload Data         |
-     +-------------------------------- - - - - - - - - - - - - - - - +
-     :                     Payload Data continued ...                :
-     + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-     |                     Payload Data continued ...                |
-     +---------------------------------------------------------------+
-```
-
-**Opcode turlari:**
-- `0x0` - Continuation frame
-- `0x1` - Text frame (UTF-8)
-- `0x2` - Binary frame
-- `0x8` - Connection close
-- `0x9` - Ping
-- `0xA` - Pong
-
-## Asosiy API
-
-### Client-Side (Browser)
+### Asosiy API (Frontend)
+Brauzerda WebSocket ishlatish juda oson. Atigi 4 ta muhim Event bor: `onopen`, `onmessage`, `onerror`, `onclose`.
 
 ```javascript
-// Connection yaratish
-const ws = new WebSocket('wss://api.example.com/ws');
+// 1. Ulanishni boshlash (wss - xavfsiz websocket)
+const ws = new WebSocket('wss://api.example.com/chat');
 
-// Connection ochilganda
-ws.onopen = (event) => {
-  console.log('Connected to server');
-  ws.send(JSON.stringify({ type: 'subscribe', channel: 'updates' }));
-};
-
-// Xabar kelganda
-ws.onmessage = (event) => {
-  const data = JSON.parse(event.data);
-  console.log('Received:', data);
-};
-
-// Connection yopilganda
-ws.onclose = (event) => {
-  console.log(`Closed: ${event.code} - ${event.reason}`);
-};
-
-// Xatolik yuz berganda
-ws.onerror = (error) => {
-  console.error('WebSocket error:', error);
-};
-
-// Xabar yuborish
-ws.send('Hello Server!');
-
-// Connection yopish
-ws.close(1000, 'Normal closure');
-```
-
-### Server-Side (Node.js with ws library)
-
-```javascript
-import { WebSocketServer } from 'ws';
-
-const wss = new WebSocketServer({ port: 8080 });
-
-wss.on('connection', (ws, request) => {
-  const clientIp = request.socket.remoteAddress;
-  console.log(`New client connected: ${clientIp}`);
-
-  ws.on('message', (message) => {
-    const data = JSON.parse(message.toString());
-    console.log('Received:', data);
-
-    // Echo back
-    ws.send(JSON.stringify({ type: 'echo', data }));
-  });
-
-  ws.on('close', (code, reason) => {
-    console.log(`Client disconnected: ${code} - ${reason}`);
-  });
-
-  ws.on('error', (error) => {
-    console.error('WebSocket error:', error);
-  });
-
-  // Heartbeat
-  ws.isAlive = true;
-  ws.on('pong', () => {
-    ws.isAlive = true;
-  });
-});
-
-// Heartbeat interval
-const heartbeat = setInterval(() => {
-  wss.clients.forEach((ws) => {
-    if (!ws.isAlive) {
-      return ws.terminate();
-    }
-    ws.isAlive = false;
-    ws.ping();
-  });
-}, 30000);
-
-wss.on('close', () => {
-  clearInterval(heartbeat);
-});
-```
-
-## Production-Ready WebSocket Client
-
-### Connection Manager Class
-
-```javascript
-class WebSocketManager {
-  constructor(url, options = {}) {
-    this.url = url;
-    this.options = {
-      maxReconnectAttempts: 10,
-      reconnectInterval: 1000,
-      maxReconnectInterval: 30000,
-      reconnectDecay: 1.5,
-      heartbeatInterval: 30000,
-      messageTimeout: 5000,
-      ...options
-    };
-
-    this.ws = null;
-    this.reconnectAttempts = 0;
-    this.messageQueue = [];
-    this.pendingMessages = new Map();
-    this.eventHandlers = new Map();
-    this.state = 'disconnected';
-    this.heartbeatTimer = null;
-    this.reconnectTimer = null;
-  }
-
-  connect() {
-    if (this.state === 'connecting' || this.state === 'connected') {
-      return;
-    }
-
-    this.state = 'connecting';
-    this.emit('stateChange', this.state);
-
-    try {
-      this.ws = new WebSocket(this.url);
-      this.setupEventHandlers();
-    } catch (error) {
-      this.handleError(error);
-    }
-  }
-
-  setupEventHandlers() {
-    this.ws.onopen = () => {
-      this.state = 'connected';
-      this.reconnectAttempts = 0;
-      this.emit('stateChange', this.state);
-      this.emit('connected');
-
-      // Queued xabarlarni yuborish
-      this.flushMessageQueue();
-
-      // Heartbeat boshlash
-      this.startHeartbeat();
-    };
-
-    this.ws.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data);
-        this.handleMessage(message);
-      } catch (error) {
-        console.error('Failed to parse message:', error);
-      }
-    };
-
-    this.ws.onclose = (event) => {
-      this.cleanup();
-
-      if (event.code === 1000) {
-        // Normal closure
-        this.state = 'disconnected';
-        this.emit('stateChange', this.state);
-        return;
-      }
-
-      // Abnormal closure - reconnect
-      this.scheduleReconnect();
-    };
-
-    this.ws.onerror = (error) => {
-      this.handleError(error);
-    };
-  }
-
-  handleMessage(message) {
-    // Pong response
-    if (message.type === 'pong') {
-      return;
-    }
-
-    // Acknowledgment
-    if (message.type === 'ack' && message.id) {
-      const pending = this.pendingMessages.get(message.id);
-      if (pending) {
-        clearTimeout(pending.timeout);
-        pending.resolve(message);
-        this.pendingMessages.delete(message.id);
-      }
-      return;
-    }
-
-    // Regular message
-    this.emit('message', message);
-    this.emit(message.type, message);
-  }
-
-  send(type, payload, options = {}) {
-    const message = {
-      id: this.generateId(),
-      type,
-      payload,
-      timestamp: Date.now()
-    };
-
-    if (this.state !== 'connected') {
-      // Queue message for later
-      this.messageQueue.push(message);
-      return Promise.resolve({ queued: true, id: message.id });
-    }
-
-    return this.sendImmediate(message, options);
-  }
-
-  sendImmediate(message, options = {}) {
-    return new Promise((resolve, reject) => {
-      const { requireAck = false, timeout = this.options.messageTimeout } = options;
-
-      try {
-        this.ws.send(JSON.stringify(message));
-
-        if (!requireAck) {
-          resolve({ sent: true, id: message.id });
-          return;
-        }
-
-        // Wait for acknowledgment
-        const timeoutId = setTimeout(() => {
-          this.pendingMessages.delete(message.id);
-          reject(new Error(`Message timeout: ${message.id}`));
-        }, timeout);
-
-        this.pendingMessages.set(message.id, {
-          resolve,
-          reject,
-          timeout: timeoutId
-        });
-      } catch (error) {
-        reject(error);
-      }
-    });
-  }
-
-  flushMessageQueue() {
-    while (this.messageQueue.length > 0) {
-      const message = this.messageQueue.shift();
-      this.sendImmediate(message).catch(console.error);
-    }
-  }
-
-  startHeartbeat() {
-    this.heartbeatTimer = setInterval(() => {
-      if (this.state === 'connected') {
-        this.ws.send(JSON.stringify({ type: 'ping' }));
-      }
-    }, this.options.heartbeatInterval);
-  }
-
-  scheduleReconnect() {
-    if (this.reconnectAttempts >= this.options.maxReconnectAttempts) {
-      this.state = 'failed';
-      this.emit('stateChange', this.state);
-      this.emit('maxReconnectAttemptsReached');
-      return;
-    }
-
-    this.state = 'reconnecting';
-    this.emit('stateChange', this.state);
-
-    const delay = Math.min(
-      this.options.reconnectInterval *
-        Math.pow(this.options.reconnectDecay, this.reconnectAttempts),
-      this.options.maxReconnectInterval
-    );
-
-    // Jitter qo'shish (0-25% random delay)
-    const jitter = delay * Math.random() * 0.25;
-
-    this.reconnectTimer = setTimeout(() => {
-      this.reconnectAttempts++;
-      this.emit('reconnecting', { attempt: this.reconnectAttempts });
-      this.connect();
-    }, delay + jitter);
-  }
-
-  cleanup() {
-    if (this.heartbeatTimer) {
-      clearInterval(this.heartbeatTimer);
-      this.heartbeatTimer = null;
-    }
-
-    if (this.reconnectTimer) {
-      clearTimeout(this.reconnectTimer);
-      this.reconnectTimer = null;
-    }
-
-    // Pending messages'larni reject qilish
-    this.pendingMessages.forEach((pending) => {
-      clearTimeout(pending.timeout);
-      pending.reject(new Error('Connection closed'));
-    });
-    this.pendingMessages.clear();
-  }
-
-  handleError(error) {
-    console.error('WebSocket error:', error);
-    this.emit('error', error);
-  }
-
-  disconnect() {
-    this.cleanup();
-    if (this.ws) {
-      this.ws.close(1000, 'Client initiated disconnect');
-    }
-    this.state = 'disconnected';
-    this.emit('stateChange', this.state);
-  }
-
-  // Event emitter methods
-  on(event, handler) {
-    if (!this.eventHandlers.has(event)) {
-      this.eventHandlers.set(event, new Set());
-    }
-    this.eventHandlers.get(event).add(handler);
-    return () => this.off(event, handler);
-  }
-
-  off(event, handler) {
-    const handlers = this.eventHandlers.get(event);
-    if (handlers) {
-      handlers.delete(handler);
-    }
-  }
-
-  emit(event, ...args) {
-    const handlers = this.eventHandlers.get(event);
-    if (handlers) {
-      handlers.forEach((handler) => handler(...args));
-    }
-  }
-
-  generateId() {
-    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  }
-
-  // Getters
-  get isConnected() {
-    return this.state === 'connected';
-  }
-
-  get connectionState() {
-    return this.state;
-  }
-}
-```
-
-### Ishlatish
-
-```javascript
-const wsManager = new WebSocketManager('wss://api.example.com/ws', {
-  maxReconnectAttempts: 15,
-  heartbeatInterval: 25000
-});
-
-// Event handlers
-wsManager.on('connected', () => {
-  console.log('Connected!');
-  wsManager.send('subscribe', { channels: ['trades', 'orderbook'] });
-});
-
-wsManager.on('stateChange', (state) => {
-  console.log('Connection state:', state);
-  updateUIConnectionIndicator(state);
-});
-
-wsManager.on('message', (message) => {
-  console.log('Received:', message);
-});
-
-wsManager.on('trades', (message) => {
-  updateTradesUI(message.payload);
-});
-
-wsManager.on('error', (error) => {
-  console.error('Error:', error);
-});
-
-// Connect
-wsManager.connect();
-
-// Send with acknowledgment
-async function placeOrder(order) {
-  try {
-    const response = await wsManager.send('order', order, {
-      requireAck: true,
-      timeout: 10000
-    });
-    console.log('Order confirmed:', response);
-  } catch (error) {
-    console.error('Order failed:', error);
-  }
-}
-```
-
-## Binary Data bilan Ishlash
-
-### Binary Data Yuborish
-
-```javascript
-// ArrayBuffer yuborish
-const buffer = new ArrayBuffer(8);
-const view = new DataView(buffer);
-view.setFloat64(0, 123.456);
-ws.send(buffer);
-
-// Blob yuborish
-const blob = new Blob(['Hello'], { type: 'text/plain' });
-ws.send(blob);
-
-// TypedArray yuborish
-const uint8 = new Uint8Array([1, 2, 3, 4]);
-ws.send(uint8.buffer);
-```
-
-### Binary Data Qabul Qilish
-
-```javascript
-ws.binaryType = 'arraybuffer'; // yoki 'blob'
-
-ws.onmessage = (event) => {
-  if (event.data instanceof ArrayBuffer) {
-    const view = new DataView(event.data);
-    const value = view.getFloat64(0);
-    console.log('Binary data:', value);
-  } else {
-    // Text data
-    console.log('Text data:', event.data);
-  }
-};
-```
-
-### Protocol Buffers bilan
-
-```javascript
-import { Message } from './proto/message_pb.js';
-
-class BinaryWebSocket {
-  constructor(ws) {
-    this.ws = ws;
-    this.ws.binaryType = 'arraybuffer';
-  }
-
-  send(message) {
-    const bytes = message.serializeBinary();
-    this.ws.send(bytes);
-  }
-
-  onMessage(callback) {
-    this.ws.onmessage = (event) => {
-      const bytes = new Uint8Array(event.data);
-      const message = Message.deserializeBinary(bytes);
-      callback(message.toObject());
-    };
-  }
-}
-```
-
-## Real-World Case: Trading Dashboard
-
-```javascript
-class TradingWebSocket extends WebSocketManager {
-  constructor(url) {
-    super(url, {
-      heartbeatInterval: 15000,
-      maxReconnectAttempts: 20
-    });
-
-    this.subscriptions = new Set();
-    this.orderBook = new Map();
-    this.lastSequence = 0;
-  }
-
-  subscribeSymbol(symbol) {
-    this.subscriptions.add(symbol);
-
-    if (this.isConnected) {
-      this.send('subscribe', {
-        channels: ['orderbook', 'trades'],
-        symbol
-      });
-    }
-  }
-
-  unsubscribeSymbol(symbol) {
-    this.subscriptions.delete(symbol);
-
-    if (this.isConnected) {
-      this.send('unsubscribe', { symbol });
-    }
-  }
-
-  // Reconnect'dan keyin subscription'larni tiklash
-  onConnected() {
-    this.subscriptions.forEach((symbol) => {
-      this.send('subscribe', {
-        channels: ['orderbook', 'trades'],
-        symbol
-      });
-    });
-
-    // Snapshot so'rash
-    this.send('snapshot', {
-      symbols: Array.from(this.subscriptions)
-    });
-  }
-
-  handleOrderBookUpdate(update) {
-    // Sequence check - gap bo'lsa snapshot so'rash
-    if (update.sequence !== this.lastSequence + 1) {
-      console.warn('Sequence gap detected, requesting snapshot');
-      this.send('snapshot', { symbol: update.symbol });
-      return;
-    }
-
-    this.lastSequence = update.sequence;
-
-    // Order book yangilash
-    const book = this.orderBook.get(update.symbol) || { bids: [], asks: [] };
-
-    update.bids.forEach(([price, size]) => {
-      if (size === 0) {
-        book.bids = book.bids.filter((b) => b[0] !== price);
-      } else {
-        const index = book.bids.findIndex((b) => b[0] === price);
-        if (index >= 0) {
-          book.bids[index] = [price, size];
-        } else {
-          book.bids.push([price, size]);
-          book.bids.sort((a, b) => b[0] - a[0]); // Descending
-        }
-      }
-    });
-
-    this.orderBook.set(update.symbol, book);
-    this.emit('orderbookUpdate', { symbol: update.symbol, book });
-  }
-}
-
-// Ishlatish
-const trading = new TradingWebSocket('wss://trading.example.com/ws');
-
-trading.on('connected', () => {
-  trading.onConnected();
-});
-
-trading.on('orderbook', (message) => {
-  trading.handleOrderBookUpdate(message.payload);
-});
-
-trading.on('orderbookUpdate', ({ symbol, book }) => {
-  renderOrderBook(symbol, book);
-});
-
-trading.connect();
-trading.subscribeSymbol('BTC-USDT');
-```
-
-## NOTO'G'RI vs TO'G'RI Kodlar
-
-### 1. Connection Lifecycle
-
-```javascript
-// NOTO'G'RI: Cleanup yo'q
-useEffect(() => {
-  const ws = new WebSocket(url);
-  ws.onmessage = handleMessage;
-}, []);
-
-// TO'G'RI: Proper cleanup
-useEffect(() => {
-  const ws = new WebSocket(url);
-  ws.onmessage = handleMessage;
-
-  return () => {
-    ws.close(1000, 'Component unmounted');
-  };
-}, []);
-```
-
-### 2. Reconnection Logic
-
-```javascript
-// NOTO'G'RI: Thundering herd
-ws.onclose = () => {
-  setTimeout(() => new WebSocket(url), 1000);
-};
-
-// TO'G'RI: Exponential backoff with jitter
-ws.onclose = () => {
-  const delay = Math.min(1000 * Math.pow(2, attempts), 30000);
-  const jitter = delay * Math.random() * 0.25;
-  setTimeout(() => {
-    attempts++;
-    connect();
-  }, delay + jitter);
-};
-```
-
-### 3. Message Handling
-
-```javascript
-// NOTO'G'RI: Parse error handling yo'q
-ws.onmessage = (event) => {
-  const data = JSON.parse(event.data);
-  processData(data);
-};
-
-// TO'G'RI: Robust error handling
-ws.onmessage = (event) => {
-  try {
-    const data = JSON.parse(event.data);
-    if (!validateMessage(data)) {
-      console.warn('Invalid message format:', data);
-      return;
-    }
-    processData(data);
-  } catch (error) {
-    console.error('Failed to parse message:', error);
-  }
-};
-```
-
-### 4. State Management
-
-```javascript
-// NOTO'G'RI: State race condition
+// 2. Ulanish ochilganda (Go'shak ko'tarilganda)
 ws.onopen = () => {
-  isConnected = true;
-  sendQueuedMessages();
+  console.log('Serverga ulandik!');
+  // Xabar yuborish
+  ws.send(JSON.stringify({ type: 'hello', text: 'Salom hammaga!' }));
 };
+
+// 3. Serverdan xabar kelganda
+ws.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  console.log('Serverdan keldi:', data);
+};
+
+// 4. Xatolik
+ws.onerror = (error) => {
+  console.error('Xatolik yuz berdi:', error);
+};
+
+// 5. Ulanish yopilganda (Go'shak qo'yilganda)
 ws.onclose = () => {
-  isConnected = false;
-};
-
-// Muammo: onclose va onopen o'rtasida race condition
-
-// TO'G'RI: State machine
-const STATE = {
-  DISCONNECTED: 'disconnected',
-  CONNECTING: 'connecting',
-  CONNECTED: 'connected',
-  RECONNECTING: 'reconnecting'
-};
-
-function transition(newState) {
-  const validTransitions = {
-    [STATE.DISCONNECTED]: [STATE.CONNECTING],
-    [STATE.CONNECTING]: [STATE.CONNECTED, STATE.DISCONNECTED],
-    [STATE.CONNECTED]: [STATE.DISCONNECTED],
-    [STATE.RECONNECTING]: [STATE.CONNECTING, STATE.DISCONNECTED]
-  };
-
-  if (validTransitions[currentState]?.includes(newState)) {
-    currentState = newState;
-    emit('stateChange', newState);
-  }
-}
-```
-
-### 5. Memory Leak
-
-```javascript
-// NOTO'G'RI: Event listeners to'planib qoladi
-function subscribe(channel) {
-  ws.addEventListener('message', (event) => {
-    if (event.data.channel === channel) {
-      handleChannelMessage(event.data);
-    }
-  });
-}
-
-// TO'G'RI: Cleanup function
-function subscribe(channel) {
-  const handler = (event) => {
-    if (event.data.channel === channel) {
-      handleChannelMessage(event.data);
-    }
-  };
-
-  ws.addEventListener('message', handler);
-
-  return () => {
-    ws.removeEventListener('message', handler);
-  };
-}
-```
-
-## Reconnect Bug'larni Hal Qilish
-
-### 1. Stale Closure
-
-```javascript
-// MUAMMO: reconnect qilganda eski ws instance ishlatiladi
-let ws = new WebSocket(url);
-
-function sendMessage(msg) {
-  ws.send(msg); // reconnect'dan keyin eski ws
-}
-
-// YECHIM: Reference yangilash
-class WebSocketClient {
-  constructor(url) {
-    this.url = url;
-    this.ws = null;
-  }
-
-  connect() {
-    this.ws = new WebSocket(this.url);
-    // ...
-  }
-
-  send(msg) {
-    if (this.ws?.readyState === WebSocket.OPEN) {
-      this.ws.send(msg);
-    }
-  }
-}
-```
-
-### 2. Race Condition on Reconnect
-
-```javascript
-// MUAMMO: Bir nechta reconnect bir vaqtda
-ws.onclose = () => {
-  setTimeout(connect, 1000);
-};
-
-// YECHIM: Flag bilan
-let isReconnecting = false;
-
-ws.onclose = () => {
-  if (isReconnecting) return;
-  isReconnecting = true;
-
-  setTimeout(() => {
-    connect();
-    isReconnecting = false;
-  }, 1000);
-};
-
-// Yoki cancel qilinadigan timeout
-let reconnectTimeout = null;
-
-ws.onclose = () => {
-  if (reconnectTimeout) {
-    clearTimeout(reconnectTimeout);
-  }
-  reconnectTimeout = setTimeout(connect, 1000);
+  console.log('Aloqa uzildi.');
 };
 ```
 
-### 3. Message Loss During Reconnect
+---
+
+## 🟡 Middle (Amaliyot va Detallar)
+
+Middle dasturchi Frameworklar (Vue) bilan integratsiya qilishni va Reconnect (Qayta ulanish) muammolarini hal qilishni biladi.
+
+### Reconnect (Qayta ulanish) Muammosi
+WebSocket dagi eng katta muammo — internet uzilib qolsa ulanish uziladi (close). Oddiy kod o'z-o'zidan qayta ulanmaydi!
+Shuning uchun Vue loyihalarida o'zimiz "Avtomatik qayta ulanuvchi" (Auto-reconnect) mantiqni yozishimiz yoki maxsus composable (masalan, VueUse dagi `useWebSocket`) ishlatishimiz kerak.
+
+### "Exponential Backoff" (Aqlli qayta ulanish)
+Agar server vaqtincha o'chib qolsa (Deploy vaqtida), sizning kodingiz har soniyada qayta ulanaversa, minglab userlar serverni "DDoS" qilib o'ldirib qo'yishi mumkin. Bunga qarshi Exponential Backoff ishlatiladi:
+- 1-urinish: 1 soniya kutib ulanadi
+- 2-urinish: 2 soniya kutadi
+- 3-urinish: 4 soniya kutadi
+- 4-urinish: 8 soniya kutadi...
 
 ```javascript
-// MUAMMO: Reconnect paytida xabarlar yo'qoladi
-
-// YECHIM: Message queue
-class ReliableWebSocket {
-  constructor(url) {
-    this.queue = [];
-    this.unacknowledged = new Map();
-  }
-
-  send(message) {
-    const id = generateId();
-    const envelope = { id, message, timestamp: Date.now() };
-
-    if (this.isConnected) {
-      this.ws.send(JSON.stringify(envelope));
-      this.unacknowledged.set(id, envelope);
-    } else {
-      this.queue.push(envelope);
-    }
-  }
-
-  onConnect() {
-    // Unacknowledged xabarlarni qayta yuborish
-    this.unacknowledged.forEach((envelope) => {
-      this.ws.send(JSON.stringify(envelope));
-    });
-
-    // Queue'dagi xabarlarni yuborish
-    while (this.queue.length > 0) {
-      const envelope = this.queue.shift();
-      this.ws.send(JSON.stringify(envelope));
-      this.unacknowledged.set(envelope.id, envelope);
-    }
-  }
-
-  onAck(id) {
-    this.unacknowledged.delete(id);
-  }
-}
-```
-
-### 4. Subscription State Loss
-
-```javascript
-// MUAMMO: Reconnect'dan keyin subscription'lar yo'qoladi
-
-// YECHIM: Subscription tracking
-class SubscriptionManager {
-  constructor(ws) {
-    this.ws = ws;
-    this.subscriptions = new Map();
-
-    this.ws.on('connected', () => this.resubscribeAll());
-  }
-
-  subscribe(channel, options = {}) {
-    this.subscriptions.set(channel, options);
-
-    if (this.ws.isConnected) {
-      this.ws.send('subscribe', { channel, ...options });
-    }
-  }
-
-  unsubscribe(channel) {
-    this.subscriptions.delete(channel);
-
-    if (this.ws.isConnected) {
-      this.ws.send('unsubscribe', { channel });
-    }
-  }
-
-  resubscribeAll() {
-    this.subscriptions.forEach((options, channel) => {
-      this.ws.send('subscribe', { channel, ...options });
-    });
-  }
-}
-```
-
-## Vue.js bilan Integration
-
-```javascript
-// composables/useWebSocket.js
+// Vue Composition API da WebSocket Composable yozish
 import { ref, onMounted, onUnmounted } from 'vue';
 
-export function useWebSocket(url, options = {}) {
+export function useMyWebSocket(url) {
   const data = ref(null);
-  const error = ref(null);
-  const state = ref('disconnected');
-
   let ws = null;
-  let reconnectAttempts = 0;
-  const maxAttempts = options.maxAttempts || 10;
-
+  let attempt = 0;
+  
   function connect() {
-    state.value = 'connecting';
     ws = new WebSocket(url);
-
+    
+    ws.onmessage = (e) => {
+      data.value = JSON.parse(e.data);
+    };
+    
+    ws.onclose = () => {
+      // Aqlli qayta ulanish (Exponential Backoff)
+      const delay = Math.min(1000 * Math.pow(2, attempt), 30000); 
+      setTimeout(() => {
+        attempt++;
+        connect();
+      }, delay);
+    };
+    
     ws.onopen = () => {
-      state.value = 'connected';
-      reconnectAttempts = 0;
-      options.onOpen?.();
-    };
-
-    ws.onmessage = (event) => {
-      try {
-        data.value = JSON.parse(event.data);
-        options.onMessage?.(data.value);
-      } catch (e) {
-        error.value = e;
-      }
-    };
-
-    ws.onerror = (e) => {
-      error.value = e;
-      options.onError?.(e);
-    };
-
-    ws.onclose = (event) => {
-      if (event.code !== 1000 && reconnectAttempts < maxAttempts) {
-        state.value = 'reconnecting';
-        const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000);
-        setTimeout(() => {
-          reconnectAttempts++;
-          connect();
-        }, delay);
-      } else {
-        state.value = 'disconnected';
-      }
+      attempt = 0; // Ulanganda urinishlarni nolga tushiramiz
     };
   }
-
-  function send(message) {
-    if (ws?.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify(message));
-    }
-  }
-
-  function close() {
-    ws?.close(1000, 'User initiated');
-  }
-
+  
   onMounted(connect);
-  onUnmounted(close);
-
-  return {
-    data,
-    error,
-    state,
-    send,
-    close,
-    reconnect: connect
-  };
+  onUnmounted(() => ws?.close()); // Sahifadan ketganda albatta o'chirish kerak!
+  
+  return { data };
 }
 ```
+**E'tibor bering:** `onUnmounted` da `ws.close()` qilish juda muhim, aks holda Vue sahifalarida yursangiz ochiq qolgan socketlar ko'payib memory leak bo'ladi.
 
-### Component'da Ishlatish
+---
 
-```vue
-<script setup>
-import { useWebSocket } from '@/composables/useWebSocket';
+## 🔴 Senior (Arxitektura va Optimizatsiya)
 
-const { data, state, send } = useWebSocket('wss://api.example.com/ws', {
-  onMessage: (msg) => {
-    if (msg.type === 'notification') {
-      showNotification(msg.payload);
-    }
-  }
-});
+Senior dasturchi Load Balancing (kengayish) masalalari, Heartbeat mexanizmlari va Binary Datani optimize qilish bilan shug'ullanadi.
 
-function sendMessage() {
-  send({ type: 'chat', text: message.value });
-}
-</script>
+### Heartbeat (Ping/Pong) Mexanizmi
+Ba'zi Network (Proksi) serverlar agar trubadan hech narsa o'tmay (Jimjitlik) 30-60 soniya tursa, ulanishni yopib yuboradi. Yoki kimdir "Airplane mode" ga tushib qolsa, Socket "Close" signali bermasdan yopilib qoladi (Stale connection). 
+Shuning uchun Client ham, Server ham doimiy tirikligini tasdiqlab (Heartbeat) turishi kerak.
+- Server Ping yuboradi.
+- Client unga darhol Pong yuboradi.
+Agar Pong kelmasa, server Socket ni o'lik deb hisoblab xotiradan tozalaydi. Buni Application (Ping xabar formatida) yoki Protokol o'zining ichki (Opcode: 0x9 va 0xA) qatlamida amalga oshirish mumkin.
 
-<template>
-  <div>
-    <div :class="['status', state]">{{ state }}</div>
-    <div v-if="data">{{ data }}</div>
-    <button @click="sendMessage">Send</button>
-  </div>
-</template>
-```
+### Scaling (Gorizontal Kengaytirish)
+Sizda foydalanuvchilar ko'paydi va bitta Node.js server yetmay qoldi. Siz 3 ta Node.js server (Load Balancer ostida) ko'tardingiz. 
+- Alisher (1-serverga ulandi)
+- Bobur (2-serverga ulandi)
+Endi Alisher Boburga chatdan xabar yuborsa, u faqat 1-serverga boradi. 2-server Boburga uni qanday qilib jo'natadi? Ikkita alohida WebSocket serverlari o'rtasida aloqa yo'q!
 
-## Interview Savollari
+**Yechim (Redis Pub/Sub):**
+Barcha WebSocket serverlar bitta markaziy Redis ga ulanadi. Alisherning xabari 1-serverga kelgach, 1-server uni Redis ga (Publish) yuboradi. Barcha serverlar Redisni eshitib (Subscribe) turishibdi. 2-server xabarni ushlab olib, o'zining Socket lariga qarab "Bobur" ni topadi va unga jo'natadi. Socket.io da buni Socket.io-Redis-Adapter qilib beradi.
 
-### 1. WebSocket va HTTP farqi nima?
-
-**Javob:**
-- **Protocol:** HTTP - request/response, WebSocket - full-duplex
-- **Connection:** HTTP - har so'rov uchun yangi (HTTP/1.1 keep-alive bilan ham), WebSocket - doimiy
-- **Overhead:** HTTP - har so'rovda headers, WebSocket - 2 byte frame header
-- **Direction:** HTTP - client-initiated, WebSocket - bidirectional
-- **Use case:** HTTP - REST API, WebSocket - realtime (chat, gaming, trading)
-
-### 2. WebSocket handshake jarayonini tushuntiring
-
-**Javob:**
-1. Client HTTP Upgrade so'rovi yuboradi (`Upgrade: websocket`)
-2. `Sec-WebSocket-Key` header - base64 encoded random key
-3. Server 101 Switching Protocols bilan javob beradi
-4. Server `Sec-WebSocket-Accept` yuboradi (Key + GUID ning SHA-1 hash, base64)
-5. Connection WebSocket protokoliga o'tadi
-
-### 3. Reconnection strategiyasini qanday implement qilasiz?
-
-**Javob:**
+### Binary Data (Tezlik)
+Agar siz qimmatli qog'ozlar birjasida ishlasangiz va ma'lumotlar millisoniyada o'zgarib tursa JSON juda sekinlik va xotira katta joy oladi. WebSocket orqali JSON matnlarini emas, to'g'ridan to'g'ri baytlarni (ArrayBuffer) yuborish mumkin:
 ```javascript
-// Exponential backoff with jitter
-function getReconnectDelay(attempt) {
-  const baseDelay = 1000;
-  const maxDelay = 30000;
-  const exponentialDelay = Math.min(baseDelay * Math.pow(2, attempt), maxDelay);
-  const jitter = exponentialDelay * Math.random() * 0.25;
-  return exponentialDelay + jitter;
-}
+ws.binaryType = 'arraybuffer'; // Bizga binary keladi
+ws.onmessage = (event) => {
+  if (event.data instanceof ArrayBuffer) {
+    // Protobuf yoki Custom DataView orqali bit/baytlarni parsing qilish
+    const view = new DataView(event.data);
+    console.log('Binary number:', view.getFloat64(0)); 
+  }
+};
 ```
+Bu katta tezlik (Low latency) va kam hajmli trafikni (Bandwidth) kafolatlaydi.
 
-**Nima uchun jitter:**
-- Thundering herd muammosini oldini olish
-- Barcha clientlar bir vaqtda reconnect qilmasligi uchun
-- Server load distribution
+### Intervyu Savoli
+**"Agar men oddiy Chat loyihasini qilsam va Serverim bitta bo'lsa ham Socket.io ishlatishim shartmi yoki oddiy Native WebSocket (ws) yetarlimi?"**
+*Javob:*
+Native WebSocket hozirda barcha brauzerlarda 100% qo'llab-quvvatlanadi va u yetarli. Ammo Native WebSocket sizga faqatgina "Quvur" (Connection) beradi xolos. Socket.io kabi kutubxonalar esa sizga ushbu quvur ustiga o'rnatilgan tayyor qo'shimcha imkoniyatlarni (Auto-Reconnect, Heartbeat, Xonalarga (Rooms) ajratish, Fallback (Polling) texnologiyalari va Redis Adapter) beradi. Agar bularni hammasini Native WebSocket orqali (VueUse ishlatmasdan va hkz) noldan o'zingiz yozib chiqmoqchi bo'lsangiz - bu velosipedni qaytadan kashf qilish bo'ladi. Shu sababli ko'pchilik jamoalar baribir abstraction library larni tanlashadi. Lekin oddiy loyihalar, misol uchun faqatgina bitta "Live Notifications" ulanishi uchun o'ta og'ir Socket.io ni klientga yuklash ortiqchadir, u yerda Native WS yoki VueUse qulayroq.
 
-### 4. WebSocket connection'ni qanday scale qilasiz?
-
-**Javob:**
-1. **Sticky Sessions:** Load balancer client'ni bir xil server'ga yo'naltiradi
-2. **Redis Pub/Sub:** Server'lar o'rtasida message broadcast
-3. **Shared State:** Connection state Redis/Memcached'da
-4. **Horizontal Scaling:** Kubernetes + HPA
-
-```mermaid
-graph LR
-    Client[Kliyentlar] --> LB[Load Balancer]
-    LB --> S1[WebSocket Server 1]
-    LB --> S2[WebSocket Server 2]
-    S1 <--> Redis[Redis Pub/Sub <br/> Hub]
-    S2 <--> Redis
-```
-
-### 5. WebSocket security qanday ta'minlanadi?
-
-**Javob:**
-1. **WSS (WebSocket Secure):** TLS encryption
-2. **Origin validation:** `Sec-WebSocket-Origin` header tekshirish
-3. **Authentication:**
-   - Token in connection URL
-   - First message'da auth
-   - Cookie-based
-4. **Rate limiting:** Message frequency limit
-5. **Input validation:** Server-side message validation
-6. **CSRF protection:** Origin checking
+---
 
 ## Eng Yaxshi Amaliyotlar (Best Practices)
 
@@ -1096,4 +180,6 @@ WebSocket bo'yicha yakuniy xulosa:
 | **Tezlik (Latency)** | Real-time (bir zumda) | Sekin (polling intervaliga bog'liq) |
 | **Mos keluvchi loyihalar**| Chatlar, Live o'yinlar, Birjalar | Odatiy dashboardlar, analytics |
 
-Keyingi bo'lim: [Server-Sent Events](./02-sse.md)
+Kichik ehtiyojlar uchun esa faqatgina Serverdan Kliyentga keluvchi yengilroq yana bir texnologiya — SSE (Server-Sent Events) ham mavjud bo'lib, ular haqida keyingi darsda gaplashamiz.
+
+**Keyingi qadam:** [02-sse.md](./02-sse.md) - Server-Sent Events (SSE) va uni WebSocket dan afzalliklari.

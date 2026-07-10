@@ -1,865 +1,154 @@
 # Lifecycle Hooks - Komponent Hayot Sikli
 
-## Kirish
-
 > [!IMPORTANT]
 > **Nima uchun muhim?**  
-> Komponentlar ekranga chizilayotganda, o'zgarayotganda va ekrandan yo'qolayotganda ma'lum bir bosqichlardan o'tadi. Lifecycle (Hayot sikli) hook'lari bizga ushbu bosqichlarning har biriga "quloq solish" (eshtib turish) va aniq bir bosqichda kod ishga tushirish (masalan: ma'lumotni bazadan serverdan so'rash yoki listenerlarni o'chirish) imkonini beradi.
+> Komponentlar ekranga chizilayotganda, holati o'zgarayotganda va ekrandan yo'qolayotganda (o'chirilayotganda) ma'lum bir bosqichlardan o'tadi. Lifecycle (Hayot sikli) hook'lari bizga ushbu bosqichlarning har biriga "quloq solish" (tutib olish) va aniq bir bosqichda kod ishga tushirish (masalan: sahifa ochilganda API dan ma'lumot yuklash yoki boshqa sahifaga o'tganda xotirani tozalash) imkonini beradi.
+
+## 🟢 Junior (Asoslar va Tushunchalar)
+
+### Terminologiya
+**Lifecycle** — Tug'ilish (`mount`), Yashash (`update`) va O'lish (`unmount`). Komponentning ana shu 3 ta asosiy hayot bosqichidir.
+**Hook** (Ilmoq) — Ana shu bosqichlar yuz berayotganda o'z funksiyangizni ishga tushirib olish imkoniyati. Masalan, Vue ga "Ekranga komponentni chizib bo'lganingdan keyin, mening mana bu funksiyamni ishga tushir (`onMounted`)" deyish.
 
 > [!NOTE]
-> **Real-hayot analogiyasi: "Teatr tomoshasi"**  
-> - **created()**: Aktyorlar ssenariyni o'qishmoqda, rollarni o'rganishmoqda (Ma'lumotlar bor, lekin sahna bo'sh).  
-> - **mounted()**: Parda ochildi, aktyorlar sahnada. Tomoshabin ularni ko'rmoqda (Komponent DOM ga chizildi, ekranda ko'rindi. API so'rovlarni jo'natish uchun eng zo'r vaqt).  
-> - **updated()**: Aktyor kiyimini o'zgartirib chiqdi (Data o'zgardi, DOM ham unga moslashdi).  
-> - **unmounted()**: Tomosha tugadi, parda yopildi. Aktyorlar kiyimlarini yechib, uylariga tarqalishdi (Komponent o'chdi. Taymerlar, scroll listenerlarni o'chirish kerak).
+> **Hayotiy o'xshatish: "Teatr tomoshasi"**  
+> - **`setup()` / `created`**: Aktyorlar ssenariyni o'qishmoqda, rollarni o'rganishmoqda (Ma'lumotlar xotirada bor, lekin sahna hali bo'sh).  
+> - **`onMounted`**: Parda ochildi, aktyorlar sahnada. Tomoshabin ularni ko'rmoqda (Komponent DOM ga chizildi, ekranda ko'rindi. API so'rovlarni jo'natish yoki animatsiyani boshlash uchun eng zo'r vaqt).  
+> - **`onUpdated`**: Aktyor kiyimini o'zgartirib chiqdi (Data o'zgardi, DOM ham unga moslashib o'zgardi).  
+> - **`onUnmounted`**: Tomosha tugadi, parda yopildi. Aktyorlar kiyimlarini yechib, uylariga tarqalishdi (Komponent o'chdi. Taymerlar, sahifadagi qoldiq ishlarni o'chirish kerak).
 
-## Lifecycle Diagramma
-
-```mermaid
-stateDiagram-v2
-    [*] --> created: createApp()
-    
-    state "Reactivity Setup (data, computed)" as Setup
-    created --> Setup
-    Setup --> beforeMount: Compile template
-    
-    beforeMount --> mounted: Render DOM elements
-    mounted --> beforeUpdate: Reactive data changed
-    beforeUpdate --> updated: DOM Patched
-    updated --> mounted: Wait for next change
-    
-    mounted --> beforeUnmount: app.unmount()
-    beforeUnmount --> unmounted: Watchers/Effects stopped
-    unmounted --> [*]
-```
-
-## Options API Lifecycle Hooks
-
-### beforeCreate & created
-
-```javascript
-export default {
-  data() {
-    return {
-      message: 'Hello'
-    }
-  },
-
-  beforeCreate() {
-    // this mavjud, lekin data/methods YO'Q!
-    console.log(this.message) // undefined
-    console.log(this.greet)   // undefined
-
-    // Foydalanish: plugin initialization
-    // (Vue 2 da Composition API polyfill)
-  },
-
-  created() {
-    // data, computed, methods, watch - hammasi mavjud
-    // DOM hali YO'Q!
-    console.log(this.message) // 'Hello'
-    console.log(this.$el)     // undefined
-
-    // Foydalanish:
-    // - API calls
-    // - Event listeners (non-DOM)
-    // - Timer setup
-    this.fetchData()
-  },
-
-  methods: {
-    async fetchData() {
-      this.loading = true
-      this.data = await api.getData()
-      this.loading = false
-    }
-  }
-}
-```
-
-### beforeMount & mounted
-
-```javascript
-export default {
-  data() {
-    return {
-      chart: null
-    }
-  },
-
-  beforeMount() {
-    // Template compiled, but not rendered
-    console.log(this.$el) // undefined (Vue 3)
-    // Vue 2 da: template emas, target element
-
-    // Foydalanish: kamdan-kam, SSR tekshiruvi
-    if (typeof window === 'undefined') {
-      // SSR environment
-    }
-  },
-
-  mounted() {
-    // DOM mavjud va accessible
-    console.log(this.$el) // <div>...</div>
-    console.log(this.$refs.chart) // DOM element
-
-    // Foydalanish:
-    // - DOM manipulation
-    // - Third-party library initialization
-    // - Focus management
-    // - Scroll position
-
-    this.initChart()
-    this.$refs.input?.focus()
-  },
-
-  methods: {
-    initChart() {
-      // Chart.js, D3, etc.
-      this.chart = new Chart(this.$refs.chart, {
-        type: 'bar',
-        data: this.chartData
-      })
-    }
-  },
-
-  beforeUnmount() {
-    // Cleanup
-    this.chart?.destroy()
-  }
-}
-```
-
-### beforeUpdate & updated
-
-```javascript
-export default {
-  data() {
-    return {
-      items: [],
-      scrollPosition: 0
-    }
-  },
-
-  beforeUpdate() {
-    // Data o'zgardi, DOM hali o'zgarmagan
-    // Eski DOM state'ni saqlash mumkin
-    this.scrollPosition = this.$el.scrollTop
-
-    // EHTIYOT: bu yerda data o'zgartirmang!
-    // Infinite loop bo'lishi mumkin
-  },
-
-  updated() {
-    // DOM yangilandi
-    // Yangi DOM state bilan ishlash
-
-    // Scroll position restore
-    this.$el.scrollTop = this.scrollPosition
-
-    // Third-party library update
-    this.chart?.update()
-
-    // EHTIYOT: bu yerda data o'zgartirmang!
-    // this.items.push(x) // Infinite loop!
-  }
-}
-```
-
-### beforeUnmount & unmounted
-
-```javascript
-export default {
-  data() {
-    return {
-      timer: null,
-      resizeHandler: null,
-      subscription: null
-    }
-  },
-
-  mounted() {
-    // Setup
-    this.timer = setInterval(this.tick, 1000)
-
-    this.resizeHandler = () => this.handleResize()
-    window.addEventListener('resize', this.resizeHandler)
-
-    this.subscription = eventBus.subscribe('event', this.handler)
-  },
-
-  beforeUnmount() {
-    // Cleanup - DOM hali mavjud
-    // Animatsiya yoki transition uchun
-
-    // Timer cleanup
-    clearInterval(this.timer)
-
-    // Event listener cleanup
-    window.removeEventListener('resize', this.resizeHandler)
-
-    // Subscription cleanup
-    this.subscription?.unsubscribe()
-
-    // WebSocket close
-    this.socket?.close()
-  },
-
-  unmounted() {
-    // Komponent to'liq o'chirildi
-    // DOM yo'q
-    console.log(this.$el) // null
-
-    // Final cleanup (kamdan-kam kerak)
-  }
-}
-```
-
-## Composition API Lifecycle Hooks
-
-### Basic Usage
-
-```javascript
-import {
-  onBeforeMount,
-  onMounted,
-  onBeforeUpdate,
-  onUpdated,
-  onBeforeUnmount,
-  onUnmounted,
-  onErrorCaptured,
-  onRenderTracked,
-  onRenderTriggered
-} from 'vue'
-
-export default {
-  setup() {
-    // beforeCreate va created o'rniga
-    // setup() o'zi shu vazifani bajaradi
-    console.log('Component setup (≈ created)')
-
-    onBeforeMount(() => {
-      console.log('Before mount')
-    })
-
-    onMounted(() => {
-      console.log('Mounted')
-    })
-
-    onBeforeUpdate(() => {
-      console.log('Before update')
-    })
-
-    onUpdated(() => {
-      console.log('Updated')
-    })
-
-    onBeforeUnmount(() => {
-      console.log('Before unmount')
-    })
-
-    onUnmounted(() => {
-      console.log('Unmounted')
-    })
-  }
-}
-```
-
-### Script Setup Syntax
-
+### Sodda Misol
 ```vue
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 
-const data = ref(null)
-const timer = ref(null)
+const foydalanuvchilar = ref([])
 
-// Avtomatik cleanup pattern
+// Sahifa ochilishi bilan ishlashi kerak
+onMounted(async () => {
+  console.log("Komponent ekranga chiqdi!")
+  // Backenddan datani so'raymiz
+  const javob = await fetch('https://api.example.com/users')
+  foydalanuvchilar.value = await javob.json()
+})
+
+// Sahifa yopilayotganda (Boshqa sahifaga o'tib ketganda)
+onUnmounted(() => {
+  console.log("Xayr, men o'chdim!")
+})
+</script>
+
+<template>
+  <ul>
+    <li v-for="user in foydalanuvchilar">{{ user.name }}</li>
+  </ul>
+</template>
+```
+
+---
+
+## 🟡 Middle (Amaliyot va Detallar)
+
+### Tozalash (Cleanup) san'ati
+Ajam (Junior) dasturchilar odatda taymerlar (`setInterval`) yoki darchaning o'lchami o'zgarganini kuzatuvchi voqealar (`window.addEventListener`) ni o'rnatadilar, lekin ularni o'chirishni esdan chiqaradilar. Agar sahifa almashilganda (komponent yo'qolganda) bular tozalanmasa, ular brauzer xotirasida (RAM) ishlab yotaveradi va **Memory Leak** (xotira sizib chiqishi) ga olib keladi. Sahifa bora-bora qotib qoladi.
+
+```javascript
+import { onMounted, onBeforeUnmount, ref } from 'vue'
+
+const kenglik = ref(window.innerWidth)
+let taymerId = null // Taymer ID sini saqlaymiz
+
+function oynaniOlchash() {
+  kenglik.value = window.innerWidth
+}
+
 onMounted(() => {
-  console.log('Component mounted')
-
-  // Fetch data
-  fetchData()
-
-  // Timer
-  timer.value = setInterval(() => {
-    console.log('tick')
-  }, 1000)
+  // 1. Event yozdik
+  window.addEventListener('resize', oynaniOlchash)
+  
+  // 2. Taymer yoqdik
+  taymerId = setInterval(() => console.log('Tik-tak'), 1000)
 })
 
+// MUHIM: Sahifa yopilayotganda hammasini o'chiramiz!
 onBeforeUnmount(() => {
-  console.log('Cleanup')
-  clearInterval(timer.value)
+  window.removeEventListener('resize', oynaniOlchash)
+  clearInterval(taymerId)
 })
-
-async function fetchData() {
-  data.value = await api.getData()
-}
-</script>
 ```
 
-### Multiple Hooks
+### KeepAlive bilan ishlash (`onActivated` / `onDeactivated`)
+Ba'zida sahifalar orasida o'tganda, ma'lumotlar yana yuklanmasligi uchun Vue da `<KeepAlive>` dan foydalaniladi. Agar komponent `<KeepAlive>` ichida bo'lsa, u hech qachon o'lmaydi (ya'ni `onUnmounted` ishlamaydi!). Buning o'rniga u "muzlatib" qo'yiladi.
 
+Bunday paytda qachon muzlatilgani va qachon qayta ko'rsatilganini bilish uchun:
 ```javascript
-// Bir xil hook bir necha marta chaqirish mumkin
-import { onMounted } from 'vue'
-
-export default {
-  setup() {
-    // Feature A
-    onMounted(() => {
-      console.log('Feature A mounted')
-    })
-
-    // Feature B
-    onMounted(() => {
-      console.log('Feature B mounted')
-    })
-
-    // Ikkalasi ham chaqiriladi (tartib bo'yicha)
-  }
-}
-```
-
-## Error Handling Hooks
-
-### errorCaptured
-
-```javascript
-// Options API
-export default {
-  errorCaptured(error, instance, info) {
-    // Child komponent xatosini ushlash
-    console.error('Error:', error)
-    console.log('Component:', instance)
-    console.log('Info:', info) // 'mounted hook', 'render', etc.
-
-    // false qaytarsa, xato propagation to'xtaydi
-    return false
-  }
-}
-
-// Composition API
-import { onErrorCaptured, ref } from 'vue'
-
-export default {
-  setup() {
-    const error = ref(null)
-
-    onErrorCaptured((err, instance, info) => {
-      error.value = err
-      // Log to service
-      errorService.log(err, { component: instance, info })
-
-      return false // Propagation to'xtatish
-    })
-
-    return { error }
-  }
-}
-```
-
-### Error Boundary Pattern
-
-```vue
-<!-- ErrorBoundary.vue -->
-<template>
-  <slot v-if="!error" />
-  <div v-else class="error-fallback">
-    <h2>Xatolik yuz berdi</h2>
-    <p>{{ error.message }}</p>
-    <button @click="retry">Qayta urinish</button>
-  </div>
-</template>
-
-<script setup>
-import { ref, onErrorCaptured } from 'vue'
-
-const error = ref(null)
-
-onErrorCaptured((err) => {
-  error.value = err
-  return false
-})
-
-function retry() {
-  error.value = null
-}
-</script>
-
-<!-- Usage -->
-<template>
-  <ErrorBoundary>
-    <RiskyComponent />
-  </ErrorBoundary>
-</template>
-```
-
-## Debug Hooks (Vue 3)
-
-### renderTracked & renderTriggered
-
-```javascript
-import { onRenderTracked, onRenderTriggered } from 'vue'
-
-export default {
-  setup() {
-    // Dependency track qilinganda (development only)
-    onRenderTracked((event) => {
-      console.log('Tracked:', event)
-      // {
-      //   effect: ReactiveEffect,
-      //   target: { count: 0 },
-      //   type: 'get',
-      //   key: 'count'
-      // }
-    })
-
-    // Dependency o'zgarganda (development only)
-    onRenderTriggered((event) => {
-      console.log('Triggered:', event)
-      // {
-      //   effect: ReactiveEffect,
-      //   target: { count: 0 },
-      //   type: 'set',
-      //   key: 'count',
-      //   newValue: 1,
-      //   oldValue: 0
-      // }
-    })
-  }
-}
-```
-
-## Server-Side Rendering Hooks
-
-```javascript
-// Nuxt.js / SSR specific hooks
-import { onServerPrefetch } from 'vue'
-
-export default {
-  async setup() {
-    const data = ref(null)
-
-    // Faqat server-side da ishlaydi
-    onServerPrefetch(async () => {
-      data.value = await fetchData()
-    })
-
-    // Client-side da
-    onMounted(async () => {
-      if (!data.value) {
-        data.value = await fetchData()
-      }
-    })
-
-    return { data }
-  }
-}
-```
-
-## KeepAlive Hooks
-
-### activated & deactivated
-
-```vue
-<!-- Parent -->
-<template>
-  <KeepAlive>
-    <component :is="currentTab" />
-  </KeepAlive>
-</template>
-
-<!-- TabComponent.vue -->
-<script>
-export default {
-  // Options API
-  activated() {
-    // KeepAlive cache'dan chiqarilganda
-    // mounted kabi, lekin cached component uchun
-    console.log('Tab activated')
-    this.refreshData()
-  },
-
-  deactivated() {
-    // KeepAlive cache'ga qo'yilganda
-    // unmounted o'rniga
-    console.log('Tab deactivated')
-    this.pausePolling()
-  }
-}
-</script>
-
-<!-- Composition API -->
-<script setup>
 import { onActivated, onDeactivated } from 'vue'
 
 onActivated(() => {
-  console.log('Activated')
+  console.log("Men cache'dan uyg'ondim!") // mounted o'rniga ishlaydi
 })
 
 onDeactivated(() => {
-  console.log('Deactivated')
+  console.log("Meni muzlatib qo'yishdi") // unmounted o'rniga ishlaydi
 })
-</script>
 ```
 
-## Real-World Patterns
+---
 
-### Auto-cleanup Pattern
+## 🔴 Senior (Arxitektura va Optimallashtirish)
 
-```javascript
-// composables/useCleanup.js
-import { onBeforeUnmount, ref } from 'vue'
+### SSR (Nuxt) da Lifecycle Hook larning yurish tartibi
+Server-Side Rendering (Nuxt) da hooklar bir oz g'alati ishlaydi. 
+- `beforeCreate` va `created` (yoki `setup()`) Node.js serverida ham, Mijoz (Brauzer) da ham ishga tushadi. Agar u yerda Brauzer API sini ishlatsangiz (masalan, `window.localStorage`), xatolik olasiz. Chunki Node.js da `window` yo'q.
+- `onMounted` va qolgan barcha hooklar **faqat Mijozda** ishlaydi. Server ularni umuman ko'rmaydi.
+- Serverdan API ma'lumot yuklab olish uchun Nuxt da maxsus `useAsyncData` (yoki Vue 3 da `onServerPrefetch`) ishlatiladi.
 
-export function useCleanup() {
-  const cleanupFns = ref([])
-
-  function addCleanup(fn) {
-    cleanupFns.value.push(fn)
-  }
-
-  onBeforeUnmount(() => {
-    cleanupFns.value.forEach(fn => fn())
-    cleanupFns.value = []
-  })
-
-  return { addCleanup }
-}
-
-// Usage
-<script setup>
-import { onMounted } from 'vue'
-import { useCleanup } from '@/composables/useCleanup'
-
-const { addCleanup } = useCleanup()
-
-onMounted(() => {
-  const timer = setInterval(() => {}, 1000)
-  addCleanup(() => clearInterval(timer))
-
-  const handler = () => {}
-  window.addEventListener('resize', handler)
-  addCleanup(() => window.removeEventListener('resize', handler))
-
-  const subscription = eventBus.subscribe('event', () => {})
-  addCleanup(() => subscription.unsubscribe())
-})
-</script>
-```
-
-### Async Data Pattern
+### Custom Composable yozish va Auto-Cleanup
+Katta loyihalarda har safar o'chirish-yoqish (`onBeforeUnmount` yozish) ni esdan chiqarmaslik uchun bu vazifani bitta `Composable` funksiya ichiga o'rab qo'yiladi. Composable funksiya o'zi turgan Komponentning Hooklariga ulana oladi!
 
 ```javascript
-// composables/useAsyncData.js
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+// composables/useEventListener.js (O'zimiz yasadik)
+import { onMounted, onBeforeUnmount } from 'vue'
 
-export function useAsyncData(fetchFn, options = {}) {
-  const { immediate = true } = options
-
-  const data = ref(null)
-  const error = ref(null)
-  const loading = ref(false)
-  let isMounted = true
-
-  async function execute() {
-    loading.value = true
-    error.value = null
-
-    try {
-      const result = await fetchFn()
-      // Komponent unmount bo'lgan bo'lsa, state yangilamaymiz
-      if (isMounted) {
-        data.value = result
-      }
-    } catch (e) {
-      if (isMounted) {
-        error.value = e
-      }
-    } finally {
-      if (isMounted) {
-        loading.value = false
-      }
-    }
-  }
-
+export function useEventListener(target, event, callback) {
   onMounted(() => {
-    if (immediate) {
-      execute()
-    }
+    target.addEventListener(event, callback)
   })
 
+  // Ushbu composable qayerda chaqirilsa, o'sha joy yopilayotganda avtomatik o'zini tozalaydi
   onBeforeUnmount(() => {
-    isMounted = false
+    target.removeEventListener(event, callback)
   })
-
-  return { data, error, loading, execute }
 }
 ```
 
-### Intersection Observer Pattern
-
-```javascript
-// composables/useIntersectionObserver.js
-import { ref, onMounted, onBeforeUnmount } from 'vue'
-
-export function useIntersectionObserver(target, callback, options = {}) {
-  const isIntersecting = ref(false)
-  let observer = null
-
-  onMounted(() => {
-    const element = target.value
-
-    if (!element) return
-
-    observer = new IntersectionObserver(([entry]) => {
-      isIntersecting.value = entry.isIntersecting
-      callback?.(entry)
-    }, options)
-
-    observer.observe(element)
-  })
-
-  onBeforeUnmount(() => {
-    observer?.disconnect()
-  })
-
-  return { isIntersecting }
-}
-
-// Usage - Lazy loading
-<script setup>
-import { ref } from 'vue'
-import { useIntersectionObserver } from '@/composables/useIntersectionObserver'
-
-const containerRef = ref(null)
-const isLoaded = ref(false)
-
-const { isIntersecting } = useIntersectionObserver(
-  containerRef,
-  (entry) => {
-    if (entry.isIntersecting && !isLoaded.value) {
-      loadContent()
-      isLoaded.value = true
-    }
-  },
-  { threshold: 0.1 }
-)
-</script>
-```
-
-## Vue 2 vs Vue 3 Lifecycle
-
-| Vue 2 | Vue 3 Options API | Vue 3 Composition API |
-|-------|-------------------|----------------------|
-| beforeCreate | beforeCreate | setup() |
-| created | created | setup() |
-| beforeMount | beforeMount | onBeforeMount() |
-| mounted | mounted | onMounted() |
-| beforeUpdate | beforeUpdate | onBeforeUpdate() |
-| updated | updated | onUpdated() |
-| **beforeDestroy** | **beforeUnmount** | onBeforeUnmount() |
-| **destroyed** | **unmounted** | onUnmounted() |
-| errorCaptured | errorCaptured | onErrorCaptured() |
-| - | renderTracked | onRenderTracked() |
-| - | renderTriggered | onRenderTriggered() |
-| - | serverPrefetch | onServerPrefetch() |
-
-## Interview Savollari
-
-### 1. mounted va created farqi nima? Qachon qaysi birini ishlatish kerak?
-
-**Javob:**
-
-| Jihat | created | mounted |
-|-------|---------|---------|
-| DOM | Yo'q | Mavjud |
-| $el | undefined | DOM element |
-| $refs | Yo'q | Mavjud |
-| SSR | Ishlaydi | Ishlamaydi |
-
-**created** ishlatish:
-- API calls (DOM kerak emas)
-- Event bus subscription
-- Data initialization
-- SSR-friendly operations
-
-**mounted** ishlatish:
-- DOM manipulation
-- Third-party libraries (Chart.js, etc.)
-- Focus management
-- Scroll position
-- Canvas/WebGL
-
-```javascript
-// created - API call
-created() {
-  this.fetchData() // DOM kerak emas
-}
-
-// mounted - DOM kerak
-mounted() {
-  this.$refs.input.focus()
-  new Chart(this.$refs.chart, config)
-}
-```
-
-### 2. beforeUnmount da nimalarni cleanup qilish kerak?
-
-**Javob:**
-
-Memory leak'larni oldini olish uchun:
-
-1. **Timers**
-```javascript
-clearInterval(this.timer)
-clearTimeout(this.timeout)
-```
-
-2. **Event listeners**
-```javascript
-window.removeEventListener('resize', this.handler)
-document.removeEventListener('keydown', this.keyHandler)
-```
-
-3. **WebSocket connections**
-```javascript
-this.socket.close()
-```
-
-4. **Subscriptions**
-```javascript
-this.subscription.unsubscribe()
-this.eventBus.$off('event', this.handler)
-```
-
-5. **Third-party libraries**
-```javascript
-this.chart.destroy()
-this.map.remove()
-this.editor.dispose()
-```
-
-6. **AbortController**
-```javascript
-this.abortController.abort()
-```
-
-### 3. Composition API da beforeCreate va created yo'q. Nima uchun?
-
-**Javob:**
-
-`setup()` funksiyasi `beforeCreate` va `created` hook'lar orasida chaqiriladi va ularning vazifasini o'z ichiga oladi:
-
-```javascript
-// Options API
-export default {
-  beforeCreate() {
-    // Reactivity setup oldin
-  },
-  created() {
-    // Reactivity setup keyin
-  }
-}
-
-// Composition API
-export default {
-  setup() {
-    // Bu yerda hammasi tayyor
-    // - reactive state
-    // - computed
-    // - watchers
-    // - lifecycle hooks registration
-
-    // created kabi API call
-    fetchData()
-
-    return { /* ... */ }
-  }
-}
-```
-
-`setup()` da `this` yo'q, shuning uchun `beforeCreate` semantikasi mantiqiy emas.
-
-### 4. onRenderTracked va onRenderTriggered nima uchun kerak?
-
-**Javob:**
-
-Bu debug hook'lar **development mode** da ishlaydi va performance debugging uchun foydali:
-
-```javascript
-onRenderTracked((event) => {
-  // Qaysi dependency track qilinayotganini ko'rish
-  console.log('Tracked:', event.key, event.target)
-})
-
-onRenderTriggered((event) => {
-  // Qaysi dependency re-render trigger qilayotganini ko'rish
-  console.log('Triggered:', event.key, event.oldValue, '→', event.newValue)
-})
-```
-
-**Use cases:**
-- Unexpected re-renders topish
-- Performance bottlenecks aniqlash
-- Dependency graph tushunish
-
-### 5. KeepAlive bilan ishlashda activated/deactivated qachon kerak?
-
-**Javob:**
-
-`KeepAlive` component'ni cache qiladi (unmount qilmaydi). Shuning uchun `mounted`/`unmounted` chaqirilmaydi.
-
+Kompnentda ishlatilishi juda toza:
 ```vue
-<KeepAlive>
-  <component :is="currentTab" />
-</KeepAlive>
+<script setup>
+import { useEventListener } from './composables/useEventListener'
+
+// Tugadi! Biz endi buni o'chirish haqida o'ylamaymiz
+useEventListener(window, 'resize', () => {
+  console.log('Oyna o'zgardi')
+})
+</script>
 ```
 
-**activated** (cache'dan chiqqanda):
-- Data refresh qilish
-- Polling boshlash
-- Animation trigger
-- Scroll position restore
+### Intervyu Savollari (Qiyin daraja)
+**1. Vue 3 (Composition API) da nega `beforeCreate` va `created` hook'lari yo'q?**
+*Javob:* Chunki ularga ehtiyoj qolmagan. Composition APIdagi `<script setup>` (yoki `setup()` funksiyasi) ning o'zi aynan `beforeCreate` va `created` lar o'rtasidagi vaqtda ishga tushadi. Reactiv o'zgaruvchilarni e'lon qilish, dastlabki API zaproslarni (DOM kerak bo'lmagan so'rovlarni) bevosita `setup` ni o'zida yozib ketaveramiz. 
 
-**deactivated** (cache'ga ketayotganda):
-- Polling to'xtatish
-- Temporary resources cleanup
-- State save
-
-```javascript
-activated() {
-  // Tab ko'rinayotganda
-  this.startPolling()
-  this.scrollToSavedPosition()
-}
-
-deactivated() {
-  // Tab yashiringanda
-  this.stopPolling()
-  this.saveScrollPosition()
-}
-```
-
----
-
----
-
-## Eng Yaxshi Amaliyotlar (Best Practices)
-
-1. **Memory Leak (Xotira to'lib qolishi) ning oldini oling:** Agar siz `mounted` ichida `setInterval`, `window.addEventListener` yoki boshqa tashqi ob'ektlar ulagan bo'lsangiz, albatta ularni `unmounted` da o'chirib (clear) keting. Bo'lmasa dastur xotirani to'ldirib qo'yadi.
-2. **API so'rovlari `mounted` da qiling:** Garchand API so'rovlarni `created` da qilish mumkin bo'lsa ham, eng ishonchli joy `mounted` yoki Composition API dagi `onMounted` hisoblanadi. Bu ayniqsa Nuxt.js (SSR) bilan ishlaganda double-fetch xatolarini oldini oladi.
-3. **`updated` ni suiste'mol qilmang:** Odatda holat (state) o'zgarganda nimanidir o'zgartirish kerak bo'lsa, buning uchun `watch` (yoki `computed`) mosroq tushadi. `updated` har qanday holat o'zgarganda ishlayveradi, bu esa performance muammolariga olib kelishi mumkin.
+**2. Ilova ichidagi qaysidir Child (farzand) komponentda fatal xatolik yuz bersa (API yiqilsa, xato tushsa), butun sahifa "Oq ekran" bo'lib qolmasligi uchun nima qilinadi?**
+*Javob:* Buning uchun React dagi kabi "Error Boundaries" qilinadi. Vue da bu `onErrorCaptured` hook'i orqali amalga oshiriladi. Eng yuqori ota komponentda (masalan, `App.vue` da) shu hook yoziladi va u barcha farzandlarda chiqqan JS xatolarni tutib olib (Catch), ekranga chiroyli "Xatolik yuz berdi" degan fallback xabar chiqaradi. Kodda `return false` qilsa, o'sha xatolik Console ga tushib brauzerni qotirishini to'xtatadi.
 
 ---
 
 ## Xulosa
 
-| Hook (Options API) | Hook (Composition API) | Eng yaxshi foydalanish usuli |
-|--------------------|------------------------|------------------------------|
-| `created` | `setup()` ni o'zi | Komponent yaratilganda boshlang'ich logikani yuritish (DOM ga bog'liq bo'lmagan). |
-| `mounted` | `onMounted()` | Backend API'dan ma'lumot olish, DOM'ga to'g'ridan-to'g'ri bog'lanish (masalan: echarts, swiper). |
-| `updated` | `onUpdated()` | DOM o'zgarishini vizual debug qilish. Asosiy state o'zgarishlarini `watch` da tuting. |
-| `beforeUnmount` | `onBeforeUnmount()` | Kutish kerak bo'lmagan tozalash ishlari (event listeners, timers, intervals o'chirish). |
-
-Vue 3 da e'tibor bering: `beforeDestroy` va `destroyed` degan nomlar qolmagan, ular o'rniga `beforeUnmount` va `unmounted` ishlatiladi.
+| Hook (Options API) | Hook (Vue 3 / Composition) | Asosiy maqsadi |
+|--------------------|----------------------------|-----------------|
+| `created` | Shunchaki `setup()` ni o'zi | Komponent yaratildi (data bor, DOM hali yo'q). Boshlang'ich (kuchsiz) sozlamalar uchun. |
+| `mounted` | `onMounted()` | Komponent sahnaga chiqdi (DOM tayyor). **Asosiy API so'rovlarni qilish**, echarts kabi kutubxonalarni ulash uchun eng yaxshi joy. |
+| `updated` | `onUpdated()` | Agar sizga DOM qayta chizilganidan keyin nimanidir o'qish (masalan width) kerak bo'lsa ishlatiladi. Kuchsiz alternativalari `watch` hisoblanadi. |
+| `beforeDestroy` | `onBeforeUnmount()` | Kutish kerak bo'lmagan tozalash ishlari (event listeners, timers, intervals, webSockets uzish) ni yozish SHART bo'lgan joy. |
+| `errorCaptured` | `onErrorCaptured()` | Farzand komponentlardagi kutilmagan xatoliklarni ushlab, dasturni qotib qolishdan asrash uchun. |

@@ -2,170 +2,89 @@
 
 Zamonaviy web development uchun ilg'or HTML va CSS texnikalar.
 
+> [!IMPORTANT]
+> **Nima uchun muhim?**  
+> Dastlabki yillarda faqat "ishlaydigan" kod yozish yetarli bo'lsa, tajriba oshgani sari "sifatli va boshqarib bo'ladigan" kod yozish talab qilinadi. Advanced CSS — bu shunchaki chiroyli dizayn degani emas, u qanday qilib 60FPS animatsiyalar yasashni, kodni BEM orqali arxitektura qilishni va saytni barcha nogironligi bor insonlar (a11y) uchun moslashtirishni o'z ichiga oladi.
+
 ## Bo'lim tarkibi
 
 | # | Mavzu | Tavsif | Daraja |
 |---|-------|--------|--------|
-| 01 | [Flexbox](./01-flexbox.md) | Bir o'lchovli layout tizimi | Must Have |
+| 01 | [Flexbox](./01-flexbox.md) | Bir o'lchovli layout tizimi (Asos) | Must Have |
 | 02 | [CSS Grid](./02-grid.md) | Ikki o'lchovli layout tizimi | Must Have |
-| 03 | [Responsive Layouts](./03-responsive-layouts.md) | Adaptiv dizayn va media queries | Must Have |
-| 04 | [SCSS/Sass](./04-scss.md) | CSS preprocessor va metodologiya | Important |
-| 05 | [CSS Architecture](./05-css-architecture.md) | BEM, OOCSS, Atomic CSS | Important |
-| 06 | [Animations](./06-animations.md) | Transitions, keyframes, performance | Important |
-| 07 | [Accessibility](./07-accessibility.md) | WCAG, ARIA, screen readers | Must Have |
+| 03 | [Responsive Layouts](./03-responsive-layouts.md) | Adaptiv dizayn va media queries, Container Queries | Must Have |
+| 04 | [SCSS/Sass](./04-scss.md) | CSS preprocessor va uning imkoniyatlari | Important |
+| 05 | [CSS Architecture](./05-css-architecture.md) | BEM, OOCSS, Utility-first (Tailwind) qoidalari | Important |
+| 06 | [Animations](./06-animations.md) | Transitions, keyframes va Hardware Acceleration | Important |
+| 07 | [Accessibility (A11y)](./07-accessibility.md) | WCAG, ARIA, Screen readers, Keyboard Navigation | Must Have |
 
 ---
 
-## Nima uchun bu mavzular muhim?
-
-### 1. Layout Mastery (Flexbox + Grid)
-```
-Oddiy developer: margin, padding, position bilan kurashadi
-Senior developer: Flexbox va Grid bilan 5 daqiqada hal qiladi
-```
-
-Flexbox va Grid - zamonaviy CSS ning asosi. Float va clearfix davri tugadi.
-
-### 2. Responsive Design
-```
-2024 statistika:
-- Mobile traffic: 60%+
-- Tablet traffic: 10%
-- Desktop traffic: 30%
-
-Mobile-first approach = zamonaviy standart
-```
-
-### 3. CSS Architecture
-Katta loyihalarda CSS tezda boshqarib bo'lmaydigan holatga keladi:
-- 10,000+ qator CSS
-- Specificity wars
-- !important overuse
-- Dead code
-
-Yechim: BEM, OOCSS, yoki Atomic CSS metodologiyasi.
-
-### 4. Performance
-CSS animations GPU accelerated bo'lishi kerak:
-```css
-/* Sekin - har frame'da layout hisoblaydi */
-.bad {
-  animation: move 1s;
-}
-@keyframes move {
-  to { left: 100px; }
-}
-
-/* Tez - GPU ishlatadi */
-.good {
-  animation: move 1s;
-}
-@keyframes move {
-  to { transform: translateX(100px); }
-}
-```
-
-### 5. Accessibility
-- 15% odamlar nogironlikka ega
-- SEO uchun muhim
-- Legal requirement (ADA, WCAG)
-
----
-
-## Real-world Challenges
-
-Bu bo'limda quyidagi muammolarni hal qilishni o'rganasiz:
-
-### Challenge 1: Complex Layouts
-```
-Masala: Dashboard layout - sidebar, header, main content, footer
-Muammo: Turli screen sizes'da ishlashi kerak
-Yechim: CSS Grid + Flexbox kombinatsiyasi
-```
-
-### Challenge 2: Dark Mode
-```
-Masala: Light/dark theme support
-Muammo: 50+ rang, component-level va global
-Yechim: CSS Custom Properties + prefers-color-scheme
-```
-
-### Challenge 3: Retina Displays
-```
-Masala: Rasmlar blurred ko'rinadi
-Muammo: 1x, 2x, 3x pixel density
-Yechim: srcset, image-set(), vector graphics
-```
-
-### Challenge 4: Animation Performance
-```
-Masala: 60fps animations
-Muammo: Jank va stuttering
-Yechim: transform + opacity only, will-change
-```
-
----
-
-## O'rganish tartibi
+## O'rganish tartibi (Roadmap)
 
 ```mermaid
 graph TD
-    subgraph Hafta_1[1-Hafta]
+    subgraph Asosiy_Layout
         direction TB
-        F[Flexbox<br>1-2 kun] --> G[Grid<br>2-3 kun] --> R[Responsive<br>1-2 kun]
+        F[1. Flexbox] --> G[2. CSS Grid] --> R[3. Responsive Layouts]
     end
     
-    subgraph Hafta_2[2-Hafta]
+    subgraph Arxitektura
         direction TB
-        S[SCSS<br>1-2 kun] --> A[Architecture<br>1 kun] --> AN[Animations<br>1-2 kun] --> ACC[Accessibility<br>1 kun]
+        S[4. SCSS/Sass] --> A[5. CSS Architecture] 
     end
     
-    Hafta_1 --> Hafta_2
+    subgraph Advanced_Mavzular
+        direction TB
+        AN[6. Animations] --> ACC[7. Accessibility]
+    end
+    
+    Asosiy_Layout --> Arxitektura --> Advanced_Mavzular
 ```
 
 ---
 
-## Amaliy mashqlar
+## Junior, Middle, Senior - Nimalarni bilishi kerak?
 
-Har bo'limda quyidagi mashqlar mavjud:
+### 🟢 Junior (Ishni bajaruvchi)
+- Elementlarni o'rtaga keltirish uchun faqat **Flexbox** ishlata oladi.
+- Asosiy **media query** yordamida telefon va kompyuterga moslashuvchan (Responsive) sayt yoza oladi.
+- CSS da hover effektlari uchun oddiy **transition** bera oladi.
+- Rasmlarga ko'r-ko'rona `alt` atributini qo'shib ketadi.
 
-1. **Code Examples** - To'g'ri va noto'g'ri yondashuvlar
-2. **Real Components** - Button, Card, Modal, Navigation
-3. **Full Layouts** - Dashboard, Landing page, E-commerce
-4. **Debugging** - DevTools bilan ishlash
+### 🟡 Middle (Muammolarni tahlil qiluvchi)
+- Ikkita o'lchamli (ustun va qatorli) murakkab komponentlarni yasash uchun **CSS Grid** dan qo'rqmay foydalanadi.
+- **SCSS** orqali `mixins` va o'zgaruvchilarni to'g'ri bog'lab takroriy kodni (DRY) kamaytiradi.
+- Kodini doimiy ravishda **BEM** (Block__Element--Modifier) standarti bo'yicha yozadi.
+- Murakkab harakatlar uchun `@keyframes` va to'g'ri `timing-function` lar tanlaydi.
+- Klaviaturada ishlovchilar uchun `:focus-visible` larni esdan chiqarmaydi va contrast tekshiradi.
+
+### 🔴 Senior (Arxitektura quruvchi va Optimallashtiruvchi)
+- Qachon Grid va qachon Flex kerakligini 1 soniyada aniqlaydi. Eski brauzerlar muammosidan qochish uchun o'rinbosar texnikalar yozadi (Fallbacks).
+- Loyiha uchun maxsus dizayn tokenlarini (Design Tokens) ishlab chiqadi va **CSS Variables** bilan Theming (Dark/Light mode) tizimini quradi.
+- **Hardware Acceleration** ni (GPU render) biladi, Layout va Paint ni trigger qiluvchi animatsiyalar yozmaydi (faqat `transform` va `opacity`). `will-change` ni ongli ishlatadi.
+- **ARIA** hossalari va Screen Reader larning qanday ishlashini to'liq tushunadi. Component larda Focus Trap (qopqon) yozishni biladi. Ekrani kichraytirib kattalashtirib tekshiradigan accessibility auditorlik qobiliyatiga ega bo'ladi.
 
 ---
 
-## Interview Preparation
-
-Bu bo'limdagi interview savollari:
-- Flexbox vs Grid - qachon qaysi birini ishlatish?
-- CSS specificity qanday ishlaydi?
-- BEM nima va nima uchun kerak?
-- Qanday qilib 60fps animation qilish mumkin?
-- WCAG AA va AAA farqi nima?
+## Interview Preparation (Asosiy savollar)
+1. BEM qanday metodologiya va u Specificity (kuch) mojarosini qanday hal qiladi?
+2. `rem`, `em`, `vh/vw` o'lchovlarining farqi va CSS Grid dagi `fr` birligi nima?
+3. Nima uchun `width: 200px` ni animatsiya qilish asab buzishga, `transform: scaleX(2)` esa silliqlikka sabab bo'ladi? (Reflow va Repaint).
+4. `aria-hidden="true"` berilgan elementni ko'rgan Screen Reader nima qiladi? `display: none` dan farqi bormi?
+5. Container Queries (`@container`) nimasi bilan Media Queries (`@media`) dan kuchliroq va u nimalarni hal qila oladi?
 
 ---
 
-## Foydali resurslar
+## Foydali Resurslar
 
-### Documentation
-- [MDN CSS](https://developer.mozilla.org/en-US/docs/Web/CSS)
-- [CSS Tricks](https://css-tricks.com/)
-- [Web.dev CSS](https://web.dev/learn/css/)
-
-### Tools
-- [Flexbox Froggy](https://flexboxfroggy.com/) - Flexbox o'yin
-- [Grid Garden](https://cssgridgarden.com/) - Grid o'yin
-- [Can I Use](https://caniuse.com/) - Browser support
-
-### Design Systems
-- [Tailwind CSS](https://tailwindcss.com/)
-- [Open Props](https://open-props.style/)
-- [Radix Colors](https://www.radix-ui.com/colors)
+- [A Complete Guide to Flexbox (CSS-Tricks)](https://css-tricks.com/snippets/css/a-guide-to-flexbox/)
+- [A Complete Guide to Grid (CSS-Tricks)](https://css-tricks.com/snippets/css/complete-guide-grid/)
+- [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/)
+- [TailwindCSS Documentation](https://tailwindcss.com/docs) (Utility-first CSS uchun standart)
 
 ---
 
 ## Keyingi qadam
 
-Flexbox bilan boshlang: [01-flexbox.md](./01-flexbox.md)
+CSS'ning eng asosiysi bo'lgan Flexbox bilan boshlang: [01-flexbox.md](./01-flexbox.md)
