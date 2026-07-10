@@ -48,7 +48,7 @@ document.getElementById('name').innerText = user.name;
 ## 🟡 Middle (Amaliyot va Detallar)
 
 ### React va Vue da XSS
-Zamonaviy Frontend freymvorklar (React, Vue, Angular) by-default XSS ga qarshi himoyaga ega. Agar siz oddiygina `<code v-pre>{{ user.name }}</code>` yoki `<code v-pre>{user.name}</code>` qilib bossangiz, ular avtomatik ravishda HTML escape (zararsizlantirish) qiladi.
+Zamonaviy Frontend freymvorklar (React, Vue, Angular) by-default XSS ga qarshi himoyaga ega. Agar siz oddiygina `\{\{ user.name \}\}` yoki `{user.name}` qilib bossangiz, ular avtomatik ravishda HTML escape (zararsizlantirish) qiladi.
 
 Biroq, ba'zida bizga haqiqatan ham backenddan kelgan HTML kerak bo'lib qoladi (Masalan blog post, WYSIWYG editor matni). Shunda xavfsizlik teshigi yuzaga keladi:
 
@@ -128,4 +128,4 @@ Agar sahifangizda yuqoridagi CSP headerni yuborsangiz, Brauzer quyidagilarni ama
 | **Reflected XSS**| Maxsus ssilka orqali yuboriladi va server javobida aks etadi | URL parametrlarini to'g'ridan-to'g'ri HTML ga yozmaslik |
 | **DOM-based XSS**| Brauzerda JS orqali (innerHTML) DOM o'zgarganda ishlaydi | `innerHTML` o'rniga `textContent` ishlatish, DOMPurify qo'llash |
 
-XSS juda eski, lekin hamon xavfli bo'lgan hujum turi hisoblanadi. Zamonaviy frameworklar (Vue, React) by-default ko'p himoyalarni o'z ichiga oladi (masalan `<code v-pre>{{ text }}</code>` orqali matnlar avtomatik HTML escape qilinadi). Lekin `v-html` (Vue) yoki `dangerouslySetInnerHTML` (React) ishlatilganda baribir hushyor bo'lish kerak. Himoyani to'liq ta'minlash uchun Sanitization, HTTPOnly Cookies va CSP kabi qo'shimcha choralardan foydalaning.
+XSS juda eski, lekin hamon xavfli bo'lgan hujum turi hisoblanadi. Zamonaviy frameworklar (Vue, React) by-default ko'p himoyalarni o'z ichiga oladi (masalan `\{\{ text \}\}` orqali matnlar avtomatik HTML escape qilinadi). Lekin `v-html` (Vue) yoki `dangerouslySetInnerHTML` (React) ishlatilganda baribir hushyor bo'lish kerak. Himoyani to'liq ta'minlash uchun Sanitization, HTTPOnly Cookies va CSP kabi qo'shimcha choralardan foydalaning.
