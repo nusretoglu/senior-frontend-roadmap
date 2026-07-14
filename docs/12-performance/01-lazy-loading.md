@@ -36,20 +36,22 @@ Biz shunchaki tepadan statik olib tashlab, kerakli joyda o'ziga funktsiya yozib 
 ```javascript
 // YAXSHI USUL: Foydalanuvchi qaysi silkani bossa, O'SHA payt yuklanadi
 const routes = [
-  { 
-    path: '/', 
-    component: () => import('./pages/HomePage.vue') 
+  {
+    path: '/',
+    component: () => import('./pages/HomePage.vue')
   },
-  { 
-    path: '/about', 
-    component: () => import('./pages/AboutPage.vue') 
+  {
+    path: '/about',
+    component: () => import('./pages/AboutPage.vue')
   },
-  { 
-    path: '/admin', 
-    component: () => import('./pages/AdminDashboard.vue') 
+  {
+    path: '/admin',
+    component: () => import('./pages/AdminDashboard.vue')
   }
 ];
 ```
+
+<TryIt type="vue" href="https://stackblitz.com/edit/vue-router-lazy-loading?file=src/router/index.js" label="Vue Router Lazy Loading" />
 
 Bunga **Route-based Lazy Loading** deyiladi. Bu sizni boshlang'ich yuklanish balosidan (initial load delay) 80% qutqaradi.
 
@@ -74,11 +76,13 @@ const showChart = ref(false);
 
 <template>
   <button @click="showChart = true">Grafikni Ko'rsatish</button>
-  
+
   <!-- "showChart" true bo'lgandagina js fayl yuklanishni boshlaydi -->
   <HeavyChart v-if="showChart" />
 </template>
 ```
+
+<TryIt type="vue" href="https://stackblitz.com/edit/vue-define-async-component?file=src/App.vue" label="defineAsyncComponent sinab ko'ring" />
 
 ### 2. Module Lazy Loading (Dynamic Import)
 Kutubxonalar juda og'ir. Masalan Excel generate qiluvchi kutubxona saytingizni "o'ldirishi" mumkin. Shuning uchun kutubxonalarni ham `async/await` qilib ichkarida tortamiz.
@@ -86,14 +90,16 @@ Kutubxonalar juda og'ir. Masalan Excel generate qiluvchi kutubxona saytingizni "
 ```javascript
 async function exportToExcel(data) {
   // Faqat tugma bosilganda o'sha og'ir xlsx kutubxonasi tarmoqdan yuklanadi
-  const XLSX = await import('xlsx'); 
-  
+  const XLSX = await import('xlsx');
+
   const worksheet = XLSX.utils.json_to_sheet(data);
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Report');
   XLSX.writeFile(workbook, 'report.xlsx');
 }
 ```
+
+<TryIt href="https://stackblitz.com/edit/js-dynamic-import-xlsx?file=index.js" label="Dynamic Import sinab ko'ring" />
 
 ### 3. Image Lazy Loading
 Juda ko'p rasmlar bor ro'yxatda barcha rasmlar pastda bo'lsa ham birga yuklanaveradi. HTML ning o'zi buning oson yechimini bergan:
@@ -137,6 +143,8 @@ document.querySelectorAll('img[data-src]').forEach(img => {
   observer.observe(img);
 });
 ```
+
+<TryIt href="https://stackblitz.com/edit/js-intersection-observer-lazy?file=index.js" label="Intersection Observer sinab ko'ring" />
 
 ### Preloading vs Prefetching
 Lazy load'ning muammosi bor: siz u faylni faqat click qilganingizda, keyin serverdan ola boshlaydi va yana 2 soniya o'ylab (Loading bo'lib) qoladi. Eager qilsangiz sayt tezligi yomonlashgan edi. *Oltin oraliq nima?*

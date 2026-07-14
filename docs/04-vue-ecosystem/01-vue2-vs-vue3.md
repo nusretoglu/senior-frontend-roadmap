@@ -32,6 +32,8 @@ Vue 2 da har bir komponent faqat bitta `<div>` (ona element) ichiga o'ralgan bo'
 </template>
 ```
 
+<TryIt type="vue" href="https://play.vuejs.org/#eNp9kE1qwzAQha9iZhUHnLhZBkqhhS66aNddyJKcTGJJSCO3IfgGPURP0oN0Jv5J0kCX8+Z9M8OrYOO0g4rZ4MjZoKMwkUGIHcJOhAxxhEowkbqxqLo2KKZUiuAA3osYcYIy4cF6sJZh1mQcZskj+kR+N5Y47KAk1DElkCTvuNFpQDJLGrj/zM8PxwQrnBKnTK7dP+n1j7/pA8m+Q7DfWUO2TqmINqF9OHMVrNmLH6fYq/QNu9VVCm95xWXRFf+/uI8fhEv3bXqwobT8T9+P0g==" label="Vue 3 Fragmentni sinab ko'ring" />
+
 ---
 
 ## 🟡 Middle (Amaliyot va Detallar)
@@ -55,6 +57,8 @@ function oshirish() { // Method
 }
 </script>
 ```
+
+<TryIt type="vue" href="https://play.vuejs.org/#eNp9UU1rwzAM/SvCl7aQpIdeDKVs0MMO2253xYmdOHVs40+6EPLfJztpug52svT09PT0tGJX59xsCQk2Ny4oyXWCMFWOiFIVGFOsEaVKqjhEoZRNEHWg7LzCKWkYkwVnTMJWBJ0h5xYJvCIR7J0xJG4xBzhk4WBE+G7JCQpNKOgFIdPfIIVb6t3MzPVHXrz4Tpnrfx4LDLNA/D7EyC5Cp0Loy8C/L9GRa7e+QIqL1wZrBdpAxWG3QoYBm45jcLKedNQ7Tb4g0N54VDkCpK8qfI/oJqaL0JqbVoTm8T4C5mY=" label="Composition API sinab ko'ring" />
 
 ### Ko'p uchraydigan xatolar va muammolar (Pitfalls)
 **Lifecycle (Hayot sikli) hook larning o'zgarishi**

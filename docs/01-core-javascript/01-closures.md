@@ -23,21 +23,23 @@ Closure asosan ma'lumotlarni tashqi tomondan ruxsatsiz o'zgartirilishidan himoya
 ```javascript
 function tashqiFunksiya() {
   // Bu o'zgaruvchi tashqi muhitda yashaydi
-  const xabar = "Salom, Junior!"; 
+  const xabar = "Salom, Junior!";
 
   function ichkiFunksiya() {
     // Ichki funksiya tashqaridagi o'zgaruvchiga yetib boradi
-    console.log(xabar); 
+    console.log(xabar);
   }
 
   return ichkiFunksiya;
 }
 
-const meningFunksiyam = tashqiFunksiya(); 
+const meningFunksiyam = tashqiFunksiya();
 // tashqiFunksiya o'z ishini tugatdi, lekin "xabar" xotirada qoldi
 
 meningFunksiyam(); // "Salom, Junior!" chiqadi
 ```
+
+<TryIt href="https://stackblitz.com/edit/js-closure-basic?file=index.js" label="Closure asosini sinab ko'ring" />
 
 ---
 
@@ -63,6 +65,9 @@ console.log(counter1()); // 1
 console.log(counter1()); // 2
 console.log(counter2()); // 1 (Mutlaqo alohida xotira muhiti!)
 ```
+
+<TryIt href="https://stackblitz.com/edit/js-closure-counter?file=index.js" label="Counter misolini sinab ko'ring" />
+
 > E'tibor bering: `counter1` va `counter2` o'zining alohida yopiq muhitlariga ega.
 
 ### Keng tarqalgan real use-caselar
@@ -89,6 +94,8 @@ console.log(userModule.users); // undefined (Himoyalangan!)
 console.log(userModule.getUserCount()); // 1
 ```
 
+<TryIt href="https://stackblitz.com/edit/js-module-pattern?file=index.js" label="Module Pattern sinab ko'ring" />
+
 **2. Memoization (Kesh kiritish)**
 Og'ir hisoblashlarni eslab qolish uchun:
 ```javascript
@@ -102,6 +109,8 @@ function memoize(fn) {
   }
 }
 ```
+
+<TryIt href="https://stackblitz.com/edit/js-memoization?file=index.js" label="Memoization sinab ko'ring" />
 
 ### Ko'p uchraydigan xatolar va muammolar (Pitfalls)
 
@@ -118,6 +127,8 @@ for (let i = 0; i < 3; i++) {
 }
 ```
 
+<TryIt href="https://stackblitz.com/edit/js-loop-closure?file=index.js" label="var vs let farqini ko'ring" />
+
 **2. Stale Closure (React'da Eskirgan yopilish)**
 ```javascript
 function Counter() {
@@ -126,7 +137,7 @@ function Counter() {
   useEffect(() => {
     const timer = setInterval(() => {
       // count doim 0 bo'lib qoladi! (Stale closure)
-      setCount(count + 1); 
+      setCount(count + 1);
     }, 1000);
     return () => clearInterval(timer);
   }, []); // Bo'sh massiv - closure yaratilgandagi count(0) ga qotib qolgan.
@@ -134,6 +145,8 @@ function Counter() {
   // Yechim: setCount(prevCount => prevCount + 1)
 }
 ```
+
+<TryIt href="https://stackblitz.com/edit/react-stale-closure?file=src/App.tsx" label="Stale Closure muammosini ko'ring" />
 
 ## Eng Yaxshi Amaliyotlar (Best Practices)
 - **Globalni ifloslantirmang:** Vaqtinchalik yoki o'zgaruvchan holatlarni (state) `window`ga yozgandan ko'ra closure yordamida yashiring.
@@ -156,9 +169,9 @@ Closure'larni ehtiyotsizlik bilan yaratish **Memory Leak** (Xotira sizishi) ga s
 // Xavfli Memory Leak:
 function createHandler() {
   const bigData = new Array(1000000).fill('Heavy Object');
-  
+
   return function handler(event) {
-    // Agar bu handler butun dastur ishlashi davomida yashasa, 
+    // Agar bu handler butun dastur ishlashi davomida yashasa,
     // bigData hech qachon GC tomonidan tozalanmaydi.
     console.log("Event tushdi!", bigData.length);
   };
@@ -174,6 +187,9 @@ function createHandlerOptimized() {
   };
 }
 ```
+
+<TryIt href="https://stackblitz.com/edit/js-memory-leak-closure?file=index.js" label="Memory Leak misolini sinab ko'ring" />
+
 *Advanced Level yechimi:* Mod zamonaviy JS da **`WeakRef`** va **`FinalizationRegistry`** yordamida memory-safe closure'lar yozish mumkin. 
 
 ### Arxitektura Patternlari (Intervyu tayyorgarligi)
@@ -185,6 +201,8 @@ const apiConnect = (baseURL) => (endpoint) => (params) => {
 const userAPI = apiConnect('https://api.com/v1')('users');
 userAPI({ id: 1 }).then(res => res.json()); // https://api.com/v1/users?id=1
 ```
+
+<TryIt href="https://stackblitz.com/edit/js-currying-api?file=index.js" label="Currying API misolini sinab ko'ring" />
 
 ### Vizualizatsiya (Leksik Zanjir)
 ```mermaid
